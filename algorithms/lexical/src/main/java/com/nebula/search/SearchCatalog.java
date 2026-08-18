@@ -54,6 +54,13 @@ public final class SearchCatalog {
         return trustSearchEngine.search(query, limit, nowEpochMillis);
     }
 
+    public List<SearchResult> searchTrustAware(String query, int limit, long nowEpochMillis,
+                                               double lexicalWeight, double authorityWeight,
+                                               double freshnessWeight) {
+        return new TrustAwareSearchEngine(searchEngine, trustMetadata, new FreshnessScorer(30.0),
+                lexicalWeight, authorityWeight, freshnessWeight).search(query, limit, nowEpochMillis);
+    }
+
     public int documentCount() {
         return index.documentCount();
     }
