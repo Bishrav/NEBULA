@@ -18,6 +18,7 @@ The lexical index is the first search-engine component in NEBULA.
 - Search catalog that joins ingestion and lexical retrieval
 - HTTP API for indexing Markdown and querying ranked results
 - Frequency-ranked prefix autocomplete with a trie
+- Delta and variable-byte posting-list compression
 
 The initial analyzer intentionally does not remove stop words or stem terms. Those policies will be evaluated against a labelled query set rather than introduced without evidence.
 
@@ -73,3 +74,7 @@ GET /v1/suggest?q=serv&limit=10
 ```
 
 Suggestions are ranked by observed term frequency and then by a stable lexical tie-break.
+
+## Compression
+
+Posting positions and document ordinals use delta encoding followed by variable-byte encoding. The codec has a correctness round-trip test and records the compact representation before segment persistence is introduced.
