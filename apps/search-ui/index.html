@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NEBULA Search Workspace</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">NEBULA / RESEARCH PREVIEW</p>
+        <h1>Find the evidence behind an engineering answer.</h1>
+        <p class="lede">Search technical knowledge with transparent lexical, semantic, and hybrid ranking signals.</p>
+      </div>
+      <div class="status-pill"><span id="status-dot"></span><span id="status-text">Ready</span></div>
+    </header>
+
+    <section class="search-panel" aria-label="Search controls">
+      <form id="search-form">
+        <label class="search-box">
+          <span class="sr-only">Search query</span>
+          <input id="query" name="query" autocomplete="off" placeholder="Ask about deployment rollback, shard failure, or retrieval..." required>
+          <button type="submit">Search</button>
+        </label>
+        <div class="controls">
+          <label>API endpoint <input id="api-base" value="http://127.0.0.1:8082"></label>
+          <label>Ranking mode
+            <select id="mode">
+              <option value="">BM25 lexical</option>
+              <option value="hybrid">Hybrid lexical + semantic</option>
+              <option value="semantic">Semantic exact</option>
+              <option value="hnsw">Semantic HNSW</option>
+              <option value="trust">Trust-aware</option>
+            </select>
+          </label>
+          <label>Results <input id="limit" type="number" min="1" max="20" value="5"></label>
+        </div>
+      </form>
+      <div class="examples" aria-label="Example queries">
+        <span>Try:</span>
+        <button data-query="deployment rollback">deployment rollback</button>
+        <button data-query="shard failure">shard failure</button>
+        <button data-query="hybrid retrieval">hybrid retrieval</button>
+      </div>
+    </section>
+
+    <section class="insight-strip">
+      <div><strong id="result-count">0</strong><span>results</span></div>
+      <div><strong id="elapsed">—</strong><span>response time</span></div>
+      <div class="insight-copy"><strong>Research note</strong><span>Every result exposes the signals that influenced its rank.</span></div>
+    </section>
+
+    <section id="results" class="results" aria-live="polite">
+      <div class="empty-state"><span class="empty-icon">✦</span><h2>Search your engineering knowledge</h2><p>Start with a question or choose an example above.</p></div>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
