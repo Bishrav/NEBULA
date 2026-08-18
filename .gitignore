@@ -1,0 +1,29 @@
+# Build output
+target/
+out/
+build/
+dist/
+
+# IDE and OS files
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Local data and secrets
+.env
+.env.*
+data/
+logs/
+*.local
+
+# Python
+__pycache__/
+.pytest_cache/
+.venv/
+venv/
+
+# Generated evaluation artifacts
+reports/generated/
+benchmarks/results/
