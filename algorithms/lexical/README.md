@@ -21,6 +21,7 @@ The lexical index is the first search-engine component in NEBULA.
 - Delta and variable-byte posting-list compression
 - Versioned immutable index segments with atomic snapshot writes
 - Multi-segment restoration after process restart
+- Precision@k, Recall@k, MRR, and NDCG evaluation harness
 
 The initial analyzer intentionally does not remove stop words or stem terms. Those policies will be evaluated against a labelled query set rather than introduced without evidence.
 
@@ -86,3 +87,7 @@ Posting positions and document ordinals use delta encoding followed by variable-
 `IndexSegmentWriter` persists document metadata, terms, postings, and compressed positions in a versioned binary segment. It writes to a temporary file and atomically replaces the target when the platform supports atomic moves. `IndexSegmentReader` validates the segment header and reconstructs a read-only snapshot.
 
 `IndexSegmentLoader` loads all `.idx` files in lexical filename order into one searchable index. A restored catalog can be created with `SearchCatalog.fromSegmentDirectory(directory)` or served through `LexicalSearchHttpServer.createFromSegmentDirectory(...)`.
+
+## Evaluation
+
+The evaluation package supports versioned graded queries and reports macro-averaged Precision@k, Recall@k, MRR, and NDCG. The starter corpus and runner are documented in [`benchmarks/evaluation`](../../../benchmarks/evaluation/README.md).

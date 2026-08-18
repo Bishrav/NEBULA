@@ -1,0 +1,9 @@
+# NEBULA evaluation dataset v1
+# Format: query_id|query|source_path:relevance_grade;source_path:relevance_grade
+query_id|query|judgments
+q1|query coordinator|architecture.md:3
+q2|deployment rollback|runbook.md:3
+q3|hybrid retrieval|retrieval.md:3
+q4|shard failure|operations.md:3;architecture.md:1
+q5|"query coordinator"|architecture.md:3
+q6|vector database| 
