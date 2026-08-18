@@ -1,6 +1,7 @@
 package com.nebula.evaluation;
 
 import com.nebula.search.SearchCatalog;
+import com.nebula.ingestion.DocumentRecord;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -25,6 +26,7 @@ public final class EvaluationRunner {
         Path corpus = Paths.get(args[0]);
         Path queryFile = Paths.get(args[1]);
         SearchCatalog catalog = new SearchCatalog();
+        List<DocumentRecord> corpusRecords = new ArrayList<>();
         List<Path> documents;
         try (java.util.stream.Stream<Path> stream = Files.walk(corpus)) {
             documents = stream.filter(path -> Files.isRegularFile(path) && path.toString().endsWith(".md"))
@@ -33,10 +35,11 @@ public final class EvaluationRunner {
         }
         for (Path document : documents) {
             String sourcePath = corpus.relativize(document).toString().replace('\\', '/');
-            catalog.indexMarkdown(sourcePath, new String(Files.readAllBytes(document), StandardCharsets.UTF_8));
+            corpusRecords.add(catalog.indexMarkdown(sourcePath,
+                    new String(Files.readAllBytes(document), StandardCharsets.UTF_8)));
         }
 
-        if (args.length == 3) {
+        if (args.length >= 3) {
             for (com.nebula.search.DocumentTrustMetadata metadata
                     : new TrustMetadataDatasetLoader().load(Paths.get(args[2]), EVALUATION_NOW)) {
                 catalog.registerTrustMetadata(metadata);
@@ -75,7 +78,12 @@ public final class EvaluationRunner {
                 }
             }
             new BenchmarkReportWriter().write(Paths.get(args[3]), catalog.documentCount(), queries.size(), comparison, errors);
+            Path embeddingReport = Paths.get(args[3]).resolveSibling("embedding-ablation.md");
+            EmbeddingAblationReport ablation = new EmbeddingAblationEvaluator()
+                    .evaluate(corpusRecords, queries, 5);
+            new EmbeddingAblationReportWriter().write(embeddingReport, catalog.documentCount(), queries.size(), ablation);
             System.out.println("report=" + Paths.get(args[3]).toAbsolutePath());
+            System.out.println("embedding_report=" + embeddingReport.toAbsolutePath());
         }
     }
 }
