@@ -19,6 +19,8 @@ public final class SearchCatalog {
     private final EmbeddingModel embeddingModel;
     private final VectorIndex vectorIndex;
     private final SemanticSearchEngine semanticSearchEngine;
+    private final HnswIndex hnswIndex;
+    private final HnswSemanticSearchEngine hnswSearchEngine;
     private PageRankResult pageRank;
 
     public SearchCatalog() {
@@ -35,10 +37,14 @@ public final class SearchCatalog {
         this.linkGraph = new LinkGraph();
         this.embeddingModel = new HashingEmbeddingModel(128);
         this.vectorIndex = new VectorIndex(embeddingModel.dimension());
+        this.hnswIndex = new HnswIndex(embeddingModel.dimension(), 8, 64, 42L);
         for (IndexedDocument document : index.documents()) {
-            vectorIndex.add(document.getDocument(), embeddingModel.embed(document.getDocument().getText()), embeddingModel.modelId());
+            double[] vector = embeddingModel.embed(document.getDocument().getText());
+            vectorIndex.add(document.getDocument(), vector, embeddingModel.modelId());
+            hnswIndex.add(document.getDocument(), vector, embeddingModel.modelId());
         }
         this.semanticSearchEngine = new SemanticSearchEngine(embeddingModel, vectorIndex);
+        this.hnswSearchEngine = new HnswSemanticSearchEngine(embeddingModel, hnswIndex, 32);
         for (IndexedDocument document : index.documents()) linkGraph.add(document.getDocument());
         this.pageRank = PageRank.compute(linkGraph);
     }
@@ -52,7 +58,9 @@ public final class SearchCatalog {
         DocumentRecord document = ingestor.ingest(sourcePath, content);
         if (index.add(document)) {
             for (String term : TextAnalyzer.analyze(document.getText())) autocomplete.addTerm(term, 1);
-            vectorIndex.add(document, embeddingModel.embed(document.getText()), embeddingModel.modelId());
+            double[] vector = embeddingModel.embed(document.getText());
+            vectorIndex.add(document, vector, embeddingModel.modelId());
+            hnswIndex.add(document, vector, embeddingModel.modelId());
             linkGraph.add(document);
             pageRank = PageRank.compute(linkGraph);
         }
@@ -65,6 +73,10 @@ public final class SearchCatalog {
 
     public List<SearchResult> semanticSearch(String query, int limit) {
         return semanticSearchEngine.search(query, limit);
+    }
+
+    public List<SearchResult> hnswSemanticSearch(String query, int limit) {
+        return hnswSearchEngine.search(query, limit);
     }
 
     public void registerTrustMetadata(DocumentTrustMetadata metadata) {

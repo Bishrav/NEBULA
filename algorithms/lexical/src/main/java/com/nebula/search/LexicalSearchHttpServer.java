@@ -107,6 +107,8 @@ public final class LexicalSearchHttpServer {
                 results = catalog.searchTrustAware(query, limit, System.currentTimeMillis());
             } else if ("semantic".equalsIgnoreCase(parameters.get("mode"))) {
                 results = catalog.semanticSearch(query, limit);
+            } else if ("hnsw".equalsIgnoreCase(parameters.get("mode"))) {
+                results = catalog.hnswSemanticSearch(query, limit);
             } else {
                 results = catalog.search(query, limit);
             }
