@@ -26,6 +26,10 @@ public final class LexicalSearchHttpServerTest {
             check(trustSearch.status == 200, "trust-aware search responds");
             check(trustSearch.body.contains("signal:authority"), "trust signals are returned");
 
+            Response semanticSearch = request("GET", base + "/v1/search?q=consistent%20hashing&mode=semantic&limit=5", null, null);
+            check(semanticSearch.status == 200, "semantic search responds");
+            check(semanticSearch.body.contains("signal:semantic"), "semantic signal is returned");
+
             Response suggestions = request("GET", base + "/v1/suggest?q=sha&limit=5", null, null);
             check(suggestions.status == 200, "suggestions respond");
             check(suggestions.body.contains("sharding"), "suggestions return indexed terms");

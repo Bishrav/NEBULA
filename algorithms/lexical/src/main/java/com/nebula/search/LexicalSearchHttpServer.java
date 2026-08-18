@@ -102,9 +102,14 @@ public final class LexicalSearchHttpServer {
                 respond(exchange, 400, "{\"error\":\"limit must be between 1 and 100\"}");
                 return;
             }
-            List<SearchResult> results = "trust".equalsIgnoreCase(parameters.get("mode"))
-                    ? catalog.searchTrustAware(query, limit, System.currentTimeMillis())
-                    : catalog.search(query, limit);
+            List<SearchResult> results;
+            if ("trust".equalsIgnoreCase(parameters.get("mode"))) {
+                results = catalog.searchTrustAware(query, limit, System.currentTimeMillis());
+            } else if ("semantic".equalsIgnoreCase(parameters.get("mode"))) {
+                results = catalog.semanticSearch(query, limit);
+            } else {
+                results = catalog.search(query, limit);
+            }
             respond(exchange, 200, searchJson(query, results));
         }
     }

@@ -24,6 +24,7 @@ The lexical index is the first search-engine component in NEBULA.
 - Precision@k, Recall@k, MRR, and NDCG evaluation harness
 - Freshness and source-authority trust-aware reranking
 - Document link graph and PageRank authority signal
+- Exact brute-force semantic retrieval baseline
 
 The initial analyzer intentionally does not remove stop words or stem terms. Those policies will be evaluated against a labelled query set rather than introduced without evidence.
 
@@ -92,6 +93,14 @@ Documents indexed through the HTTP API may provide:
 - `X-Last-Verified-Epoch-Millis`: verification timestamp
 
 Trust-aware results include `signal:lexical`, `signal:authority`, `signal:pagerank`, and `signal:freshness` explanations. Baseline BM25 remains the default mode.
+
+Semantic retrieval is available as an experimental baseline:
+
+```text
+GET /v1/search?q=deployment%20gateway&mode=semantic&limit=10
+```
+
+The current model is deterministic feature hashing (`hashing-v1-d128`). It is intentionally transparent and serves as the correctness baseline for a future learned embedding model and HNSW index.
 
 ## Compression
 

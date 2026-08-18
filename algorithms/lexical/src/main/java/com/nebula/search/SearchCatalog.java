@@ -16,6 +16,9 @@ public final class SearchCatalog {
     private final TrustAwareSearchEngine trustSearchEngine;
     private final AutocompleteTrie autocomplete;
     private final LinkGraph linkGraph;
+    private final EmbeddingModel embeddingModel;
+    private final VectorIndex vectorIndex;
+    private final SemanticSearchEngine semanticSearchEngine;
     private PageRankResult pageRank;
 
     public SearchCatalog() {
@@ -30,6 +33,12 @@ public final class SearchCatalog {
         this.trustSearchEngine = new TrustAwareSearchEngine(searchEngine, trustMetadata);
         this.autocomplete = new AutocompleteTrie();
         this.linkGraph = new LinkGraph();
+        this.embeddingModel = new HashingEmbeddingModel(128);
+        this.vectorIndex = new VectorIndex(embeddingModel.dimension());
+        for (IndexedDocument document : index.documents()) {
+            vectorIndex.add(document.getDocument(), embeddingModel.embed(document.getDocument().getText()), embeddingModel.modelId());
+        }
+        this.semanticSearchEngine = new SemanticSearchEngine(embeddingModel, vectorIndex);
         for (IndexedDocument document : index.documents()) linkGraph.add(document.getDocument());
         this.pageRank = PageRank.compute(linkGraph);
     }
@@ -43,6 +52,7 @@ public final class SearchCatalog {
         DocumentRecord document = ingestor.ingest(sourcePath, content);
         if (index.add(document)) {
             for (String term : TextAnalyzer.analyze(document.getText())) autocomplete.addTerm(term, 1);
+            vectorIndex.add(document, embeddingModel.embed(document.getText()), embeddingModel.modelId());
             linkGraph.add(document);
             pageRank = PageRank.compute(linkGraph);
         }
@@ -51,6 +61,10 @@ public final class SearchCatalog {
 
     public List<SearchResult> search(String query, int limit) {
         return searchEngine.search(query, limit);
+    }
+
+    public List<SearchResult> semanticSearch(String query, int limit) {
+        return semanticSearchEngine.search(query, limit);
     }
 
     public void registerTrustMetadata(DocumentTrustMetadata metadata) {
