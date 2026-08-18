@@ -33,10 +33,10 @@ public final class BM25SearchEngine {
 
     public List<SearchResult> search(String query, int limit) {
         if (limit <= 0) throw new IllegalArgumentException("limit must be positive");
-        List<String> analyzedQuery = TextAnalyzer.analyze(query);
-        if (analyzedQuery.isEmpty() || index.documentCount() == 0) return Collections.emptyList();
+        SearchQuery parsedQuery = SearchQuery.parse(query);
+        if (parsedQuery.getTerms().isEmpty() || index.documentCount() == 0) return Collections.emptyList();
 
-        Set<String> queryTerms = new LinkedHashSet<>(analyzedQuery);
+        Set<String> queryTerms = new LinkedHashSet<>(parsedQuery.getTerms());
         Map<String, Map<String, Double>> contributionsByDocument = new LinkedHashMap<>();
         for (String term : queryTerms) {
             List<Posting> postings = index.postings(term);
@@ -57,6 +57,7 @@ public final class BM25SearchEngine {
 
         List<SearchResult> results = new ArrayList<>();
         for (Map.Entry<String, Map<String, Double>> entry : contributionsByDocument.entrySet()) {
+            if (!matchesAllPhrases(entry.getKey(), parsedQuery.getPhrases())) continue;
             double score = 0.0;
             for (double contribution : entry.getValue().values()) score += contribution;
             results.add(new SearchResult(index.document(entry.getKey()).getDocument(), score, entry.getValue()));
@@ -71,6 +72,13 @@ public final class BM25SearchEngine {
             }
         });
         return Collections.unmodifiableList(new ArrayList<>(results.subList(0, Math.min(limit, results.size()))));
+    }
+
+    private boolean matchesAllPhrases(String documentId, List<List<String>> phrases) {
+        for (List<String> phrase : phrases) {
+            if (!PhraseMatcher.matches(index, documentId, phrase)) return false;
+        }
+        return true;
     }
 
     static double inverseDocumentFrequency(int documentCount, int documentFrequency) {

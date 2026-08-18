@@ -14,6 +14,7 @@ The lexical index is the first search-engine component in NEBULA.
 - BM25 ranking with configurable `k1` and `b`
 - Stable top-k ordering
 - Per-term score contributions for explainability
+- Exact quoted phrase queries using positional postings
 - Search catalog that joins ingestion and lexical retrieval
 - HTTP API for indexing Markdown and querying ranked results
 
@@ -57,3 +58,9 @@ GET /v1/search?q=service%20health&limit=10
 ```
 
 Every result includes the document ID, title, source path, BM25 score, and per-term score contributions.
+
+Quoted phrases use positional postings instead of a string contains check:
+
+```text
+GET /v1/search?q=%22query%20coordinator%22
+```
