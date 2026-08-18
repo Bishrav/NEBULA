@@ -19,6 +19,7 @@ The lexical index is the first search-engine component in NEBULA.
 - HTTP API for indexing Markdown and querying ranked results
 - Frequency-ranked prefix autocomplete with a trie
 - Delta and variable-byte posting-list compression
+- Versioned immutable index segments with atomic snapshot writes
 
 The initial analyzer intentionally does not remove stop words or stem terms. Those policies will be evaluated against a labelled query set rather than introduced without evidence.
 
@@ -78,3 +79,7 @@ Suggestions are ranked by observed term frequency and then by a stable lexical t
 ## Compression
 
 Posting positions and document ordinals use delta encoding followed by variable-byte encoding. The codec has a correctness round-trip test and records the compact representation before segment persistence is introduced.
+
+## Immutable segments
+
+`IndexSegmentWriter` persists document metadata, terms, postings, and compressed positions in a versioned binary segment. It writes to a temporary file and atomically replaces the target when the platform supports atomic moves. `IndexSegmentReader` validates the segment header and reconstructs a read-only snapshot.

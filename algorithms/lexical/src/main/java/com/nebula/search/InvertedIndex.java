@@ -64,4 +64,8 @@ public final class InvertedIndex {
     public synchronized List<IndexedDocument> documents() {
         return Collections.unmodifiableList(new ArrayList<>(documentsById.values()));
     }
+
+    public synchronized List<String> terms() {
+        return Collections.unmodifiableList(new ArrayList<>(postingsByTerm.keySet()));
+    }
 }
