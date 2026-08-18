@@ -3,7 +3,6 @@ package com.nebula.evaluation;
 import com.nebula.search.SearchCatalog;
 import com.nebula.search.SearchResult;
 
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,17 +25,24 @@ public final class RankingVariantEvaluator {
                                               int cutoff, long nowEpochMillis, String variant) {
         java.util.ArrayList<EvaluationMetrics> metrics = new java.util.ArrayList<>();
         for (EvaluationQuery query : queries) {
-            List<SearchResult> results;
-            if ("bm25".equals(variant)) results = catalog.search(query.getText(), cutoff);
-            else if ("authority_only".equals(variant)) {
-                results = catalog.searchTrustAware(query.getText(), cutoff, nowEpochMillis, 0.0, 1.0, 0.0);
-            } else if ("freshness_only".equals(variant)) {
-                results = catalog.searchTrustAware(query.getText(), cutoff, nowEpochMillis, 0.0, 0.0, 1.0);
-            } else {
-                results = catalog.searchTrustAware(query.getText(), cutoff, nowEpochMillis, 0.70, 0.20, 0.10);
-            }
+            List<SearchResult> results = searchVariant(catalog, query, cutoff, nowEpochMillis, variant);
             metrics.add(EvaluationMetricCalculator.calculate(query, results, cutoff));
         }
         return new EvaluationReport(cutoff, metrics);
+    }
+
+    public List<SearchResult> searchVariant(SearchCatalog catalog, EvaluationQuery query,
+                                            int cutoff, long nowEpochMillis, String variant) {
+        if ("bm25".equals(variant)) return catalog.search(query.getText(), cutoff);
+        if ("authority_only".equals(variant)) {
+            return catalog.searchTrustAware(query.getText(), cutoff, nowEpochMillis, 0.0, 1.0, 0.0);
+        }
+        if ("freshness_only".equals(variant)) {
+            return catalog.searchTrustAware(query.getText(), cutoff, nowEpochMillis, 0.0, 0.0, 1.0);
+        }
+        if ("trust_aware".equals(variant)) {
+            return catalog.searchTrustAware(query.getText(), cutoff, nowEpochMillis, 0.70, 0.20, 0.10);
+        }
+        throw new IllegalArgumentException("unknown ranking variant: " + variant);
     }
 }
