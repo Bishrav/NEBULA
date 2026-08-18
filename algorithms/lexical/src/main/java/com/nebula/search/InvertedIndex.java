@@ -42,6 +42,39 @@ public final class InvertedIndex {
         return true;
     }
 
+    /** Adds a decoded immutable segment without re-tokenizing its documents. */
+    public synchronized int addSegment(PersistedIndexSegment segment) {
+        if (segment == null) throw new IllegalArgumentException("segment must not be null");
+        int addedDocuments = 0;
+        for (IndexedDocument indexed : segment.documents()) {
+            String documentId = indexed.getDocument().getDocumentId();
+            if (documentsById.containsKey(documentId)) continue;
+            documentsById.put(documentId, indexed);
+            totalTokenCount += indexed.getDocumentLength();
+            addedDocuments++;
+        }
+        for (String term : segment.terms()) {
+            List<Posting> target = postingsByTerm.get(term);
+            if (target == null) {
+                target = new ArrayList<>();
+                postingsByTerm.put(term, target);
+            }
+            for (Posting posting : segment.postings(term)) {
+                if (documentsById.containsKey(posting.getDocumentId()) && !containsDocument(target, posting.getDocumentId())) {
+                    target.add(posting);
+                }
+            }
+        }
+        return addedDocuments;
+    }
+
+    private static boolean containsDocument(List<Posting> postings, String documentId) {
+        for (Posting posting : postings) {
+            if (posting.getDocumentId().equals(documentId)) return true;
+        }
+        return false;
+    }
+
     public synchronized List<Posting> postings(String term) {
         List<Posting> postings = postingsByTerm.get(term.toLowerCase());
         return postings == null

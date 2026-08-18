@@ -23,6 +23,10 @@ public final class PersistedIndexSegment {
 
     public int documentCount() { return documentsById.size(); }
 
+    public List<IndexedDocument> documents() {
+        return Collections.unmodifiableList(new ArrayList<>(documentsById.values()));
+    }
+
     public IndexedDocument document(String documentId) { return documentsById.get(documentId); }
 
     public List<Posting> postings(String term) {
