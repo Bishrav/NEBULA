@@ -30,8 +30,25 @@ public final class DocumentIngestor {
         String sourcePath = path.toAbsolutePath().normalize().toString();
         String sourceType = detectSourceType(path);
         String raw = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
+        return ingest(sourcePath, sourceType, raw, path.getFileName().toString());
+    }
+
+    /** Ingests content received from an API or connector without a temporary file. */
+    public DocumentRecord ingest(String sourcePath, String rawContent) {
+        if (sourcePath == null || sourcePath.trim().isEmpty()) {
+            throw new IllegalArgumentException("sourcePath must not be blank");
+        }
+        String normalizedPath = sourcePath.replace('\\', '/');
+        String sourceType = detectSourceType(normalizedPath);
+        String fileName = normalizedPath.substring(normalizedPath.lastIndexOf('/') + 1);
+        return ingest(normalizedPath, sourceType, rawContent, fileName);
+    }
+
+    private DocumentRecord ingest(String sourcePath, String sourceType, String raw,
+                                  String fileName) {
+        if (raw == null) throw new IllegalArgumentException("raw content must not be null");
         String normalized = normalizeMarkdown(raw);
-        String title = extractTitle(raw, path);
+        String title = extractTitle(raw, fileName);
         String contentHash = sha256(normalized);
         String documentId = sha256(sourceType + "\n" + sourcePath + "\n" + contentHash);
 
@@ -39,7 +56,11 @@ public final class DocumentIngestor {
     }
 
     private static String detectSourceType(Path path) {
-        String name = path.getFileName().toString().toLowerCase(Locale.ROOT);
+        return detectSourceType(path.getFileName().toString());
+    }
+
+    private static String detectSourceType(String fileName) {
+        String name = fileName.toLowerCase(Locale.ROOT);
         if (name.endsWith(".md") || name.endsWith(".markdown")) return "markdown";
         throw new IllegalArgumentException("unsupported document type: " + name);
     }
@@ -56,14 +77,14 @@ public final class DocumentIngestor {
         return WHITESPACE.matcher(text).replaceAll(" ").trim();
     }
 
-    private static String extractTitle(String raw, Path path) {
+    private static String extractTitle(String raw, String fileName) {
         for (String line : raw.replace("\r\n", "\n").split("\n")) {
             String trimmed = line.trim();
             if (trimmed.startsWith("# ")) {
                 return trimmed.substring(2).trim();
             }
         }
-        String name = path.getFileName().toString();
+        String name = fileName;
         int extension = name.lastIndexOf('.');
         return extension > 0 ? name.substring(0, extension) : name;
     }
