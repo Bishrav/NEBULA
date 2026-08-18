@@ -10,6 +10,7 @@ public final class SearchCatalog {
     private final DocumentIngestor ingestor;
     private final InvertedIndex index;
     private final BM25SearchEngine searchEngine;
+    private final AutocompleteTrie autocomplete;
 
     public SearchCatalog() {
         this(new DocumentIngestor(), new InvertedIndex());
@@ -19,11 +20,14 @@ public final class SearchCatalog {
         this.ingestor = ingestor;
         this.index = index;
         this.searchEngine = new BM25SearchEngine(index);
+        this.autocomplete = new AutocompleteTrie();
     }
 
     public DocumentRecord indexMarkdown(String sourcePath, String content) {
         DocumentRecord document = ingestor.ingest(sourcePath, content);
-        index.add(document);
+        if (index.add(document)) {
+            for (String term : TextAnalyzer.analyze(document.getText())) autocomplete.addTerm(term, 1);
+        }
         return document;
     }
 
@@ -33,5 +37,9 @@ public final class SearchCatalog {
 
     public int documentCount() {
         return index.documentCount();
+    }
+
+    public List<String> suggest(String prefix, int limit) {
+        return autocomplete.suggest(prefix, limit);
     }
 }

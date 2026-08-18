@@ -22,6 +22,10 @@ public final class LexicalSearchHttpServerTest {
             check(search.body.contains("Sharding"), "search returns the indexed document");
             check(search.body.contains("termContributions"), "search returns ranking explanations");
 
+            Response suggestions = request("GET", base + "/v1/suggest?q=sha&limit=5", null, null);
+            check(suggestions.status == 200, "suggestions respond");
+            check(suggestions.body.contains("sharding"), "suggestions return indexed terms");
+
             Response missingQuery = request("GET", base + "/v1/search", null, null);
             check(missingQuery.status == 400, "missing query is rejected");
             System.out.println("LexicalSearchHttpServerTest: PASS");

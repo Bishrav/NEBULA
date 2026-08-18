@@ -17,6 +17,7 @@ The lexical index is the first search-engine component in NEBULA.
 - Exact quoted phrase queries using positional postings
 - Search catalog that joins ingestion and lexical retrieval
 - HTTP API for indexing Markdown and querying ranked results
+- Frequency-ranked prefix autocomplete with a trie
 
 The initial analyzer intentionally does not remove stop words or stem terms. Those policies will be evaluated against a labelled query set rather than introduced without evidence.
 
@@ -64,3 +65,11 @@ Quoted phrases use positional postings instead of a string contains check:
 ```text
 GET /v1/search?q=%22query%20coordinator%22
 ```
+
+Autocomplete is available through:
+
+```text
+GET /v1/suggest?q=serv&limit=10
+```
+
+Suggestions are ranked by observed term frequency and then by a stable lexical tie-break.

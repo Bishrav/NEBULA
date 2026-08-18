@@ -29,6 +29,7 @@ public final class LexicalSearchHttpServer {
         server.createContext("/health/ready", exchange -> ready(exchange));
         server.createContext("/v1/index/documents", new IndexHandler());
         server.createContext("/v1/search", new SearchHandler());
+        server.createContext("/v1/suggest", new SuggestHandler());
     }
 
     public static LexicalSearchHttpServer create(int port, SearchCatalog catalog) throws IOException {
@@ -100,6 +101,31 @@ public final class LexicalSearchHttpServer {
         }
     }
 
+    private final class SuggestHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
+            if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
+                respond(exchange, 405, "{\"error\":\"method not allowed\"}");
+                return;
+            }
+            Map<String, String> parameters = queryParameters(exchange.getRequestURI().getRawQuery());
+            String prefix = parameters.get("q");
+            if (prefix == null) {
+                respond(exchange, 400, "{\"error\":\"q is required\"}");
+                return;
+            }
+            int limit = 10;
+            try {
+                if (parameters.containsKey("limit")) limit = Integer.parseInt(parameters.get("limit"));
+                if (limit < 1 || limit > 100) throw new NumberFormatException();
+            } catch (NumberFormatException exception) {
+                respond(exchange, 400, "{\"error\":\"limit must be between 1 and 100\"}");
+                return;
+            }
+            respond(exchange, 200, suggestionsJson(prefix, catalog.suggest(prefix, limit)));
+        }
+    }
+
     private static String searchJson(String query, List<SearchResult> results) {
         StringBuilder body = new StringBuilder("{\"query\":\"").append(escape(query)).append("\",\"results\":[");
         for (int i = 0; i < results.size(); i++) {
@@ -117,6 +143,15 @@ public final class LexicalSearchHttpServer {
                         .append(contribution.getValue());
             }
             body.append("}}");
+        }
+        return body.append("]}").toString();
+    }
+
+    private static String suggestionsJson(String prefix, List<String> suggestions) {
+        StringBuilder body = new StringBuilder("{\"prefix\":\"").append(escape(prefix)).append("\",\"suggestions\":[");
+        for (int i = 0; i < suggestions.size(); i++) {
+            if (i > 0) body.append(',');
+            body.append("\"").append(escape(suggestions.get(i))).append("\"");
         }
         return body.append("]}").toString();
     }
