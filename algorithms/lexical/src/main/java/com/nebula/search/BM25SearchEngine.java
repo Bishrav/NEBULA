@@ -57,6 +57,8 @@ public final class BM25SearchEngine {
 
         List<SearchResult> results = new ArrayList<>();
         for (Map.Entry<String, Map<String, Double>> entry : contributionsByDocument.entrySet()) {
+            if (!parsedQuery.getPhrases().isEmpty()
+                    && !matchesAllFreeTerms(entry.getValue(), parsedQuery.getFreeTerms())) continue;
             if (!matchesAllPhrases(entry.getKey(), parsedQuery.getPhrases())) continue;
             double score = 0.0;
             for (double contribution : entry.getValue().values()) score += contribution;
@@ -77,6 +79,13 @@ public final class BM25SearchEngine {
     private boolean matchesAllPhrases(String documentId, List<List<String>> phrases) {
         for (List<String> phrase : phrases) {
             if (!PhraseMatcher.matches(index, documentId, phrase)) return false;
+        }
+        return true;
+    }
+
+    private boolean matchesAllFreeTerms(Map<String, Double> contributions, List<String> freeTerms) {
+        for (String term : freeTerms) {
+            if (!contributions.containsKey(term)) return false;
         }
         return true;
     }

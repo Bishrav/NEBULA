@@ -38,7 +38,8 @@ public final class VectorIndex {
             public int compare(VectorMatch left, VectorMatch right) {
                 int scoreOrder = Double.compare(right.getScore(), left.getScore());
                 return scoreOrder != 0 ? scoreOrder
-                        : left.getDocument().getDocument().getDocumentId().compareTo(right.getDocument().getDocumentId());
+                        : left.getDocument().getDocument().getDocumentId().compareTo(
+                                right.getDocument().getDocument().getDocumentId());
             }
         });
         return Collections.unmodifiableList(new ArrayList<>(matches.subList(0, Math.min(limit, matches.size()))));

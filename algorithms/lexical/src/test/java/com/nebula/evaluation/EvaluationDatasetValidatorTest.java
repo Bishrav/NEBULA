@@ -34,4 +34,8 @@ public final class EvaluationDatasetValidatorTest {
             // expected
         }
     }
+
+    private static void check(boolean condition, String message) {
+        if (!condition) throw new AssertionError(message);
+    }
 }

@@ -12,8 +12,8 @@ public final class AutocompleteTrieTest {
         trie.addTerm("service", 4);
         trie.addTerm("semantic", 4);
 
-        List<String> results = trie.suggest("sea", 3);
-        check(results.equals(Arrays.asList("semantic", "service", "search")), "frequency and lexical ordering work");
+        List<String> results = trie.suggest("se", 3);
+        check(results.equals(Arrays.asList("search", "semantic", "service")), "frequency and lexical ordering work");
         check(trie.suggest("xyz", 10).isEmpty(), "unknown prefixes return no suggestions");
         System.out.println("AutocompleteTrieTest: PASS");
     }

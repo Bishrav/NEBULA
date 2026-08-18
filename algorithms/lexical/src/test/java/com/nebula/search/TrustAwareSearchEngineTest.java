@@ -13,7 +13,8 @@ public final class TrustAwareSearchEngineTest {
         com.nebula.ingestion.DocumentIngestor ingestor = new com.nebula.ingestion.DocumentIngestor();
         index.add(ingestor.ingest("docs/official.md", "# Incident Response\n\nIncident response guidance for production services."));
         index.add(ingestor.ingest("docs/notes.md", "# Incident Response Notes\n\nIncident response notes for the team."));
-        TrustAwareSearchEngine engine = new TrustAwareSearchEngine(new BM25SearchEngine(index), store);
+        TrustAwareSearchEngine engine = new TrustAwareSearchEngine(new BM25SearchEngine(index), store,
+                new FreshnessScorer(30.0), 0.40, 0.40, 0.20);
 
         List<SearchResult> results = engine.search("incident response", 2, now);
         check(results.size() == 2, "trust search returns candidates");

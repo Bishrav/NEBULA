@@ -15,7 +15,8 @@ public final class TrustAwareSearchCatalogTest {
                 now, "security", "verified"));
 
         List<SearchResult> baseline = catalog.search("incident response", 2);
-        List<SearchResult> trustAware = catalog.searchTrustAware("incident response", 2, now);
+        List<SearchResult> trustAware = catalog.searchTrustAware("incident response", 2, now,
+                0.40, 0.40, 0.20);
         check(baseline.size() == 2 && trustAware.size() == 2, "both ranking modes return results");
         check(trustAware.get(0).getDocument().getSourcePath().equals("docs/notes.md"), "trust-aware mode reranks results");
         check(trustAware.get(0).getTermContributions().containsKey("signal:authority"), "trust signals are exposed");

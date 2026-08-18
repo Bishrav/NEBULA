@@ -17,11 +17,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
 
 /** Local HTTP search service for the lexical retrieval milestone. */
 public final class LexicalSearchHttpServer {
     private final HttpServer server;
     private final SearchCatalog catalog;
+    private ExecutorService executor;
 
     private LexicalSearchHttpServer(HttpServer server, SearchCatalog catalog) {
         this.server = server;
@@ -43,12 +45,14 @@ public final class LexicalSearchHttpServer {
     }
 
     public void start() {
-        server.setExecutor(Executors.newCachedThreadPool());
+        executor = Executors.newCachedThreadPool();
+        server.setExecutor(executor);
         server.start();
     }
 
     public void stop() {
         server.stop(0);
+        if (executor != null) executor.shutdownNow();
     }
 
     public int getPort() {

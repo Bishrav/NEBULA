@@ -12,16 +12,19 @@ import java.util.regex.Pattern;
 public final class SearchQuery {
     private static final Pattern QUOTED_PHRASE = Pattern.compile("\\\"([^\\\"]+)\\\"");
     private final List<String> terms;
+    private final List<String> freeTerms;
     private final List<List<String>> phrases;
 
-    private SearchQuery(List<String> terms, List<List<String>> phrases) {
+    private SearchQuery(List<String> terms, List<String> freeTerms, List<List<String>> phrases) {
         this.terms = Collections.unmodifiableList(new ArrayList<>(terms));
+        this.freeTerms = Collections.unmodifiableList(new ArrayList<>(freeTerms));
         this.phrases = Collections.unmodifiableList(new ArrayList<>(phrases));
     }
 
     public static SearchQuery parse(String rawQuery) {
         if (rawQuery == null || rawQuery.trim().isEmpty()) {
-            return new SearchQuery(Collections.<String>emptyList(), Collections.<List<String>>emptyList());
+            return new SearchQuery(Collections.<String>emptyList(), Collections.<String>emptyList(),
+                    Collections.<List<String>>emptyList());
         }
         Matcher matcher = QUOTED_PHRASE.matcher(rawQuery);
         StringBuffer remaining = new StringBuffer();
@@ -33,11 +36,14 @@ public final class SearchQuery {
         }
         matcher.appendTail(remaining);
 
-        Set<String> uniqueTerms = new LinkedHashSet<>(TextAnalyzer.analyze(remaining.toString()));
+        List<String> freeTerms = TextAnalyzer.analyze(remaining.toString());
+        Set<String> uniqueFreeTerms = new LinkedHashSet<>(freeTerms);
+        Set<String> uniqueTerms = new LinkedHashSet<>(uniqueFreeTerms);
         for (List<String> phrase : phrases) uniqueTerms.addAll(phrase);
-        return new SearchQuery(new ArrayList<>(uniqueTerms), phrases);
+        return new SearchQuery(new ArrayList<>(uniqueTerms), new ArrayList<>(uniqueFreeTerms), phrases);
     }
 
     public List<String> getTerms() { return terms; }
+    public List<String> getFreeTerms() { return freeTerms; }
     public List<List<String>> getPhrases() { return phrases; }
 }
