@@ -37,9 +37,12 @@ public final class BM25SearchEngine {
         if (parsedQuery.getTerms().isEmpty() || index.documentCount() == 0) return Collections.emptyList();
 
         Set<String> queryTerms = new LinkedHashSet<>(parsedQuery.getTerms());
+        Map<String, String> resolvedTerms = new LinkedHashMap<>();
         Map<String, Map<String, Double>> contributionsByDocument = new LinkedHashMap<>();
         for (String term : queryTerms) {
-            List<Posting> postings = index.postings(term);
+            String resolvedTerm = index.correctTerm(term, 1);
+            resolvedTerms.put(term, resolvedTerm);
+            List<Posting> postings = index.postings(resolvedTerm);
             if (postings.isEmpty()) continue;
             double idf = inverseDocumentFrequency(index.documentCount(), postings.size());
             for (Posting posting : postings) {
@@ -51,14 +54,15 @@ public final class BM25SearchEngine {
                     contributions = new LinkedHashMap<>();
                     contributionsByDocument.put(posting.getDocumentId(), contributions);
                 }
-                contributions.put(term, contribution);
+                contributions.put(resolvedTerm, contribution);
+                if (!term.equals(resolvedTerm)) contributions.put("correction:" + term + "->" + resolvedTerm, 1.0);
             }
         }
 
         List<SearchResult> results = new ArrayList<>();
         for (Map.Entry<String, Map<String, Double>> entry : contributionsByDocument.entrySet()) {
             if (!parsedQuery.getPhrases().isEmpty()
-                    && !matchesAllFreeTerms(entry.getValue(), parsedQuery.getFreeTerms())) continue;
+                    && !matchesAllFreeTerms(entry.getValue(), parsedQuery.getFreeTerms(), resolvedTerms)) continue;
             if (!matchesAllPhrases(entry.getKey(), parsedQuery.getPhrases())) continue;
             double score = 0.0;
             for (double contribution : entry.getValue().values()) score += contribution;
@@ -83,9 +87,10 @@ public final class BM25SearchEngine {
         return true;
     }
 
-    private boolean matchesAllFreeTerms(Map<String, Double> contributions, List<String> freeTerms) {
+    private boolean matchesAllFreeTerms(Map<String, Double> contributions, List<String> freeTerms,
+                                        Map<String, String> resolvedTerms) {
         for (String term : freeTerms) {
-            if (!contributions.containsKey(term)) return false;
+            if (!contributions.containsKey(resolvedTerms.get(term))) return false;
         }
         return true;
     }

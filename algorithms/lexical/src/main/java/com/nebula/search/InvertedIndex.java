@@ -101,4 +101,41 @@ public final class InvertedIndex {
     public synchronized List<String> terms() {
         return Collections.unmodifiableList(new ArrayList<>(postingsByTerm.keySet()));
     }
+
+    /** Returns the closest indexed term when a short deterministic correction is available. */
+    synchronized String correctTerm(String rawTerm, int maxDistance) {
+        String term = rawTerm == null ? "" : rawTerm.toLowerCase();
+        if (term.isEmpty() || postingsByTerm.containsKey(term) || term.length() < 3) return term;
+        String best = term;
+        int bestDistance = maxDistance + 1;
+        for (String candidate : postingsByTerm.keySet()) {
+            if (candidate.length() != term.length()) continue;
+            int distance = editDistance(term, candidate, bestDistance);
+            if (distance < bestDistance || (distance == bestDistance && candidate.compareTo(best) < 0)) {
+                best = candidate;
+                bestDistance = distance;
+            }
+        }
+        return bestDistance <= maxDistance ? best : term;
+    }
+
+    private static int editDistance(String left, String right, int limit) {
+        int[] previous = new int[right.length() + 1];
+        int[] current = new int[right.length() + 1];
+        for (int j = 0; j <= right.length(); j++) previous[j] = j;
+        for (int i = 1; i <= left.length(); i++) {
+            current[0] = i;
+            int rowMinimum = current[0];
+            for (int j = 1; j <= right.length(); j++) {
+                current[j] = Math.min(Math.min(current[j - 1] + 1, previous[j] + 1),
+                        previous[j - 1] + (left.charAt(i - 1) == right.charAt(j - 1) ? 0 : 1));
+                rowMinimum = Math.min(rowMinimum, current[j]);
+            }
+            if (rowMinimum > limit) return rowMinimum;
+            int[] swap = previous;
+            previous = current;
+            current = swap;
+        }
+        return previous[right.length()];
+    }
 }
