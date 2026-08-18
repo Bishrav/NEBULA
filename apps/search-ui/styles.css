@@ -45,6 +45,9 @@ button { cursor: pointer; border: 0; color: var(--text); }
 .result-path { color: var(--cyan); font: 12px ui-monospace, SFMono-Regular, Consolas, monospace; margin-top: 4px; }
 .score { color: var(--green); font: 700 13px ui-monospace, monospace; white-space: nowrap; }
 .signals { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 20px; }
+.feedback-actions { display: flex; align-items: center; gap: 8px; margin-top: 18px; color: var(--muted); font-size: 12px; }
+.feedback-actions button { border: 1px solid var(--line); border-radius: 6px; background: transparent; color: var(--cyan); padding: 5px 10px; }
+.feedback-actions button:disabled { color: var(--muted); cursor: default; }
 .signal { background: #0c192d; border: 1px solid var(--line); border-radius: 7px; padding: 6px 9px; color: var(--muted); font: 11px ui-monospace, monospace; }
 .signal b { color: var(--text); font-weight: 600; }
 .empty-state { text-align: center; border: 1px dashed var(--line); border-radius: 16px; padding: 62px 20px; color: var(--muted); }

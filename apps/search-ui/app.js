@@ -8,14 +8,29 @@
   var results = document.getElementById('results');
   var statusText = document.getElementById('status-text');
   var statusDot = document.getElementById('status-dot');
+  var activeQuery = '';
+  var activeMode = 'bm25';
 
   form.addEventListener('submit', function (event) { event.preventDefault(); search(); });
   document.querySelectorAll('[data-query]').forEach(function (button) {
     button.addEventListener('click', function () { query.value = button.getAttribute('data-query'); search(); });
   });
+  results.addEventListener('click', function (event) {
+    var button = event.target.closest('[data-feedback-useful]');
+    if (!button) return;
+    button.disabled = true;
+    fetch(apiBase.value.replace(/\/$/, '') + '/v1/feedback', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: activeQuery, mode: activeMode, documentId: button.dataset.feedbackId,
+        sourcePath: button.dataset.feedbackPath, useful: button.dataset.feedbackUseful === 'true' })
+    }).then(function (response) { if (!response.ok) throw new Error('feedback failed'); button.textContent = 'Recorded'; })
+      .catch(function () { button.disabled = false; button.textContent = 'Try again'; });
+  });
 
   function search() {
     var started = performance.now();
+    activeQuery = query.value.trim();
+    activeMode = mode.value || 'bm25';
     var params = new URLSearchParams({ q: query.value.trim(), limit: limit.value });
     if (mode.value) params.set('mode', mode.value);
     if (!query.value.trim()) return;
@@ -35,7 +50,7 @@
     if (!items.length) { results.innerHTML = '<div class="empty-state"><h2>No matching evidence</h2><p>Try a broader question or another ranking mode.</p></div>'; return; }
     results.innerHTML = items.map(function (item) {
       var signals = Object.keys(item.termContributions || {}).map(function (key) { return '<span class="signal">' + escapeHtml(key) + ' <b>' + Number(item.termContributions[key]).toFixed(4) + '</b></span>'; }).join('');
-      return '<article class="result-card"><div class="result-head"><div><h2 class="result-title">' + escapeHtml(item.title) + '</h2><div class="result-path">' + escapeHtml(item.sourcePath) + '</div></div><div class="score">score ' + Number(item.score).toFixed(4) + '</div></div><div class="signals">' + signals + '</div></article>';
+      return '<article class="result-card"><div class="result-head"><div><h2 class="result-title">' + escapeHtml(item.title) + '</h2><div class="result-path">' + escapeHtml(item.sourcePath) + '</div></div><div class="score">score ' + Number(item.score).toFixed(4) + '</div></div><div class="signals">' + signals + '</div><div class="feedback-actions"><span>Was this useful?</span><button data-feedback-useful="true" data-feedback-id="' + escapeHtml(item.documentId) + '" data-feedback-path="' + escapeHtml(item.sourcePath) + '">Yes</button><button data-feedback-useful="false" data-feedback-id="' + escapeHtml(item.documentId) + '" data-feedback-path="' + escapeHtml(item.sourcePath) + '">Not yet</button></div></article>';
     }).join('');
   }
 

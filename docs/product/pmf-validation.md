@@ -31,6 +31,8 @@ Small and medium-sized engineering teams will adopt a self-hostable knowledge se
 
 These targets are discovery targets, not validated claims. Record task context, query text, corpus version, ranking mode, and user feedback for every session.
 
+The local pilot records result feedback through `POST /v1/feedback` and exposes the in-memory aggregate at `GET /v1/metrics/feedback`. These metrics reset when the API restarts and must not be treated as durable analytics or user identity data.
+
 ## Research safeguards
 
 Do not treat a small interview sample as proof of product-market fit. Separate retrieval quality from interface usability, preserve failed searches for error analysis, and obtain consent before collecting user queries or identifying information.

@@ -18,21 +18,27 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /** Local HTTP search service for the lexical retrieval milestone. */
 public final class LexicalSearchHttpServer {
     private final HttpServer server;
     private final SearchCatalog catalog;
+    private final FeedbackStore feedbackStore;
     private ExecutorService executor;
 
     private LexicalSearchHttpServer(HttpServer server, SearchCatalog catalog) {
         this.server = server;
         this.catalog = catalog;
+        this.feedbackStore = new FeedbackStore();
         server.createContext("/health/live", exchange -> respond(exchange, 200, "{\"status\":\"UP\"}"));
         server.createContext("/health/ready", exchange -> ready(exchange));
         server.createContext("/v1/index/documents", new IndexHandler());
         server.createContext("/v1/search", new SearchHandler());
         server.createContext("/v1/suggest", new SuggestHandler());
+        server.createContext("/v1/feedback", new FeedbackHandler());
+        server.createContext("/v1/metrics/feedback", exchange -> feedbackMetrics(exchange));
     }
 
     public static LexicalSearchHttpServer create(int port, SearchCatalog catalog) throws IOException {
@@ -161,6 +167,38 @@ public final class LexicalSearchHttpServer {
         }
     }
 
+    private final class FeedbackHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
+            if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
+                respond(exchange, 405, "{\"error\":\"method not allowed\"}");
+                return;
+            }
+            String body = new String(readAll(exchange.getRequestBody()), StandardCharsets.UTF_8);
+            try {
+                FeedbackRecord feedback = new FeedbackRecord(
+                        jsonString(body, "query"), jsonString(body, "mode"),
+                        jsonString(body, "documentId"), jsonString(body, "sourcePath"),
+                        jsonBoolean(body, "useful"));
+                feedbackStore.record(feedback);
+                respond(exchange, 201, "{\"status\":\"recorded\",\"total\":" + feedbackStore.total() + "}");
+            } catch (IllegalArgumentException exception) {
+                respond(exchange, 400, "{\"error\":\"" + escape(exception.getMessage()) + "\"}");
+            }
+        }
+    }
+
+    private void feedbackMetrics(HttpExchange exchange) throws IOException {
+        if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
+            respond(exchange, 405, "{\"error\":\"method not allowed\"}");
+            return;
+        }
+        respond(exchange, 200, "{\"total\":" + feedbackStore.total()
+                + ",\"useful\":" + feedbackStore.usefulCount()
+                + ",\"notUseful\":" + feedbackStore.notUsefulCount()
+                + ",\"usefulRate\":" + feedbackStore.usefulRate() + "}");
+    }
+
     private static String searchJson(String query, List<SearchResult> results) {
         StringBuilder body = new StringBuilder("{\"query\":\"").append(escape(query)).append("\",\"results\":[");
         for (int i = 0; i < results.size(); i++) {
@@ -201,6 +239,18 @@ public final class LexicalSearchHttpServer {
             parameters.put(key, value);
         }
         return parameters;
+    }
+
+    private static String jsonString(String body, String field) {
+        Matcher matcher = Pattern.compile("\\\"" + Pattern.quote(field) + "\\\"\\s*:\\s*\\\"((?:\\\\.|[^\\\"])*)\\\"").matcher(body);
+        if (!matcher.find()) throw new IllegalArgumentException(field + " is required");
+        return matcher.group(1).replace("\\\"", "\"").replace("\\\\", "\\");
+    }
+
+    private static boolean jsonBoolean(String body, String field) {
+        Matcher matcher = Pattern.compile("\\\"" + Pattern.quote(field) + "\\\"\\s*:\\s*(true|false)").matcher(body);
+        if (!matcher.find()) throw new IllegalArgumentException(field + " is required");
+        return Boolean.parseBoolean(matcher.group(1));
     }
 
     private static void respond(HttpExchange exchange, int status, String body) throws IOException {
