@@ -90,4 +90,4 @@ Posting positions and document ordinals use delta encoding followed by variable-
 
 ## Evaluation
 
-The evaluation package supports versioned graded queries and reports macro-averaged Precision@k, Recall@k, MRR, and NDCG. The starter corpus and runner are documented in [`benchmarks/evaluation`](../../../benchmarks/evaluation/README.md).
+The evaluation package supports versioned graded queries and reports macro-averaged Precision@k, Recall@k, MRR, and NDCG. The starter corpus and runner are documented in [`benchmarks/evaluation`](../../benchmarks/evaluation/README.md).
