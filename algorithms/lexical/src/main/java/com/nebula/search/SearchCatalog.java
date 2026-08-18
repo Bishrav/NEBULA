@@ -19,6 +19,7 @@ public final class SearchCatalog {
     private final EmbeddingModel embeddingModel;
     private final VectorIndex vectorIndex;
     private final SemanticSearchEngine semanticSearchEngine;
+    private final HybridSearchEngine hybridSearchEngine;
     private final HnswIndex hnswIndex;
     private final HnswSemanticSearchEngine hnswSearchEngine;
     private PageRankResult pageRank;
@@ -44,6 +45,7 @@ public final class SearchCatalog {
             hnswIndex.add(document.getDocument(), vector, embeddingModel.modelId());
         }
         this.semanticSearchEngine = new SemanticSearchEngine(embeddingModel, vectorIndex);
+        this.hybridSearchEngine = new HybridSearchEngine(searchEngine, semanticSearchEngine);
         this.hnswSearchEngine = new HnswSemanticSearchEngine(embeddingModel, hnswIndex, 32);
         for (IndexedDocument document : index.documents()) linkGraph.add(document.getDocument());
         this.pageRank = PageRank.compute(linkGraph);
@@ -73,6 +75,10 @@ public final class SearchCatalog {
 
     public List<SearchResult> semanticSearch(String query, int limit) {
         return semanticSearchEngine.search(query, limit);
+    }
+
+    public List<SearchResult> hybridSearch(String query, int limit) {
+        return hybridSearchEngine.search(query, limit);
     }
 
     public List<SearchResult> hnswSemanticSearch(String query, int limit) {

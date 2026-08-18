@@ -30,6 +30,10 @@ public final class LexicalSearchHttpServerTest {
             check(semanticSearch.status == 200, "semantic search responds");
             check(semanticSearch.body.contains("signal:semantic"), "semantic signal is returned");
 
+            Response hybridSearch = request("GET", base + "/v1/search?q=consistent%20hashing&mode=hybrid&limit=5", null, null);
+            check(hybridSearch.status == 200, "hybrid search responds");
+            check(hybridSearch.body.contains("signal:hybrid"), "hybrid signal is returned");
+
             Response hnswSearch = request("GET", base + "/v1/search?q=consistent%20hashing&mode=hnsw&limit=5", null, null);
             check(hnswSearch.status == 200, "HNSW search responds");
             check(hnswSearch.body.contains("ann:efSearch"), "HNSW configuration is returned");
