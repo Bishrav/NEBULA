@@ -12,11 +12,13 @@ import java.util.stream.Collectors;
 
 /** Reproducible command-line evaluation over a corpus directory and query file. */
 public final class EvaluationRunner {
+    private static final long EVALUATION_NOW = 1_700_000_000_000L;
+
     private EvaluationRunner() { }
 
     public static void main(String[] args) throws Exception {
-        if (args.length != 2) {
-            System.err.println("Usage: EvaluationRunner <corpus-directory> <queries.psv>");
+        if (args.length < 2 || args.length > 3) {
+            System.err.println("Usage: EvaluationRunner <corpus-directory> <queries.psv> [trust-metadata.psv]");
             System.exit(2);
         }
         Path corpus = Paths.get(args[0]);
@@ -33,20 +35,33 @@ public final class EvaluationRunner {
             catalog.indexMarkdown(sourcePath, new String(Files.readAllBytes(document), StandardCharsets.UTF_8));
         }
 
+        if (args.length == 3) {
+            for (com.nebula.search.DocumentTrustMetadata metadata
+                    : new TrustMetadataDatasetLoader().load(Paths.get(args[2]), EVALUATION_NOW)) {
+                catalog.registerTrustMetadata(metadata);
+            }
+        }
+
         List<EvaluationQuery> queries = new EvaluationDatasetLoader().load(queryFile);
-        EvaluationReport report = new SearchEvaluator().evaluate(catalog, queries, 5);
         System.out.println("corpus_documents=" + catalog.documentCount());
         System.out.println("queries=" + queries.size());
-        System.out.println("cutoff=" + report.getCutoff());
-        System.out.println("precision_at_5=" + report.getMeanPrecisionAtK());
-        System.out.println("recall_at_5=" + report.getMeanRecallAtK());
-        System.out.println("mrr=" + report.getMeanReciprocalRank());
-        System.out.println("ndcg_at_5=" + report.getMeanNdcgAtK());
-        for (EvaluationMetrics metrics : report.getPerQuery()) {
-            System.out.println(metrics.getQueryId() + "|precision=" + metrics.getPrecisionAtK()
-                    + "|recall=" + metrics.getRecallAtK()
-                    + "|mrr=" + metrics.getReciprocalRank()
-                    + "|ndcg=" + metrics.getNdcgAtK());
+        RankingComparisonReport comparison = new RankingVariantEvaluator()
+                .evaluate(catalog, queries, 5, EVALUATION_NOW);
+        for (String variant : comparison.getVariants()) {
+            EvaluationReport report = comparison.get(variant);
+            System.out.println(variant + "|precision_at_5=" + report.getMeanPrecisionAtK()
+                    + "|recall_at_5=" + report.getMeanRecallAtK()
+                    + "|mrr=" + report.getMeanReciprocalRank()
+                    + "|ndcg_at_5=" + report.getMeanNdcgAtK());
+        }
+        for (String variant : comparison.getVariants()) {
+            if (!"bm25".equals(variant)) {
+                System.out.println(variant + "_delta_vs_bm25"
+                        + "|precision=" + comparison.precisionDelta(variant, "bm25")
+                        + "|recall=" + comparison.recallDelta(variant, "bm25")
+                        + "|mrr=" + comparison.mrrDelta(variant, "bm25")
+                        + "|ndcg=" + comparison.ndcgDelta(variant, "bm25"));
+            }
         }
     }
 }

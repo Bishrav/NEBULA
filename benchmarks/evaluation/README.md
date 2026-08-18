@@ -19,7 +19,10 @@ After compiling the Java sources, run:
 ```powershell
 java -cp .\algorithms\lexical\out com.nebula.evaluation.EvaluationRunner `
   .\benchmarks\evaluation\corpus-v1 `
-  .\benchmarks\evaluation\queries-v1.psv
+  .\benchmarks\evaluation\queries-v1.psv `
+  .\benchmarks\evaluation\trust-v1.psv
 ```
+
+The runner compares BM25, authority-only, freshness-only, and combined trust-aware ranking. It reports each variant's metrics and deltas versus BM25 using a fixed evaluation timestamp.
 
 The dataset is a starting regression fixture, not a publication-quality benchmark. Future research versions must document corpus construction, query creation, annotator agreement, and split strategy.
