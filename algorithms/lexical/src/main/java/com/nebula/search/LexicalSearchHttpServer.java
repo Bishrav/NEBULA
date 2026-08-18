@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +36,10 @@ public final class LexicalSearchHttpServer {
     public static LexicalSearchHttpServer create(int port, SearchCatalog catalog) throws IOException {
         return new LexicalSearchHttpServer(
                 HttpServer.create(new InetSocketAddress("127.0.0.1", port), 0), catalog);
+    }
+
+    public static LexicalSearchHttpServer createFromSegmentDirectory(int port, Path directory) throws IOException {
+        return create(port, SearchCatalog.fromSegmentDirectory(directory));
     }
 
     public void start() {

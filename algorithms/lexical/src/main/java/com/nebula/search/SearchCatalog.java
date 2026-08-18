@@ -3,6 +3,8 @@ package com.nebula.search;
 import com.nebula.ingestion.DocumentIngestor;
 import com.nebula.ingestion.DocumentRecord;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 
 /** Application boundary joining document normalization with lexical search. */
@@ -21,6 +23,11 @@ public final class SearchCatalog {
         this.index = index;
         this.searchEngine = new BM25SearchEngine(index);
         this.autocomplete = new AutocompleteTrie();
+    }
+
+    /** Creates a read-only search catalog restored from all .idx files in a directory. */
+    public static SearchCatalog fromSegmentDirectory(Path directory) throws IOException {
+        return new SearchCatalog(new DocumentIngestor(), new IndexSegmentLoader().loadDirectory(directory));
     }
 
     public DocumentRecord indexMarkdown(String sourcePath, String content) {
