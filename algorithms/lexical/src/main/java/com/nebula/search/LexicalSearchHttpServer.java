@@ -71,6 +71,7 @@ public final class LexicalSearchHttpServer {
             String content = new String(readAll(exchange.getRequestBody()), StandardCharsets.UTF_8);
             try {
                 com.nebula.ingestion.DocumentRecord document = catalog.indexMarkdown(sourcePath, content);
+                registerTrustHeaders(exchange, sourcePath);
                 respond(exchange, 201, "{\"documentId\":\"" + escape(document.getDocumentId())
                         + "\",\"title\":\"" + escape(document.getTitle())
                         + "\",\"documents\":" + catalog.documentCount() + "}");
@@ -101,8 +102,24 @@ public final class LexicalSearchHttpServer {
                 respond(exchange, 400, "{\"error\":\"limit must be between 1 and 100\"}");
                 return;
             }
-            List<SearchResult> results = catalog.search(query, limit);
+            List<SearchResult> results = "trust".equalsIgnoreCase(parameters.get("mode"))
+                    ? catalog.searchTrustAware(query, limit, System.currentTimeMillis())
+                    : catalog.search(query, limit);
             respond(exchange, 200, searchJson(query, results));
+        }
+    }
+
+    private void registerTrustHeaders(HttpExchange exchange, String sourcePath) {
+        String authorityHeader = exchange.getRequestHeaders().getFirst("X-Source-Authority");
+        String verifiedHeader = exchange.getRequestHeaders().getFirst("X-Last-Verified-Epoch-Millis");
+        if (authorityHeader == null && verifiedHeader == null) return;
+        try {
+            double authority = authorityHeader == null ? 0.5 : Double.parseDouble(authorityHeader);
+            long verified = verifiedHeader == null ? System.currentTimeMillis() : Long.parseLong(verifiedHeader);
+            catalog.registerTrustMetadata(new DocumentTrustMetadata(
+                    sourcePath, authority, verified, "api-client", "verified"));
+        } catch (NumberFormatException exception) {
+            throw new IllegalArgumentException("invalid trust metadata headers", exception);
         }
     }
 

@@ -22,6 +22,7 @@ The lexical index is the first search-engine component in NEBULA.
 - Versioned immutable index segments with atomic snapshot writes
 - Multi-segment restoration after process restart
 - Precision@k, Recall@k, MRR, and NDCG evaluation harness
+- Freshness and source-authority trust-aware reranking
 
 The initial analyzer intentionally does not remove stop words or stem terms. Those policies will be evaluated against a labelled query set rather than introduced without evidence.
 
@@ -77,6 +78,19 @@ GET /v1/suggest?q=serv&limit=10
 ```
 
 Suggestions are ranked by observed term frequency and then by a stable lexical tie-break.
+
+Trust-aware search is available as an opt-in mode:
+
+```text
+GET /v1/search?q=incident%20response&mode=trust&limit=10
+```
+
+Documents indexed through the HTTP API may provide:
+
+- `X-Source-Authority`: a value from `0.0` to `1.0`
+- `X-Last-Verified-Epoch-Millis`: verification timestamp
+
+Trust-aware results include `signal:lexical`, `signal:authority`, and `signal:freshness` explanations. Baseline BM25 remains the default mode.
 
 ## Compression
 

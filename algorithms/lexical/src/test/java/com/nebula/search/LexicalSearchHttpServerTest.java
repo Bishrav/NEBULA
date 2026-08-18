@@ -22,6 +22,10 @@ public final class LexicalSearchHttpServerTest {
             check(search.body.contains("Sharding"), "search returns the indexed document");
             check(search.body.contains("termContributions"), "search returns ranking explanations");
 
+            Response trustSearch = request("GET", base + "/v1/search?q=consistent%20hashing&mode=trust&limit=5", null, null);
+            check(trustSearch.status == 200, "trust-aware search responds");
+            check(trustSearch.body.contains("signal:authority"), "trust signals are returned");
+
             Response suggestions = request("GET", base + "/v1/suggest?q=sha&limit=5", null, null);
             check(suggestions.status == 200, "suggestions respond");
             check(suggestions.body.contains("sharding"), "suggestions return indexed terms");

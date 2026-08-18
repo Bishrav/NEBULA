@@ -12,6 +12,8 @@ public final class SearchCatalog {
     private final DocumentIngestor ingestor;
     private final InvertedIndex index;
     private final BM25SearchEngine searchEngine;
+    private final TrustMetadataStore trustMetadata;
+    private final TrustAwareSearchEngine trustSearchEngine;
     private final AutocompleteTrie autocomplete;
 
     public SearchCatalog() {
@@ -22,6 +24,8 @@ public final class SearchCatalog {
         this.ingestor = ingestor;
         this.index = index;
         this.searchEngine = new BM25SearchEngine(index);
+        this.trustMetadata = new TrustMetadataStore();
+        this.trustSearchEngine = new TrustAwareSearchEngine(searchEngine, trustMetadata);
         this.autocomplete = new AutocompleteTrie();
     }
 
@@ -40,6 +44,14 @@ public final class SearchCatalog {
 
     public List<SearchResult> search(String query, int limit) {
         return searchEngine.search(query, limit);
+    }
+
+    public void registerTrustMetadata(DocumentTrustMetadata metadata) {
+        trustMetadata.register(metadata);
+    }
+
+    public List<SearchResult> searchTrustAware(String query, int limit, long nowEpochMillis) {
+        return trustSearchEngine.search(query, limit, nowEpochMillis);
     }
 
     public int documentCount() {
