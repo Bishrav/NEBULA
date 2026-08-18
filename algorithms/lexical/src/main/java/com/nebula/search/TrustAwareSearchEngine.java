@@ -17,6 +17,7 @@ public final class TrustAwareSearchEngine {
     private final BM25SearchEngine lexicalSearch;
     private final TrustMetadataStore metadataStore;
     private final FreshnessScorer freshnessScorer;
+    private final PageRankResult pageRank;
     private final double lexicalWeight;
     private final double authorityWeight;
     private final double freshnessWeight;
@@ -29,6 +30,12 @@ public final class TrustAwareSearchEngine {
     public TrustAwareSearchEngine(BM25SearchEngine lexicalSearch, TrustMetadataStore metadataStore,
                                   FreshnessScorer freshnessScorer, double lexicalWeight,
                                   double authorityWeight, double freshnessWeight) {
+        this(lexicalSearch, metadataStore, freshnessScorer, lexicalWeight, authorityWeight, freshnessWeight, null);
+    }
+
+    public TrustAwareSearchEngine(BM25SearchEngine lexicalSearch, TrustMetadataStore metadataStore,
+                                  FreshnessScorer freshnessScorer, double lexicalWeight,
+                                  double authorityWeight, double freshnessWeight, PageRankResult pageRank) {
         if (lexicalSearch == null || metadataStore == null || freshnessScorer == null) {
             throw new IllegalArgumentException("search, metadata, and freshness scorer are required");
         }
@@ -39,6 +46,7 @@ public final class TrustAwareSearchEngine {
         this.lexicalSearch = lexicalSearch;
         this.metadataStore = metadataStore;
         this.freshnessScorer = freshnessScorer;
+        this.pageRank = pageRank;
         double total = lexicalWeight + authorityWeight + freshnessWeight;
         this.lexicalWeight = lexicalWeight / total;
         this.authorityWeight = authorityWeight / total;
@@ -52,6 +60,15 @@ public final class TrustAwareSearchEngine {
         double min = Double.POSITIVE_INFINITY;
         double max = Double.NEGATIVE_INFINITY;
         for (SearchResult candidate : candidates) {
+            double graphScore = pageRank == null ? 0.5 : pageRank.score(candidate.getDocument().getSourcePath());
+            min = Math.min(min, graphScore);
+            max = Math.max(max, graphScore);
+        }
+        double graphMin = min;
+        double graphMax = max;
+        min = Double.POSITIVE_INFINITY;
+        max = Double.NEGATIVE_INFINITY;
+        for (SearchResult candidate : candidates) {
             min = Math.min(min, candidate.getScore());
             max = Math.max(max, candidate.getScore());
         }
@@ -61,6 +78,10 @@ public final class TrustAwareSearchEngine {
             double normalizedLexical = max == min ? 1.0 : (candidate.getScore() - min) / (max - min);
             Optional<DocumentTrustMetadata> metadata = metadataStore.find(candidate.getDocument().getSourcePath());
             double authority = metadata.isPresent() ? metadata.get().getAuthority() : 0.5;
+            double graphAuthority = pageRank == null ? 0.5 : pageRank.score(candidate.getDocument().getSourcePath());
+            if (graphMax != graphMin) graphAuthority = (graphAuthority - graphMin) / (graphMax - graphMin);
+            else graphAuthority = 0.5;
+            authority = 0.7 * authority + 0.3 * graphAuthority;
             double freshness = metadata.isPresent()
                     ? freshnessScorer.score(metadata.get().getLastVerifiedEpochMillis(), nowEpochMillis) : 0.5;
             double score = lexicalWeight * normalizedLexical
@@ -68,6 +89,7 @@ public final class TrustAwareSearchEngine {
             Map<String, Double> contributions = new LinkedHashMap<>(candidate.getTermContributions());
             contributions.put("signal:lexical", normalizedLexical);
             contributions.put("signal:authority", authority);
+            contributions.put("signal:pagerank", graphAuthority);
             contributions.put("signal:freshness", freshness);
             reranked.add(new SearchResult(candidate.getDocument(), score, contributions));
         }

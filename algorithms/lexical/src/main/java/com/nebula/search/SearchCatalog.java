@@ -15,6 +15,8 @@ public final class SearchCatalog {
     private final TrustMetadataStore trustMetadata;
     private final TrustAwareSearchEngine trustSearchEngine;
     private final AutocompleteTrie autocomplete;
+    private final LinkGraph linkGraph;
+    private PageRankResult pageRank;
 
     public SearchCatalog() {
         this(new DocumentIngestor(), new InvertedIndex());
@@ -27,6 +29,9 @@ public final class SearchCatalog {
         this.trustMetadata = new TrustMetadataStore();
         this.trustSearchEngine = new TrustAwareSearchEngine(searchEngine, trustMetadata);
         this.autocomplete = new AutocompleteTrie();
+        this.linkGraph = new LinkGraph();
+        for (IndexedDocument document : index.documents()) linkGraph.add(document.getDocument());
+        this.pageRank = PageRank.compute(linkGraph);
     }
 
     /** Creates a read-only search catalog restored from all .idx files in a directory. */
@@ -38,6 +43,8 @@ public final class SearchCatalog {
         DocumentRecord document = ingestor.ingest(sourcePath, content);
         if (index.add(document)) {
             for (String term : TextAnalyzer.analyze(document.getText())) autocomplete.addTerm(term, 1);
+            linkGraph.add(document);
+            pageRank = PageRank.compute(linkGraph);
         }
         return document;
     }
@@ -51,14 +58,15 @@ public final class SearchCatalog {
     }
 
     public List<SearchResult> searchTrustAware(String query, int limit, long nowEpochMillis) {
-        return trustSearchEngine.search(query, limit, nowEpochMillis);
+        return new TrustAwareSearchEngine(searchEngine, trustMetadata, new FreshnessScorer(30.0),
+                0.70, 0.20, 0.10, pageRank).search(query, limit, nowEpochMillis);
     }
 
     public List<SearchResult> searchTrustAware(String query, int limit, long nowEpochMillis,
                                                double lexicalWeight, double authorityWeight,
                                                double freshnessWeight) {
         return new TrustAwareSearchEngine(searchEngine, trustMetadata, new FreshnessScorer(30.0),
-                lexicalWeight, authorityWeight, freshnessWeight).search(query, limit, nowEpochMillis);
+                lexicalWeight, authorityWeight, freshnessWeight, pageRank).search(query, limit, nowEpochMillis);
     }
 
     public int documentCount() {
@@ -68,4 +76,6 @@ public final class SearchCatalog {
     public List<String> suggest(String prefix, int limit) {
         return autocomplete.suggest(prefix, limit);
     }
+
+    public PageRankResult pageRank() { return pageRank; }
 }
