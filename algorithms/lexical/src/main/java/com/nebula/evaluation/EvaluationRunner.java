@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,8 +18,8 @@ public final class EvaluationRunner {
     private EvaluationRunner() { }
 
     public static void main(String[] args) throws Exception {
-        if (args.length < 2 || args.length > 3) {
-            System.err.println("Usage: EvaluationRunner <corpus-directory> <queries.psv> [trust-metadata.psv]");
+        if (args.length < 2 || args.length > 4) {
+            System.err.println("Usage: EvaluationRunner <corpus-directory> <queries.psv> [trust-metadata.psv] [report.md]");
             System.exit(2);
         }
         Path corpus = Paths.get(args[0]);
@@ -62,6 +63,19 @@ public final class EvaluationRunner {
                         + "|mrr=" + comparison.mrrDelta(variant, "bm25")
                         + "|ndcg=" + comparison.ndcgDelta(variant, "bm25"));
             }
+        }
+        if (args.length == 4) {
+            RankingVariantEvaluator variants = new RankingVariantEvaluator();
+            RetrievalErrorAnalyzer analyzer = new RetrievalErrorAnalyzer();
+            List<QueryErrorAnalysis> errors = new ArrayList<>();
+            for (String variant : comparison.getVariants()) {
+                for (EvaluationQuery query : queries) {
+                    errors.add(analyzer.analyze(variant, query,
+                            variants.searchVariant(catalog, query, 5, EVALUATION_NOW, variant)));
+                }
+            }
+            new BenchmarkReportWriter().write(Paths.get(args[3]), catalog.documentCount(), queries.size(), comparison, errors);
+            System.out.println("report=" + Paths.get(args[3]).toAbsolutePath());
         }
     }
 }
