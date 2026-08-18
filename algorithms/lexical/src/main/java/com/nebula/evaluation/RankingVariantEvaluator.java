@@ -15,6 +15,7 @@ public final class RankingVariantEvaluator {
         if (cutoff <= 0) throw new IllegalArgumentException("cutoff must be positive");
         Map<String, EvaluationReport> reports = new LinkedHashMap<>();
         reports.put("bm25", evaluateVariant(catalog, queries, cutoff, nowEpochMillis, "bm25"));
+        reports.put("hybrid", evaluateVariant(catalog, queries, cutoff, nowEpochMillis, "hybrid"));
         reports.put("authority_only", evaluateVariant(catalog, queries, cutoff, nowEpochMillis, "authority_only"));
         reports.put("freshness_only", evaluateVariant(catalog, queries, cutoff, nowEpochMillis, "freshness_only"));
         reports.put("trust_aware", evaluateVariant(catalog, queries, cutoff, nowEpochMillis, "trust_aware"));
@@ -34,6 +35,7 @@ public final class RankingVariantEvaluator {
     public List<SearchResult> searchVariant(SearchCatalog catalog, EvaluationQuery query,
                                             int cutoff, long nowEpochMillis, String variant) {
         if ("bm25".equals(variant)) return catalog.search(query.getText(), cutoff);
+        if ("hybrid".equals(variant)) return catalog.hybridSearch(query.getText(), cutoff);
         if ("authority_only".equals(variant)) {
             return catalog.searchTrustAware(query.getText(), cutoff, nowEpochMillis, 0.0, 1.0, 0.0);
         }

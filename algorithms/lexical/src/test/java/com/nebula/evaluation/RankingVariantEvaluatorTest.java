@@ -18,7 +18,8 @@ public final class RankingVariantEvaluatorTest {
         EvaluationQuery query = new EvaluationQuery("q1", "incident response", Collections.singletonMap("docs/notes.md", 3));
         RankingComparisonReport report = new RankingVariantEvaluator().evaluate(
                 catalog, Collections.singletonList(query), 2, now);
-        check(report.getVariants().size() == 4, "four ranking variants are evaluated");
+        check(report.getVariants().size() == 5, "five ranking variants are evaluated");
+        check(report.get("hybrid") != null, "hybrid report exists");
         check(report.get("bm25") != null && report.get("trust_aware") != null, "baseline and trust reports exist");
         check(report.ndcgDelta("trust_aware", "bm25") >= 0.0, "trust delta is calculable");
         System.out.println("RankingVariantEvaluatorTest: PASS");
