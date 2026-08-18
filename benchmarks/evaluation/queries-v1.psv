@@ -6,4 +6,4 @@ q2|deployment rollback|runbook.md:3
 q3|hybrid retrieval|retrieval.md:3
 q4|shard failure|operations.md:3;architecture.md:1
 q5|"query coordinator"|architecture.md:3
-q6|vector database| 
+q6|vector retrieval|retrieval.md:2;architecture.md:0

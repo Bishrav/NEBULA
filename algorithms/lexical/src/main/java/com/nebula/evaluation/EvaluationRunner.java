@@ -10,6 +10,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /** Reproducible command-line evaluation over a corpus directory and query file. */
@@ -47,8 +49,14 @@ public final class EvaluationRunner {
         }
 
         List<EvaluationQuery> queries = new EvaluationDatasetLoader().load(queryFile);
+        Set<String> corpusSourcePaths = new LinkedHashSet<>();
+        for (DocumentRecord record : corpusRecords) corpusSourcePaths.add(record.getSourcePath());
+        EvaluationDatasetValidationReport validation = new EvaluationDatasetValidator()
+                .validate(queries, corpusSourcePaths);
         System.out.println("corpus_documents=" + catalog.documentCount());
         System.out.println("queries=" + queries.size());
+        System.out.println("judgements=" + validation.getJudgementCount());
+        System.out.println("relevant_judgements=" + validation.getRelevantJudgementCount());
         RankingComparisonReport comparison = new RankingVariantEvaluator()
                 .evaluate(catalog, queries, 5, EVALUATION_NOW);
         for (String variant : comparison.getVariants()) {
