@@ -25,10 +25,18 @@ public final class SearchCatalog {
     private PageRankResult pageRank;
 
     public SearchCatalog() {
-        this(new DocumentIngestor(), new InvertedIndex());
+        this(new DocumentIngestor(), new InvertedIndex(), new HashingEmbeddingModel(128));
     }
 
     public SearchCatalog(DocumentIngestor ingestor, InvertedIndex index) {
+        this(ingestor, index, new HashingEmbeddingModel(128));
+    }
+
+    /** Creates a catalog with an explicit embedding model for controlled experiments. */
+    public SearchCatalog(DocumentIngestor ingestor, InvertedIndex index, EmbeddingModel embeddingModel) {
+        if (ingestor == null || index == null || embeddingModel == null) {
+            throw new IllegalArgumentException("ingestor, index, and embedding model are required");
+        }
         this.ingestor = ingestor;
         this.index = index;
         this.searchEngine = new BM25SearchEngine(index);
@@ -36,7 +44,7 @@ public final class SearchCatalog {
         this.trustSearchEngine = new TrustAwareSearchEngine(searchEngine, trustMetadata);
         this.autocomplete = new AutocompleteTrie();
         this.linkGraph = new LinkGraph();
-        this.embeddingModel = new HashingEmbeddingModel(128);
+        this.embeddingModel = embeddingModel;
         this.vectorIndex = new VectorIndex(embeddingModel.dimension());
         this.hnswIndex = new HnswIndex(embeddingModel.dimension(), 8, 64, 42L);
         for (IndexedDocument document : index.documents()) {

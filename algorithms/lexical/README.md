@@ -25,6 +25,7 @@ The lexical index is the first search-engine component in NEBULA.
 - Freshness and source-authority trust-aware reranking
 - Document link graph and PageRank authority signal
 - Exact brute-force semantic retrieval baseline
+- Character n-gram semantic baseline for subword robustness experiments
 - Explainable hybrid lexical-semantic score fusion
 - Custom multi-layer HNSW approximate-nearest-neighbor retrieval
 
@@ -102,7 +103,7 @@ Semantic retrieval is available as an experimental baseline:
 GET /v1/search?q=deployment%20gateway&mode=semantic&limit=10
 ```
 
-The current model is deterministic feature hashing (`hashing-v1-d128`). It is intentionally transparent and serves as the correctness baseline for a future learned embedding model. HNSW search is available with `mode=hnsw` and is evaluated against exact cosine search for recall.
+The default model is deterministic feature hashing (`hashing-v1-d128`). It is intentionally transparent and serves as the primary correctness baseline for a future learned embedding model. A character n-gram model (`char-ngram-v1-d128-3-5`) is available through the programmatic catalog constructor for controlled subword experiments. HNSW search is available with `mode=hnsw` and is evaluated against exact cosine search for recall.
 
 ```text
 GET /v1/search?q=deployment%20gateway&mode=hnsw&limit=10
