@@ -14,7 +14,7 @@ import java.util.List;
 
 /** Writes a versioned immutable segment using an atomic temporary-file swap. */
 public final class IndexSegmentWriter {
-    private static final String MAGIC = "NEBULA_SEGMENT_V1";
+    private static final String MAGIC = "NEBULA_SEGMENT_V2";
 
     public void write(Path target, InvertedIndex index) throws IOException {
         if (target == null || index == null) throw new IllegalArgumentException("target and index are required");
@@ -62,6 +62,8 @@ public final class IndexSegmentWriter {
         writeString(data, document.getTitle());
         writeString(data, document.getText());
         writeString(data, document.getContentHash());
+        data.writeInt(document.getLinks().size());
+        for (String link : document.getLinks()) writeString(data, link);
         data.writeInt(indexed.getDocumentLength());
     }
 

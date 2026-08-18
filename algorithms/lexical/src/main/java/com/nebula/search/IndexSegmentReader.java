@@ -14,7 +14,7 @@ import java.util.Map;
 
 /** Loads and validates an immutable NEBULA index segment. */
 public final class IndexSegmentReader {
-    private static final String MAGIC = "NEBULA_SEGMENT_V1";
+    private static final String MAGIC = "NEBULA_SEGMENT_V2";
 
     public PersistedIndexSegment read(Path source) throws IOException {
         try (InputStream input = Files.newInputStream(source);
@@ -36,8 +36,11 @@ public final class IndexSegmentReader {
             String title = readString(data);
             String text = readString(data);
             String contentHash = readString(data);
+            int linkCount = checkedCount(data.readInt(), "link");
+            List<String> links = new ArrayList<>();
+            for (int linkIndex = 0; linkIndex < linkCount; linkIndex++) links.add(readString(data));
             int documentLength = data.readInt();
-            DocumentRecord document = new DocumentRecord(documentId, sourcePath, sourceType, title, text, contentHash);
+            DocumentRecord document = new DocumentRecord(documentId, sourcePath, sourceType, title, text, contentHash, links);
             documents.put(documentId, new IndexedDocument(document, documentLength));
         }
         return documents;
