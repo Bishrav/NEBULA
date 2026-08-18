@@ -1,0 +1,130 @@
+# NEBULA Lexical Index
+
+The lexical index is the first search-engine component in NEBULA.
+
+## Current capabilities
+
+- Locale-stable lowercase tokenization
+- Unicode letter and number token support
+- Positional posting lists
+- Term frequency and document frequency
+- Document length and average document length statistics
+- Duplicate document protection
+- Deterministic in-memory indexing
+- BM25 ranking with configurable `k1` and `b`
+- Stable top-k ordering
+- Per-term score contributions for explainability
+- Exact quoted phrase queries using positional postings
+- Search catalog that joins ingestion and lexical retrieval
+- HTTP API for indexing Markdown and querying ranked results
+- Frequency-ranked prefix autocomplete with a trie
+- Delta and variable-byte posting-list compression
+- Versioned immutable index segments with atomic snapshot writes
+- Multi-segment restoration after process restart
+- Precision@k, Recall@k, MRR, and NDCG evaluation harness
+- Freshness and source-authority trust-aware reranking
+- Document link graph and PageRank authority signal
+- Exact brute-force semantic retrieval baseline
+- Character n-gram semantic baseline for subword robustness experiments
+- Explainable hybrid lexical-semantic score fusion
+- Custom multi-layer HNSW approximate-nearest-neighbor retrieval
+
+The initial analyzer intentionally does not remove stop words or stem terms. Those policies will be evaluated against a labelled query set rather than introduced without evidence.
+
+## BM25 baseline
+
+The current ranker uses:
+
+```text
+IDF(t) = log(1 + (N - df(t) + 0.5) / (df(t) + 0.5))
+
+score(D, Q) = sum(IDF(t) * TF_normalized(t, D))
+```
+
+The default parameters are `k1 = 1.2` and `b = 0.75`. Each result exposes the contribution of every matched query term so later freshness, authority, and semantic signals can be evaluated separately.
+
+## Search API
+
+The local lexical service runs on port `8082`:
+
+```powershell
+java -cp .\algorithms\lexical\out com.nebula.search.LexicalSearchHttpServer
+```
+
+Index a document:
+
+```powershell
+Invoke-WebRequest `
+  -Method Post `
+  -Uri http://127.0.0.1:8082/v1/index/documents `
+  -Headers @{ 'X-Source-Path' = 'docs/runbook.md' } `
+  -ContentType 'text/markdown' `
+  -Body '# Runbook`n`nCheck service health.'
+```
+
+Search the index:
+
+```text
+GET /v1/search?q=service%20health&limit=10
+```
+
+Every result includes the document ID, title, source path, BM25 score, and per-term score contributions.
+
+Quoted phrases use positional postings instead of a string contains check:
+
+```text
+GET /v1/search?q=%22query%20coordinator%22
+```
+
+Autocomplete is available through:
+
+```text
+GET /v1/suggest?q=serv&limit=10
+```
+
+Suggestions are ranked by observed term frequency and then by a stable lexical tie-break.
+
+Trust-aware search is available as an opt-in mode:
+
+```text
+GET /v1/search?q=incident%20response&mode=trust&limit=10
+```
+
+Documents indexed through the HTTP API may provide:
+
+- `X-Source-Authority`: a value from `0.0` to `1.0`
+- `X-Last-Verified-Epoch-Millis`: verification timestamp
+
+Trust-aware results include `signal:lexical`, `signal:authority`, `signal:pagerank`, and `signal:freshness` explanations. Baseline BM25 remains the default mode.
+
+Semantic retrieval is available as an experimental baseline:
+
+```text
+GET /v1/search?q=deployment%20gateway&mode=semantic&limit=10
+```
+
+The default model is deterministic feature hashing (`hashing-v1-d128`). It is intentionally transparent and serves as the primary correctness baseline for a future learned embedding model. A character n-gram model (`char-ngram-v1-d128-3-5`) is available through the programmatic catalog constructor for controlled subword experiments. HNSW search is available with `mode=hnsw` and is evaluated against exact cosine search for recall.
+
+```text
+GET /v1/search?q=deployment%20gateway&mode=hnsw&limit=10
+```
+
+Hybrid retrieval combines the BM25 and exact semantic candidate sets. Each channel is min–max normalized over its candidates, then fused with equal default weights. Every result exposes `signal:lexical`, `signal:semantic`, and `signal:hybrid`, making the score suitable for controlled ablation studies.
+
+```text
+GET /v1/search?q=deployment%20gateway&mode=hybrid&limit=10
+```
+
+## Compression
+
+Posting positions and document ordinals use delta encoding followed by variable-byte encoding. The codec has a correctness round-trip test and records the compact representation before segment persistence is introduced.
+
+## Immutable segments
+
+`IndexSegmentWriter` persists document metadata, terms, postings, and compressed positions in a versioned binary segment. It writes to a temporary file and atomically replaces the target when the platform supports atomic moves. `IndexSegmentReader` validates the segment header and reconstructs a read-only snapshot.
+
+`IndexSegmentLoader` loads all `.idx` files in lexical filename order into one searchable index. A restored catalog can be created with `SearchCatalog.fromSegmentDirectory(directory)` or served through `LexicalSearchHttpServer.createFromSegmentDirectory(...)`.
+
+## Evaluation
+
+The evaluation package supports versioned graded queries and reports macro-averaged Precision@k, Recall@k, MRR, and NDCG. The starter corpus, trust metadata fixture, and ablation runner are documented in [`benchmarks/evaluation`](../../benchmarks/evaluation/README.md).
