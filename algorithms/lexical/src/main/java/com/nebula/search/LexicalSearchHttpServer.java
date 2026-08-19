@@ -152,7 +152,9 @@ public final class LexicalSearchHttpServer {
             } else {
                 results = catalog.search(query, limit);
             }
-            if (telemetryStore == null) {
+            if (telemetryStore != null && !consentedForResearch(exchange)) {
+                // Search remains available without opting into persistent research telemetry.
+            } else if (telemetryStore == null) {
                 searchMetrics.record(normalizedMode(parameters.get("mode")), results.size(), System.nanoTime() - started);
             } else {
                 telemetryStore.recordSearch(sessionId(exchange), query, normalizedMode(parameters.get("mode")), results.size(), System.nanoTime() - started);
@@ -237,8 +239,10 @@ public final class LexicalSearchHttpServer {
                         jsonString(body, "query"), jsonString(body, "mode"),
                         jsonString(body, "documentId"), jsonString(body, "sourcePath"),
                         jsonBoolean(body, "useful"));
-                if (telemetryStore == null) feedbackStore.record(feedback);
-                else telemetryStore.recordFeedback(sessionId(exchange), feedback);
+                if (telemetryStore == null || consentedForResearch(exchange)) {
+                    if (telemetryStore == null) feedbackStore.record(feedback);
+                    else telemetryStore.recordFeedback(sessionId(exchange), feedback);
+                }
                 respond(exchange, 201, "{\"status\":\"recorded\",\"total\":" + feedbackStore.total() + "}");
             } catch (IllegalArgumentException exception) {
                 respond(exchange, 400, "{\"error\":\"" + escape(exception.getMessage()) + "\"}");
@@ -314,6 +318,10 @@ public final class LexicalSearchHttpServer {
         String value = exchange.getRequestHeaders().getFirst("X-Session-Id");
         if (value == null || value.trim().isEmpty()) return "anonymous";
         return value.length() > 128 ? value.substring(0, 128) : value;
+    }
+
+    private static boolean consentedForResearch(HttpExchange exchange) {
+        return "true".equalsIgnoreCase(exchange.getRequestHeaders().getFirst("X-Research-Consent"));
     }
 
     private static String searchJson(String query, List<SearchResult> results) {

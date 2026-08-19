@@ -41,6 +41,8 @@ The search workspace creates one anonymous session ID per browser profile and se
 
 The running build describes its research event schema and privacy boundary at `GET http://127.0.0.1:8082/v1/research/manifest`.
 
+The UI sends `X-Research-Consent: true` only after the participant accepts the study dialog. Persistent servers ignore research events without that header; in-memory test servers continue recording for integration-test coverage.
+
 Export the persisted research events for analysis:
 
 ```powershell

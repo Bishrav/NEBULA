@@ -14,7 +14,10 @@
         <h1>Find the evidence behind an engineering answer.</h1>
         <p class="lede">Search technical knowledge with transparent lexical, semantic, and hybrid ranking signals.</p>
       </div>
-      <div class="status-pill"><span id="status-dot"></span><span id="status-text">Ready</span></div>
+      <div class="topbar-actions">
+        <button id="study-session" class="study-button">Start study session</button>
+        <div class="status-pill"><span id="status-dot"></span><span id="status-text">Ready</span></div>
+      </div>
     </header>
 
     <section class="search-panel" aria-label="Search controls">
@@ -80,6 +83,14 @@
     <h2 id="evidence-title">Document</h2>
     <p id="evidence-path" class="result-path"></p>
     <pre id="evidence-text"></pre>
+  </dialog>
+  <dialog id="consent-dialog" class="consent-dialog">
+    <p class="eyebrow">OPTIONAL RESEARCH SESSION</p>
+    <h2>Join the NEBULA pilot</h2>
+    <p>This session records your searches, ranking mode, response time, and usefulness feedback to help evaluate NEBULA. It does not ask for your name, email, or account identity.</p>
+    <p>Your browser creates an anonymous session ID. You may stop participating at any time by clearing this browser's site data.</p>
+    <label class="consent-check"><input id="consent-checkbox" type="checkbox"> I understand and consent to anonymous pilot telemetry.</label>
+    <div class="consent-actions"><button id="cancel-consent" class="secondary-button">Cancel</button><button id="accept-consent" class="study-button" disabled>Start session</button></div>
   </dialog>
   <script src="app.js"></script>
 </body>

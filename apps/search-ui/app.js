@@ -13,7 +13,11 @@
   var evidenceDialog = document.getElementById('evidence-dialog');
   var metricsRefresh = document.getElementById('refresh-metrics');
   var suggestions = document.getElementById('suggestions');
-  var sessionId = getSessionId();
+  var studyButton = document.getElementById('study-session');
+  var consentDialog = document.getElementById('consent-dialog');
+  var consentCheckbox = document.getElementById('consent-checkbox');
+  var consented = window.localStorage.getItem('nebula-pilot-consent-v1') === 'true';
+  var sessionId = consented ? getSessionId() : null;
   var suggestionTimer;
   var suggestionIndex = -1;
 
@@ -39,13 +43,28 @@
     if (!button) return;
     button.disabled = true;
     fetch(apiBase.value.replace(/\/$/, '') + '/v1/feedback', {
-      method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Session-Id': sessionId },
+      method: 'POST', headers: researchHeaders(),
       body: JSON.stringify({ query: activeQuery, mode: activeMode, documentId: button.dataset.feedbackId,
         sourcePath: button.dataset.feedbackPath, useful: button.dataset.feedbackUseful === 'true' })
     }).then(function (response) { if (!response.ok) throw new Error('feedback failed'); button.textContent = 'Recorded'; loadMetrics(); })
       .catch(function () { button.disabled = false; button.textContent = 'Try again'; });
   });
   document.getElementById('close-evidence').addEventListener('click', function () { evidenceDialog.close(); });
+  studyButton.addEventListener('click', function () {
+    if (consented) { setStatus('Study active', false); return; }
+    consentDialog.showModal();
+  });
+  consentCheckbox.addEventListener('change', function () { document.getElementById('accept-consent').disabled = !consentCheckbox.checked; });
+  document.getElementById('cancel-consent').addEventListener('click', function () { consentDialog.close(); });
+  document.getElementById('accept-consent').addEventListener('click', function () {
+    consented = true;
+    window.localStorage.setItem('nebula-pilot-consent-v1', 'true');
+    sessionId = getSessionId();
+    studyButton.textContent = 'Study active';
+    consentDialog.close();
+    setStatus('Study active', false);
+  });
+  if (consented) studyButton.textContent = 'Study active';
   metricsRefresh.addEventListener('click', loadMetrics);
   loadMetrics();
 
@@ -83,7 +102,7 @@
     if (mode.value) params.set('mode', mode.value);
     if (!query.value.trim()) return;
     setStatus('Searching', true);
-    fetch(apiBase.value.replace(/\/$/, '') + '/v1/search?' + params.toString(), { headers: { 'X-Session-Id': sessionId } })
+    fetch(apiBase.value.replace(/\/$/, '') + '/v1/search?' + params.toString(), { headers: researchHeaders() })
       .then(function (response) { if (!response.ok) throw new Error('API returned ' + response.status); return response.json(); })
       .then(function (payload) {
         document.getElementById('result-count').textContent = payload.results.length;
@@ -111,6 +130,11 @@
     var created = window.crypto && window.crypto.randomUUID ? window.crypto.randomUUID() : 'session-' + Date.now() + '-' + Math.random().toString(16).slice(2);
     window.localStorage.setItem(key, created);
     return created;
+  }
+  function researchHeaders() {
+    var headers = { 'Content-Type': 'application/json' };
+    if (consented && sessionId) { headers['X-Session-Id'] = sessionId; headers['X-Research-Consent'] = 'true'; }
+    return headers;
   }
   function loadMetrics() {
     var base = apiBase.value.replace(/\/$/, '');

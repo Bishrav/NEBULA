@@ -18,12 +18,15 @@ public final class ResearchExportTest {
         server.start();
         try {
             String base = "http://127.0.0.1:" + server.getPort();
-            Response search = request("GET", base + "/v1/search?q=shard%20failure", "session-export");
-            check(search.status == 200, "search is recorded");
+            Response nonConsentedSearch = request("GET", base + "/v1/search?q=shard%20failure", "session-no-consent");
+            check(nonConsentedSearch.status == 200, "search works without research consent");
+            Response search = request("GET", base + "/v1/search?q=shard%20failure", "session-export", true);
+            check(search.status == 200, "consented search is recorded");
             Response exportJson = request("GET", base + "/v1/research/export?format=json", null);
             check(exportJson.status == 200, "JSON export responds");
             check(exportJson.contentType.contains("application/json"), "JSON content type is returned");
             check(exportJson.body.contains("\"sessionId\":\"session-export\""), "JSON contains session ID");
+            check(!exportJson.body.contains("session-no-consent"), "non-consented search is not persisted");
             Response exportCsv = request("GET", base + "/v1/research/export?format=csv", null);
             check(exportCsv.status == 200, "CSV export responds");
             check(exportCsv.contentType.contains("text/csv"), "CSV content type is returned");
@@ -40,9 +43,14 @@ public final class ResearchExportTest {
     }
 
     private static Response request(String method, String url, String sessionId) throws Exception {
+        return request(method, url, sessionId, false);
+    }
+
+    private static Response request(String method, String url, String sessionId, boolean consented) throws Exception {
         HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
         connection.setRequestMethod(method);
         if (sessionId != null) connection.setRequestProperty("X-Session-Id", sessionId);
+        if (consented) connection.setRequestProperty("X-Research-Consent", "true");
         InputStream input = connection.getResponseCode() >= 400 ? connection.getErrorStream() : connection.getInputStream();
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         byte[] buffer = new byte[1024];
