@@ -11,8 +11,22 @@
   var activeQuery = '';
   var activeMode = 'bm25';
   var evidenceDialog = document.getElementById('evidence-dialog');
+  var suggestions = document.getElementById('suggestions');
+  var suggestionTimer;
+  var suggestionIndex = -1;
 
   form.addEventListener('submit', function (event) { event.preventDefault(); search(); });
+  query.addEventListener('input', function () {
+    clearTimeout(suggestionTimer);
+    suggestionTimer = setTimeout(loadSuggestions, 120);
+  });
+  query.addEventListener('keydown', function (event) {
+    var options = suggestions.querySelectorAll('[data-suggestion]');
+    if (event.key === 'ArrowDown' && options.length) { event.preventDefault(); suggestionIndex = Math.min(suggestionIndex + 1, options.length - 1); highlightSuggestion(options); }
+    if (event.key === 'ArrowUp' && options.length) { event.preventDefault(); suggestionIndex = Math.max(suggestionIndex - 1, 0); highlightSuggestion(options); }
+    if (event.key === 'Enter' && suggestionIndex >= 0 && options[suggestionIndex]) { event.preventDefault(); options[suggestionIndex].click(); }
+    if (event.key === 'Escape') clearSuggestions();
+  });
   document.querySelectorAll('[data-query]').forEach(function (button) {
     button.addEventListener('click', function () { query.value = button.getAttribute('data-query'); search(); });
   });
@@ -30,6 +44,32 @@
       .catch(function () { button.disabled = false; button.textContent = 'Try again'; });
   });
   document.getElementById('close-evidence').addEventListener('click', function () { evidenceDialog.close(); });
+
+  function loadSuggestions() {
+    var value = query.value.trim();
+    if (!value || value.length < 2) { clearSuggestions(); return; }
+    var prefix = value.split(/\s+/).pop();
+    fetch(apiBase.value.replace(/\/$/, '') + '/v1/suggest?q=' + encodeURIComponent(prefix) + '&limit=6')
+      .then(function (response) { return response.ok ? response.json() : { suggestions: [] }; })
+      .then(function (payload) { renderSuggestions(payload.suggestions || [], value.slice(0, value.length - prefix.length)); })
+      .catch(clearSuggestions);
+  }
+
+  function renderSuggestions(items, leadingText) {
+    suggestionIndex = -1;
+    suggestions.innerHTML = items.map(function (item) {
+      return '<button type="button" role="option" data-suggestion="' + escapeHtml(leadingText + item) + '">' + escapeHtml(leadingText + item) + '</button>';
+    }).join('');
+    suggestions.querySelectorAll('[data-suggestion]').forEach(function (button) {
+      button.addEventListener('click', function () { query.value = button.dataset.suggestion; clearSuggestions(); search(); });
+    });
+  }
+
+  function highlightSuggestion(options) {
+    options.forEach(function (option, index) { option.classList.toggle('selected', index === suggestionIndex); });
+  }
+
+  function clearSuggestions() { suggestionIndex = -1; suggestions.innerHTML = ''; }
 
   function search() {
     var started = performance.now();
