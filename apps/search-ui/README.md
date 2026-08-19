@@ -18,7 +18,7 @@ Engineering users will trust and prefer NEBULA when they can find a relevant sou
 
 ## Current limitations
 
-- Results currently show source metadata and ranking explanations, not text passages.
+- Results can open the indexed source text in an evidence preview for verification.
 - One-character technical term corrections are shown in the ranking explanations when the index has a close vocabulary match.
 - The API must be running separately.
 - Authentication, permissions, filters, feedback capture, and document previews are future milestones.

@@ -48,6 +48,11 @@ button { cursor: pointer; border: 0; color: var(--text); }
 .feedback-actions { display: flex; align-items: center; gap: 8px; margin-top: 18px; color: var(--muted); font-size: 12px; }
 .feedback-actions button { border: 1px solid var(--line); border-radius: 6px; background: transparent; color: var(--cyan); padding: 5px 10px; }
 .feedback-actions button:disabled { color: var(--muted); cursor: default; }
+.evidence-dialog { width: min(850px, calc(100% - 32px)); max-height: 82vh; border: 1px solid var(--line); border-radius: 16px; background: #0b1729; color: var(--text); padding: 28px; box-shadow: 0 24px 90px rgba(0,0,0,.55); }
+.evidence-dialog::backdrop { background: rgba(2,7,16,.74); }
+.evidence-dialog h2 { margin: 0 0 4px; }
+.evidence-dialog pre { white-space: pre-wrap; overflow: auto; color: #d8e5f7; background: #07111f; border: 1px solid var(--line); border-radius: 10px; padding: 18px; max-height: 58vh; }
+.close-evidence { float: right; background: transparent; color: var(--muted); font-size: 28px; line-height: 1; }
 .signal { background: #0c192d; border: 1px solid var(--line); border-radius: 7px; padding: 6px 9px; color: var(--muted); font: 11px ui-monospace, monospace; }
 .signal b { color: var(--text); font-weight: 600; }
 .empty-state { text-align: center; border: 1px dashed var(--line); border-radius: 16px; padding: 62px 20px; color: var(--muted); }

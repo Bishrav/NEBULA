@@ -38,6 +38,10 @@ public final class LexicalSearchHttpServerTest {
             check(hnswSearch.status == 200, "HNSW search responds");
             check(hnswSearch.body.contains("ann:efSearch"), "HNSW configuration is returned");
 
+            Response document = request("GET", base + "/v1/documents?path=docs%2Fsharding.md", null, null);
+            check(document.status == 200, "document preview responds");
+            check(document.body.contains("Consistent hashing"), "document preview returns indexed evidence");
+
             Response feedback = request("POST", base + "/v1/feedback", "{\"query\":\"consistent hashing\",\"mode\":\"hybrid\",\"documentId\":\"demo\",\"sourcePath\":\"docs/sharding.md\",\"useful\":true}", null);
             check(feedback.status == 201, "feedback is recorded");
             Response feedbackMetrics = request("GET", base + "/v1/metrics/feedback", null, null);

@@ -10,12 +10,15 @@
   var statusDot = document.getElementById('status-dot');
   var activeQuery = '';
   var activeMode = 'bm25';
+  var evidenceDialog = document.getElementById('evidence-dialog');
 
   form.addEventListener('submit', function (event) { event.preventDefault(); search(); });
   document.querySelectorAll('[data-query]').forEach(function (button) {
     button.addEventListener('click', function () { query.value = button.getAttribute('data-query'); search(); });
   });
   results.addEventListener('click', function (event) {
+    var evidenceButton = event.target.closest('[data-evidence-path]');
+    if (evidenceButton) { openEvidence(evidenceButton.dataset.evidencePath); return; }
     var button = event.target.closest('[data-feedback-useful]');
     if (!button) return;
     button.disabled = true;
@@ -26,6 +29,7 @@
     }).then(function (response) { if (!response.ok) throw new Error('feedback failed'); button.textContent = 'Recorded'; })
       .catch(function () { button.disabled = false; button.textContent = 'Try again'; });
   });
+  document.getElementById('close-evidence').addEventListener('click', function () { evidenceDialog.close(); });
 
   function search() {
     var started = performance.now();
@@ -49,11 +53,17 @@
   function render(items) {
     if (!items.length) { results.innerHTML = '<div class="empty-state"><h2>No matching evidence</h2><p>Try a broader question or another ranking mode.</p></div>'; return; }
     results.innerHTML = items.map(function (item) {
-      var signals = Object.keys(item.termContributions || {}).map(function (key) { return '<span class="signal">' + escapeHtml(key) + ' <b>' + Number(item.termContributions[key]).toFixed(4) + '</b></span>'; }).join('');
-      return '<article class="result-card"><div class="result-head"><div><h2 class="result-title">' + escapeHtml(item.title) + '</h2><div class="result-path">' + escapeHtml(item.sourcePath) + '</div></div><div class="score">score ' + Number(item.score).toFixed(4) + '</div></div><div class="signals">' + signals + '</div><div class="feedback-actions"><span>Was this useful?</span><button data-feedback-useful="true" data-feedback-id="' + escapeHtml(item.documentId) + '" data-feedback-path="' + escapeHtml(item.sourcePath) + '">Yes</button><button data-feedback-useful="false" data-feedback-id="' + escapeHtml(item.documentId) + '" data-feedback-path="' + escapeHtml(item.sourcePath) + '">Not yet</button></div></article>';
+        var signals = Object.keys(item.termContributions || {}).map(function (key) { return '<span class="signal">' + escapeHtml(key) + ' <b>' + Number(item.termContributions[key]).toFixed(4) + '</b></span>'; }).join('');
+      return '<article class="result-card"><div class="result-head"><div><h2 class="result-title">' + escapeHtml(item.title) + '</h2><div class="result-path">' + escapeHtml(item.sourcePath) + '</div></div><div class="score">score ' + Number(item.score).toFixed(4) + '</div></div><div class="signals">' + signals + '</div><div class="feedback-actions"><button data-evidence-path="' + escapeHtml(item.sourcePath) + '">Open evidence</button><span>Was this useful?</span><button data-feedback-useful="true" data-feedback-id="' + escapeHtml(item.documentId) + '" data-feedback-path="' + escapeHtml(item.sourcePath) + '">Yes</button><button data-feedback-useful="false" data-feedback-id="' + escapeHtml(item.documentId) + '" data-feedback-path="' + escapeHtml(item.sourcePath) + '">Not yet</button></div></article>';
     }).join('');
   }
 
   function setStatus(text, active) { statusText.textContent = text; statusDot.style.background = active ? '#f8c76b' : (text === 'Offline' ? '#ff788b' : 'var(--green)'); }
+  function openEvidence(sourcePath) {
+    fetch(apiBase.value.replace(/\/$/, '') + '/v1/documents?path=' + encodeURIComponent(sourcePath))
+      .then(function (response) { if (!response.ok) throw new Error('document unavailable'); return response.json(); })
+      .then(function (payload) { document.getElementById('evidence-title').textContent = payload.title; document.getElementById('evidence-path').textContent = payload.sourcePath; document.getElementById('evidence-text').textContent = payload.text; evidenceDialog.showModal(); })
+      .catch(function () { setStatus('Evidence unavailable', false); });
+  }
   function escapeHtml(value) { return String(value).replace(/[&<>"']/g, function (character) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]; }); }
 }());

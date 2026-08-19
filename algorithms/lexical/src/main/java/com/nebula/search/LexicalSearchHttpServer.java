@@ -36,6 +36,7 @@ public final class LexicalSearchHttpServer {
         server.createContext("/health/ready", exchange -> ready(exchange));
         server.createContext("/v1/index/documents", new IndexHandler());
         server.createContext("/v1/search", new SearchHandler());
+        server.createContext("/v1/documents", new DocumentHandler());
         server.createContext("/v1/suggest", new SuggestHandler());
         server.createContext("/v1/feedback", new FeedbackHandler());
         server.createContext("/v1/metrics/feedback", exchange -> feedbackMetrics(exchange));
@@ -164,6 +165,30 @@ public final class LexicalSearchHttpServer {
                 return;
             }
             respond(exchange, 200, suggestionsJson(prefix, catalog.suggest(prefix, limit)));
+        }
+    }
+
+    private final class DocumentHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
+            if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
+                respond(exchange, 405, "{\"error\":\"method not allowed\"}");
+                return;
+            }
+            String sourcePath = queryParameters(exchange.getRequestURI().getRawQuery()).get("path");
+            if (sourcePath == null || sourcePath.trim().isEmpty()) {
+                respond(exchange, 400, "{\"error\":\"path is required\"}");
+                return;
+            }
+            com.nebula.ingestion.DocumentRecord document = catalog.documentBySourcePath(sourcePath);
+            if (document == null) {
+                respond(exchange, 404, "{\"error\":\"document not found\"}");
+                return;
+            }
+            respond(exchange, 200, "{\"documentId\":\"" + escape(document.getDocumentId())
+                    + "\",\"title\":\"" + escape(document.getTitle())
+                    + "\",\"sourcePath\":\"" + escape(document.getSourcePath())
+                    + "\",\"text\":\"" + escape(document.getText()) + "\"}");
         }
     }
 

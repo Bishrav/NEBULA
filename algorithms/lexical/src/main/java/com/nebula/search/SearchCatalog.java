@@ -113,6 +113,14 @@ public final class SearchCatalog {
         return index.documentCount();
     }
 
+    public DocumentRecord documentBySourcePath(String sourcePath) {
+        if (sourcePath == null) return null;
+        for (IndexedDocument document : index.documents()) {
+            if (sourcePath.equals(document.getDocument().getSourcePath())) return document.getDocument();
+        }
+        return null;
+    }
+
     public List<String> suggest(String prefix, int limit) {
         return autocomplete.suggest(prefix, limit);
     }
