@@ -41,6 +41,8 @@ The search workspace renders these telemetry values beside the results so pilot 
 
 Persistent event records are session-aware: each search includes an anonymous session ID, timestamp, query, ranking mode, result count, and latency; feedback includes the same session ID and the judged result. This supports query-level error analysis and task completion studies while keeping identity out of scope.
 
+Researchers can export these records from `GET /v1/research/export?format=csv` or `GET /v1/research/export?format=json`. CSV is intended for spreadsheets and notebooks; JSON preserves the event structure for custom analysis. Treat exports as pilot research data and remove or anonymize them according to the study protocol.
+
 ## Research safeguards
 
 Do not treat a small interview sample as proof of product-market fit. Separate retrieval quality from interface usability, preserve failed searches for error analysis, and obtain consent before collecting user queries or identifying information.

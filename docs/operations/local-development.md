@@ -39,6 +39,13 @@ The telemetry file contains local research events only; protect it like other pi
 
 The search workspace creates one anonymous session ID per browser profile and sends it as `X-Session-Id`. The API records that ID, an epoch timestamp, and the query with each persisted event. No account or personal identity is required for session-level analysis.
 
+Export the persisted research events for analysis:
+
+```powershell
+Invoke-WebRequest 'http://127.0.0.1:8082/v1/research/export?format=csv' -OutFile '.\data\nebula-research.csv'
+Invoke-WebRequest 'http://127.0.0.1:8082/v1/research/export?format=json' -OutFile '.\data\nebula-research.json'
+```
+
 ## Start the search workspace
 
 In a second terminal:

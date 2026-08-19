@@ -54,6 +54,37 @@ public final class PersistentTelemetryStore {
     public SearchMetrics searchMetrics() { return searchMetrics; }
     public Path file() { return file; }
 
+    public synchronized String exportJson() throws IOException {
+        List<String> lines = Files.exists(file) ? Files.readAllLines(file, StandardCharsets.UTF_8) : List.of();
+        StringBuilder body = new StringBuilder("[");
+        int count = 0;
+        for (String line : lines) {
+            if (line.trim().isEmpty()) continue;
+            if (count++ > 0) body.append(',');
+            body.append(line.trim());
+        }
+        return body.append(']').toString();
+    }
+
+    public synchronized String exportCsv() throws IOException {
+        List<String> lines = Files.exists(file) ? Files.readAllLines(file, StandardCharsets.UTF_8) : List.of();
+        StringBuilder body = new StringBuilder("type,sessionId,timestamp,query,mode,results,latencyNanos,documentId,sourcePath,useful\n");
+        for (String line : lines) {
+            if (line.trim().isEmpty()) continue;
+            body.append(csv(stringField(line, "type"))).append(',')
+                    .append(csv(optionalString(line, "sessionId"))).append(',')
+                    .append(optionalNumber(line, "timestamp")).append(',')
+                    .append(csv(optionalString(line, "query"))).append(',')
+                    .append(csv(optionalString(line, "mode"))).append(',')
+                    .append(optionalNumber(line, "results")).append(',')
+                    .append(optionalNumber(line, "latencyNanos")).append(',')
+                    .append(csv(optionalString(line, "documentId"))).append(',')
+                    .append(csv(optionalString(line, "sourcePath"))).append(',')
+                    .append(optionalBoolean(line, "useful")).append('\n');
+        }
+        return body.toString();
+    }
+
     private void replay(List<String> lines) {
         for (String line : lines) {
             try {
@@ -81,16 +112,32 @@ public final class PersistentTelemetryStore {
         throw new IllegalArgumentException("missing field: " + field);
     }
 
+    private static String optionalString(String json, String field) {
+        try { return stringField(json, field); } catch (IllegalArgumentException ignored) { return ""; }
+    }
+
     private static long numberField(String json, String field) {
         Matcher matcher = NUMBER.matcher(json);
         while (matcher.find()) if (field.equals(matcher.group(1))) return Long.parseLong(matcher.group(2));
         throw new IllegalArgumentException("missing field: " + field);
     }
 
+    private static String optionalNumber(String json, String field) {
+        try { return Long.toString(numberField(json, field)); } catch (IllegalArgumentException ignored) { return ""; }
+    }
+
     private static boolean booleanField(String json, String field) {
         Matcher matcher = BOOLEAN.matcher(json);
         while (matcher.find()) if (field.equals(matcher.group(1))) return Boolean.parseBoolean(matcher.group(2));
         throw new IllegalArgumentException("missing field: " + field);
+    }
+
+    private static String optionalBoolean(String json, String field) {
+        try { return Boolean.toString(booleanField(json, field)); } catch (IllegalArgumentException ignored) { return ""; }
+    }
+
+    private static String csv(String value) {
+        return "\"" + value.replace("\"", "\"\"") + "\"";
     }
 
     private static String escape(String value) { return value.replace("\\", "\\\\").replace("\"", "\\\"").replace("\r", "\\r").replace("\n", "\\n"); }

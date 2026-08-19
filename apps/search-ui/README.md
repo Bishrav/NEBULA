@@ -23,5 +23,6 @@ Engineering users will trust and prefer NEBULA when they can find a relevant sou
 - One-character technical term corrections are shown in the ranking explanations when the index has a close vocabulary match.
 - Pilot analytics display search volume, zero-result rate, latency, ranking-mode usage, and usefulness feedback.
 - Browser-local pilot session IDs connect searches and feedback for research analysis without requiring user accounts.
+- Persisted pilot events can be exported as CSV or JSON from `/v1/research/export`.
 - The API must be running separately.
 - Authentication, permissions, filters, feedback capture, and document previews are future milestones.

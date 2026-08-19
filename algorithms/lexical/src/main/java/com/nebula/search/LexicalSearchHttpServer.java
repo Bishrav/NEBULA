@@ -46,6 +46,7 @@ public final class LexicalSearchHttpServer {
         server.createContext("/v1/feedback", new FeedbackHandler());
         server.createContext("/v1/metrics/feedback", exchange -> feedbackMetrics(exchange));
         server.createContext("/v1/metrics/search", exchange -> searchMetrics(exchange));
+        server.createContext("/v1/research/export", exchange -> researchExport(exchange));
     }
 
     public static LexicalSearchHttpServer create(int port, SearchCatalog catalog) throws IOException {
@@ -272,6 +273,26 @@ public final class LexicalSearchHttpServer {
         respond(exchange, 200, body.append("}}").toString());
     }
 
+    private void researchExport(HttpExchange exchange) throws IOException {
+        if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
+            respond(exchange, 405, "{\"error\":\"method not allowed\"}");
+            return;
+        }
+        if (telemetryStore == null) {
+            respond(exchange, 503, "{\"error\":\"persistent telemetry is not enabled\"}");
+            return;
+        }
+        String format = queryParameters(exchange.getRequestURI().getRawQuery()).getOrDefault("format", "json").toLowerCase();
+        if (!"json".equals(format) && !"csv".equals(format)) {
+            respond(exchange, 400, "{\"error\":\"format must be json or csv\"}");
+            return;
+        }
+        String body = "csv".equals(format) ? telemetryStore.exportCsv() : telemetryStore.exportJson();
+        String contentType = "csv".equals(format) ? "text/csv; charset=utf-8" : "application/json; charset=utf-8";
+        exchange.getResponseHeaders().set("Content-Disposition", "attachment; filename=nebula-research." + format);
+        respond(exchange, 200, body, contentType);
+    }
+
     private static String normalizedMode(String mode) {
         return mode == null || mode.trim().isEmpty() ? "bm25" : mode.toLowerCase();
     }
@@ -337,8 +358,12 @@ public final class LexicalSearchHttpServer {
     }
 
     private static void respond(HttpExchange exchange, int status, String body) throws IOException {
+        respond(exchange, status, body, "application/json; charset=utf-8");
+    }
+
+    private static void respond(HttpExchange exchange, int status, String body, String contentType) throws IOException {
         byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
-        exchange.getResponseHeaders().set("Content-Type", "application/json; charset=utf-8");
+        exchange.getResponseHeaders().set("Content-Type", contentType);
         exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
         exchange.getResponseHeaders().set("Cache-Control", "no-store");
         exchange.sendResponseHeaders(status, bytes.length);
