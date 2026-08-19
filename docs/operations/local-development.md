@@ -29,6 +29,14 @@ $java = Join-Path $env:JAVA_HOME 'bin\java.exe'
 
 The API listens on `http://127.0.0.1:8082` and loads every Markdown file below the supplied directory at startup. This makes the local search index available after every restart.
 
+To persist pilot search and feedback events across API restarts, pass a third argument for the append-only telemetry log:
+
+```powershell
+& $java -cp 'build\classes' com.nebula.search.LexicalSearchHttpServer '.\benchmarks\evaluation\corpus-v1' 8082 '.\data\nebula-telemetry.jsonl'
+```
+
+The telemetry file contains local research events only; protect it like other pilot data and do not commit it to Git.
+
 ## Start the search workspace
 
 In a second terminal:

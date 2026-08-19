@@ -28,13 +28,15 @@ public final class LexicalSearchHttpServer {
     private final SearchCatalog catalog;
     private final FeedbackStore feedbackStore;
     private final SearchMetrics searchMetrics;
+    private final PersistentTelemetryStore telemetryStore;
     private ExecutorService executor;
 
-    private LexicalSearchHttpServer(HttpServer server, SearchCatalog catalog) {
+    private LexicalSearchHttpServer(HttpServer server, SearchCatalog catalog, PersistentTelemetryStore telemetryStore) {
         this.server = server;
         this.catalog = catalog;
-        this.feedbackStore = new FeedbackStore();
-        this.searchMetrics = new SearchMetrics();
+        this.telemetryStore = telemetryStore;
+        this.feedbackStore = telemetryStore == null ? new FeedbackStore() : telemetryStore.feedbackStore();
+        this.searchMetrics = telemetryStore == null ? new SearchMetrics() : telemetryStore.searchMetrics();
         server.createContext("/health/live", exchange -> respond(exchange, 200, "{\"status\":\"UP\"}"));
         server.createContext("/health/ready", exchange -> ready(exchange));
         server.createContext("/v1/index/documents", new IndexHandler());
@@ -48,7 +50,13 @@ public final class LexicalSearchHttpServer {
 
     public static LexicalSearchHttpServer create(int port, SearchCatalog catalog) throws IOException {
         return new LexicalSearchHttpServer(
-                HttpServer.create(new InetSocketAddress("127.0.0.1", port), 0), catalog);
+                HttpServer.create(new InetSocketAddress("127.0.0.1", port), 0), catalog, null);
+    }
+
+    public static LexicalSearchHttpServer create(int port, SearchCatalog catalog, Path telemetryFile) throws IOException {
+        return new LexicalSearchHttpServer(
+                HttpServer.create(new InetSocketAddress("127.0.0.1", port), 0), catalog,
+                PersistentTelemetryStore.open(telemetryFile));
     }
 
     public static LexicalSearchHttpServer createFromSegmentDirectory(int port, Path directory) throws IOException {
@@ -59,6 +67,12 @@ public final class LexicalSearchHttpServer {
         SearchCatalog catalog = new SearchCatalog();
         catalog.indexMarkdownDirectory(directory);
         return create(port, catalog);
+    }
+
+    public static LexicalSearchHttpServer createFromMarkdownDirectory(int port, Path directory, Path telemetryFile) throws IOException {
+        SearchCatalog catalog = new SearchCatalog();
+        catalog.indexMarkdownDirectory(directory);
+        return create(port, catalog, telemetryFile);
     }
 
     public void start() {
@@ -136,7 +150,11 @@ public final class LexicalSearchHttpServer {
             } else {
                 results = catalog.search(query, limit);
             }
-            searchMetrics.record(normalizedMode(parameters.get("mode")), results.size(), System.nanoTime() - started);
+            if (telemetryStore == null) {
+                searchMetrics.record(normalizedMode(parameters.get("mode")), results.size(), System.nanoTime() - started);
+            } else {
+                telemetryStore.recordSearch(normalizedMode(parameters.get("mode")), results.size(), System.nanoTime() - started);
+            }
             respond(exchange, 200, searchJson(query, results));
         }
     }
@@ -217,7 +235,8 @@ public final class LexicalSearchHttpServer {
                         jsonString(body, "query"), jsonString(body, "mode"),
                         jsonString(body, "documentId"), jsonString(body, "sourcePath"),
                         jsonBoolean(body, "useful"));
-                feedbackStore.record(feedback);
+                if (telemetryStore == null) feedbackStore.record(feedback);
+                else telemetryStore.recordFeedback(feedback);
                 respond(exchange, 201, "{\"status\":\"recorded\",\"total\":" + feedbackStore.total() + "}");
             } catch (IllegalArgumentException exception) {
                 respond(exchange, 400, "{\"error\":\"" + escape(exception.getMessage()) + "\"}");
@@ -338,7 +357,10 @@ public final class LexicalSearchHttpServer {
 
     public static void main(String[] args) throws Exception {
         int port = args.length > 1 ? Integer.parseInt(args[1]) : 8082;
-        LexicalSearchHttpServer httpServer = args.length > 0
+        Path telemetryFile = args.length > 2 ? Paths.get(args[2]) : null;
+        LexicalSearchHttpServer httpServer = args.length > 0 && telemetryFile != null
+                ? createFromMarkdownDirectory(port, Paths.get(args[0]), telemetryFile)
+                : args.length > 0
                 ? createFromMarkdownDirectory(port, Paths.get(args[0]))
                 : create(port, new SearchCatalog());
         httpServer.start();

@@ -31,11 +31,11 @@ Small and medium-sized engineering teams will adopt a self-hostable knowledge se
 
 These targets are discovery targets, not validated claims. Record task context, query text, corpus version, ranking mode, and user feedback for every session.
 
-The local pilot records result feedback through `POST /v1/feedback` and exposes the in-memory aggregate at `GET /v1/metrics/feedback`. These metrics reset when the API restarts and must not be treated as durable analytics or user identity data.
+The local pilot records result feedback through `POST /v1/feedback` and exposes the aggregate at `GET /v1/metrics/feedback`. With the optional telemetry file enabled, feedback events are replayed after restart; they remain local pilot data and must not be treated as user identity data.
 
 Autocomplete interactions should be observed during usability sessions: record whether suggestions reduce reformulation or help users discover the vocabulary they need.
 
-The API also exposes session search telemetry at `GET /v1/metrics/search`, including total searches, zero-result searches, average latency, and counts by ranking mode. These values are in-memory pilot metrics and reset on restart.
+The API also exposes search telemetry at `GET /v1/metrics/search`, including total searches, zero-result searches, average latency, and counts by ranking mode. The default test factory keeps metrics in memory; production-like local runs can enable the append-only telemetry log described in the local development guide.
 
 The search workspace renders these telemetry values beside the results so pilot observers can record usability outcomes without inspecting API responses manually.
 
