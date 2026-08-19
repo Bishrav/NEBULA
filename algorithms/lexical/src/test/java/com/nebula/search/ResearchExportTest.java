@@ -29,6 +29,10 @@ public final class ResearchExportTest {
             check(exportCsv.contentType.contains("text/csv"), "CSV content type is returned");
             check(exportCsv.body.startsWith("type,sessionId,timestamp"), "CSV contains the research header");
             check(exportCsv.body.contains("session-export"), "CSV contains session data");
+            Response manifest = request("GET", base + "/v1/research/manifest", null);
+            check(manifest.status == 200, "research manifest responds");
+            check(manifest.body.contains("\"studyVersion\":\"pilot-v1\""), "manifest contains study version");
+            check(manifest.body.contains("\"identityCollection\":false"), "manifest states privacy boundary");
             System.out.println("ResearchExportTest: PASS");
         } finally {
             server.stop();

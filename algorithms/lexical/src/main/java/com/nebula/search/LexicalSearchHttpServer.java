@@ -47,6 +47,7 @@ public final class LexicalSearchHttpServer {
         server.createContext("/v1/metrics/feedback", exchange -> feedbackMetrics(exchange));
         server.createContext("/v1/metrics/search", exchange -> searchMetrics(exchange));
         server.createContext("/v1/research/export", exchange -> researchExport(exchange));
+        server.createContext("/v1/research/manifest", exchange -> researchManifest(exchange));
     }
 
     public static LexicalSearchHttpServer create(int port, SearchCatalog catalog) throws IOException {
@@ -291,6 +292,18 @@ public final class LexicalSearchHttpServer {
         String contentType = "csv".equals(format) ? "text/csv; charset=utf-8" : "application/json; charset=utf-8";
         exchange.getResponseHeaders().set("Content-Disposition", "attachment; filename=nebula-research." + format);
         respond(exchange, 200, body, contentType);
+    }
+
+    private void researchManifest(HttpExchange exchange) throws IOException {
+        if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
+            respond(exchange, 405, "{\"error\":\"method not allowed\"}");
+            return;
+        }
+        respond(exchange, 200, "{\"studyVersion\":\"pilot-v1\",\"eventTypes\":[\"search\",\"feedback\"],"
+                + "\"exportFormats\":[\"csv\",\"json\"],\"sessionId\":{\"source\":\"X-Session-Id\",\"anonymous\":true},"
+                + "\"fields\":[\"type\",\"sessionId\",\"timestamp\",\"query\",\"mode\",\"results\","
+                + "\"latencyNanos\",\"documentId\",\"sourcePath\",\"useful\"],"
+                + "\"privacy\":{\"identityCollection\":false,\"retention\":\"study-protocol-defined\"}}");
     }
 
     private static String normalizedMode(String mode) {

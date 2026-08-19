@@ -39,6 +39,8 @@ The telemetry file contains local research events only; protect it like other pi
 
 The search workspace creates one anonymous session ID per browser profile and sends it as `X-Session-Id`. The API records that ID, an epoch timestamp, and the query with each persisted event. No account or personal identity is required for session-level analysis.
 
+The running build describes its research event schema and privacy boundary at `GET http://127.0.0.1:8082/v1/research/manifest`.
+
 Export the persisted research events for analysis:
 
 ```powershell
