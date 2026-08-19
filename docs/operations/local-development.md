@@ -24,10 +24,10 @@ New-Item -ItemType Directory -Force -Path 'build\classes' | Out-Null
 
 ```powershell
 $java = Join-Path $env:JAVA_HOME 'bin\java.exe'
-& $java -cp 'build\classes' com.nebula.search.LexicalSearchHttpServer
+& $java -cp 'build\classes' com.nebula.search.LexicalSearchHttpServer '.\benchmarks\evaluation\corpus-v1'
 ```
 
-The API listens on `http://127.0.0.1:8082`.
+The API listens on `http://127.0.0.1:8082` and loads every Markdown file below the supplied directory at startup. This makes the local search index available after every restart.
 
 ## Start the search workspace
 

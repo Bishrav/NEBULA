@@ -12,6 +12,7 @@ import java.net.InetSocketAddress;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +50,12 @@ public final class LexicalSearchHttpServer {
 
     public static LexicalSearchHttpServer createFromSegmentDirectory(int port, Path directory) throws IOException {
         return create(port, SearchCatalog.fromSegmentDirectory(directory));
+    }
+
+    public static LexicalSearchHttpServer createFromMarkdownDirectory(int port, Path directory) throws IOException {
+        SearchCatalog catalog = new SearchCatalog();
+        catalog.indexMarkdownDirectory(directory);
+        return create(port, catalog);
     }
 
     public void start() {
@@ -304,8 +311,11 @@ public final class LexicalSearchHttpServer {
     }
 
     public static void main(String[] args) throws Exception {
-        LexicalSearchHttpServer httpServer = create(8082, new SearchCatalog());
+        int port = args.length > 1 ? Integer.parseInt(args[1]) : 8082;
+        LexicalSearchHttpServer httpServer = args.length > 0
+                ? createFromMarkdownDirectory(port, Paths.get(args[0]))
+                : create(port, new SearchCatalog());
         httpServer.start();
-        System.out.println("NEBULA lexical search listening on http://127.0.0.1:8082");
+        System.out.println("NEBULA lexical search listening on http://127.0.0.1:" + port);
     }
 }

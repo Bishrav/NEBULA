@@ -5,7 +5,11 @@ import com.nebula.ingestion.DocumentRecord;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Files;
+import java.nio.charset.StandardCharsets;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /** Application boundary joining document normalization with lexical search. */
 public final class SearchCatalog {
@@ -75,6 +79,26 @@ public final class SearchCatalog {
             pageRank = PageRank.compute(linkGraph);
         }
         return document;
+    }
+
+    /** Loads all Markdown files below a directory in deterministic path order. */
+    public int indexMarkdownDirectory(Path directory) throws IOException {
+        if (directory == null || !Files.isDirectory(directory)) {
+            throw new IllegalArgumentException("directory must point to a directory");
+        }
+        List<Path> files;
+        try (java.util.stream.Stream<Path> stream = Files.walk(directory)) {
+            files = stream.filter(path -> Files.isRegularFile(path)
+                            && path.getFileName().toString().toLowerCase().endsWith(".md"))
+                    .sorted(Comparator.comparing(path -> directory.relativize(path).toString()))
+                    .collect(Collectors.toList());
+        }
+        int before = documentCount();
+        for (Path file : files) {
+            String sourcePath = directory.relativize(file).toString().replace('\\', '/');
+            indexMarkdown(sourcePath, new String(Files.readAllBytes(file), StandardCharsets.UTF_8));
+        }
+        return documentCount() - before;
     }
 
     public List<SearchResult> search(String query, int limit) {
