@@ -31,15 +31,19 @@ public final class PersistentTelemetryStore {
         return new PersistentTelemetryStore(file);
     }
 
-    public synchronized void recordSearch(String mode, int resultCount, long latencyNanos) throws IOException {
+    public synchronized void recordSearch(String sessionId, String query, String mode, int resultCount, long latencyNanos) throws IOException {
         searchMetrics.record(mode, resultCount, latencyNanos);
-        append("{\"type\":\"search\",\"mode\":\"" + escape(mode)
+        append("{\"type\":\"search\",\"sessionId\":\"" + escape(sessionId)
+                + "\",\"timestamp\":" + System.currentTimeMillis()
+                + ",\"query\":\"" + escape(query) + "\",\"mode\":\"" + escape(mode)
                 + "\",\"results\":" + resultCount + ",\"latencyNanos\":" + Math.max(0L, latencyNanos) + "}");
     }
 
-    public synchronized void recordFeedback(FeedbackRecord feedback) throws IOException {
+    public synchronized void recordFeedback(String sessionId, FeedbackRecord feedback) throws IOException {
         feedbackStore.record(feedback);
-        append("{\"type\":\"feedback\",\"query\":\"" + escape(feedback.getQuery())
+        append("{\"type\":\"feedback\",\"sessionId\":\"" + escape(sessionId)
+                + "\",\"timestamp\":" + System.currentTimeMillis()
+                + ",\"query\":\"" + escape(feedback.getQuery())
                 + "\",\"mode\":\"" + escape(feedback.getMode())
                 + "\",\"documentId\":\"" + escape(feedback.getDocumentId())
                 + "\",\"sourcePath\":\"" + escape(feedback.getSourcePath())

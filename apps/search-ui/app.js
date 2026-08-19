@@ -13,6 +13,7 @@
   var evidenceDialog = document.getElementById('evidence-dialog');
   var metricsRefresh = document.getElementById('refresh-metrics');
   var suggestions = document.getElementById('suggestions');
+  var sessionId = getSessionId();
   var suggestionTimer;
   var suggestionIndex = -1;
 
@@ -38,7 +39,7 @@
     if (!button) return;
     button.disabled = true;
     fetch(apiBase.value.replace(/\/$/, '') + '/v1/feedback', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Session-Id': sessionId },
       body: JSON.stringify({ query: activeQuery, mode: activeMode, documentId: button.dataset.feedbackId,
         sourcePath: button.dataset.feedbackPath, useful: button.dataset.feedbackUseful === 'true' })
     }).then(function (response) { if (!response.ok) throw new Error('feedback failed'); button.textContent = 'Recorded'; loadMetrics(); })
@@ -82,7 +83,7 @@
     if (mode.value) params.set('mode', mode.value);
     if (!query.value.trim()) return;
     setStatus('Searching', true);
-    fetch(apiBase.value.replace(/\/$/, '') + '/v1/search?' + params.toString())
+    fetch(apiBase.value.replace(/\/$/, '') + '/v1/search?' + params.toString(), { headers: { 'X-Session-Id': sessionId } })
       .then(function (response) { if (!response.ok) throw new Error('API returned ' + response.status); return response.json(); })
       .then(function (payload) {
         document.getElementById('result-count').textContent = payload.results.length;
@@ -103,6 +104,14 @@
   }
 
   function setStatus(text, active) { statusText.textContent = text; statusDot.style.background = active ? '#f8c76b' : (text === 'Offline' ? '#ff788b' : 'var(--green)'); }
+  function getSessionId() {
+    var key = 'nebula-pilot-session-id';
+    var existing = window.localStorage.getItem(key);
+    if (existing) return existing;
+    var created = window.crypto && window.crypto.randomUUID ? window.crypto.randomUUID() : 'session-' + Date.now() + '-' + Math.random().toString(16).slice(2);
+    window.localStorage.setItem(key, created);
+    return created;
+  }
   function loadMetrics() {
     var base = apiBase.value.replace(/\/$/, '');
     Promise.all([fetch(base + '/v1/metrics/search'), fetch(base + '/v1/metrics/feedback')])

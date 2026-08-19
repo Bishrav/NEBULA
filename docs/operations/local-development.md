@@ -37,6 +37,8 @@ To persist pilot search and feedback events across API restarts, pass a third ar
 
 The telemetry file contains local research events only; protect it like other pilot data and do not commit it to Git.
 
+The search workspace creates one anonymous session ID per browser profile and sends it as `X-Session-Id`. The API records that ID, an epoch timestamp, and the query with each persisted event. No account or personal identity is required for session-level analysis.
+
 ## Start the search workspace
 
 In a second terminal:

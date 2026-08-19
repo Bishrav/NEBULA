@@ -39,6 +39,8 @@ The API also exposes search telemetry at `GET /v1/metrics/search`, including tot
 
 The search workspace renders these telemetry values beside the results so pilot observers can record usability outcomes without inspecting API responses manually.
 
+Persistent event records are session-aware: each search includes an anonymous session ID, timestamp, query, ranking mode, result count, and latency; feedback includes the same session ID and the judged result. This supports query-level error analysis and task completion studies while keeping identity out of scope.
+
 ## Research safeguards
 
 Do not treat a small interview sample as proof of product-market fit. Separate retrieval quality from interface usability, preserve failed searches for error analysis, and obtain consent before collecting user queries or identifying information.
