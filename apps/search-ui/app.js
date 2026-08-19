@@ -11,6 +11,7 @@
   var activeQuery = '';
   var activeMode = 'bm25';
   var evidenceDialog = document.getElementById('evidence-dialog');
+  var metricsRefresh = document.getElementById('refresh-metrics');
   var suggestions = document.getElementById('suggestions');
   var suggestionTimer;
   var suggestionIndex = -1;
@@ -40,10 +41,12 @@
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ query: activeQuery, mode: activeMode, documentId: button.dataset.feedbackId,
         sourcePath: button.dataset.feedbackPath, useful: button.dataset.feedbackUseful === 'true' })
-    }).then(function (response) { if (!response.ok) throw new Error('feedback failed'); button.textContent = 'Recorded'; })
+    }).then(function (response) { if (!response.ok) throw new Error('feedback failed'); button.textContent = 'Recorded'; loadMetrics(); })
       .catch(function () { button.disabled = false; button.textContent = 'Try again'; });
   });
   document.getElementById('close-evidence').addEventListener('click', function () { evidenceDialog.close(); });
+  metricsRefresh.addEventListener('click', loadMetrics);
+  loadMetrics();
 
   function loadSuggestions() {
     var value = query.value.trim();
@@ -85,6 +88,7 @@
         document.getElementById('result-count').textContent = payload.results.length;
         document.getElementById('elapsed').textContent = Math.round(performance.now() - started) + ' ms';
         render(payload.results);
+        loadMetrics();
         setStatus('Ready', false);
       })
       .catch(function (error) { results.innerHTML = '<div class="empty-state error"><h2>Search unavailable</h2><p>' + escapeHtml(error.message) + '. Is the NEBULA API running?</p></div>'; setStatus('Offline', false); });
@@ -99,6 +103,22 @@
   }
 
   function setStatus(text, active) { statusText.textContent = text; statusDot.style.background = active ? '#f8c76b' : (text === 'Offline' ? '#ff788b' : 'var(--green)'); }
+  function loadMetrics() {
+    var base = apiBase.value.replace(/\/$/, '');
+    Promise.all([fetch(base + '/v1/metrics/search'), fetch(base + '/v1/metrics/feedback')])
+      .then(function (responses) { return Promise.all(responses.map(function (response) { if (!response.ok) throw new Error('metrics unavailable'); return response.json(); })); })
+      .then(function (payloads) {
+        var searchMetrics = payloads[0];
+        var feedbackMetrics = payloads[1];
+        document.getElementById('metric-searches').textContent = searchMetrics.total;
+        document.getElementById('metric-zero').textContent = searchMetrics.total ? ((searchMetrics.zeroResults / searchMetrics.total) * 100).toFixed(0) + '%' : '0%';
+        document.getElementById('metric-latency').textContent = Number(searchMetrics.averageLatencyMs).toFixed(1) + ' ms';
+        document.getElementById('metric-useful').textContent = feedbackMetrics.total ? ((feedbackMetrics.useful / feedbackMetrics.total) * 100).toFixed(0) + '%' : '—';
+        var modes = Object.keys(searchMetrics.byMode || {}).map(function (key) { return key + ': ' + searchMetrics.byMode[key]; });
+        document.getElementById('metric-modes').textContent = modes.length ? 'Mode usage: ' + modes.join(' · ') : 'Mode usage will appear after searches.';
+      })
+      .catch(function () { document.getElementById('metric-modes').textContent = 'Pilot analytics unavailable'; });
+  }
   function openEvidence(sourcePath) {
     fetch(apiBase.value.replace(/\/$/, '') + '/v1/documents?path=' + encodeURIComponent(sourcePath))
       .then(function (response) { if (!response.ok) throw new Error('document unavailable'); return response.json(); })

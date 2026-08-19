@@ -21,5 +21,6 @@ Engineering users will trust and prefer NEBULA when they can find a relevant sou
 - Results can open the indexed source text in an evidence preview for verification.
 - The search box queries the trie-backed autocomplete endpoint and supports arrow-key selection.
 - One-character technical term corrections are shown in the ranking explanations when the index has a close vocabulary match.
+- Pilot analytics display search volume, zero-result rate, latency, ranking-mode usage, and usefulness feedback.
 - The API must be running separately.
 - Authentication, permissions, filters, feedback capture, and document previews are future milestones.

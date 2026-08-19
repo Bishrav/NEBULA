@@ -37,6 +37,8 @@ Autocomplete interactions should be observed during usability sessions: record w
 
 The API also exposes session search telemetry at `GET /v1/metrics/search`, including total searches, zero-result searches, average latency, and counts by ranking mode. These values are in-memory pilot metrics and reset on restart.
 
+The search workspace renders these telemetry values beside the results so pilot observers can record usability outcomes without inspecting API responses manually.
+
 ## Research safeguards
 
 Do not treat a small interview sample as proof of product-market fit. Separate retrieval quality from interface usability, preserve failed searches for error analysis, and obtain consent before collecting user queries or identifying information.
