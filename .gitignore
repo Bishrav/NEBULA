@@ -15,6 +15,9 @@ Thumbs.db
 .env
 .env.*
 data/
+!data/
+data/*
+!data/nebula-research.sample.csv
 logs/
 *.local
 
@@ -23,6 +26,7 @@ __pycache__/
 .pytest_cache/
 .venv/
 venv/
+.jupyter/
 
 # Generated evaluation artifacts
 reports/generated/

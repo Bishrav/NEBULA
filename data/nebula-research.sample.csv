@@ -1,0 +1,8 @@
+type,sessionId,timestamp,query,mode,results,latencyNanos,documentId,sourcePath,useful
+search,session-a,1724000000000,shard failure,bm25,2,12000000,,,
+feedback,session-a,1724000001000,shard failure,bm25,,,doc-1,docs/runbook.md,true
+search,session-a,1724000010000,deployment rollback,hybrid,1,18000000,,,
+feedback,session-a,1724000011000,deployment rollback,hybrid,,,doc-2,docs/deploy.md,true
+search,session-b,1724000020000,unknown incident,bm25,0,22000000,,,
+search,session-b,1724000030000,hybrid retrieval,semantic,3,25000000,,,
+feedback,session-b,1724000031000,hybrid retrieval,semantic,,,doc-3,docs/retrieval.md,false
