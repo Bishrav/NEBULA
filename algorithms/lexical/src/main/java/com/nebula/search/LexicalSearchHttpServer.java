@@ -27,12 +27,14 @@ public final class LexicalSearchHttpServer {
     private final HttpServer server;
     private final SearchCatalog catalog;
     private final FeedbackStore feedbackStore;
+    private final SearchMetrics searchMetrics;
     private ExecutorService executor;
 
     private LexicalSearchHttpServer(HttpServer server, SearchCatalog catalog) {
         this.server = server;
         this.catalog = catalog;
         this.feedbackStore = new FeedbackStore();
+        this.searchMetrics = new SearchMetrics();
         server.createContext("/health/live", exchange -> respond(exchange, 200, "{\"status\":\"UP\"}"));
         server.createContext("/health/ready", exchange -> ready(exchange));
         server.createContext("/v1/index/documents", new IndexHandler());
@@ -41,6 +43,7 @@ public final class LexicalSearchHttpServer {
         server.createContext("/v1/suggest", new SuggestHandler());
         server.createContext("/v1/feedback", new FeedbackHandler());
         server.createContext("/v1/metrics/feedback", exchange -> feedbackMetrics(exchange));
+        server.createContext("/v1/metrics/search", exchange -> searchMetrics(exchange));
     }
 
     public static LexicalSearchHttpServer create(int port, SearchCatalog catalog) throws IOException {
@@ -121,6 +124,7 @@ public final class LexicalSearchHttpServer {
                 return;
             }
             List<SearchResult> results;
+            long started = System.nanoTime();
             if ("trust".equalsIgnoreCase(parameters.get("mode"))) {
                 results = catalog.searchTrustAware(query, limit, System.currentTimeMillis());
             } else if ("semantic".equalsIgnoreCase(parameters.get("mode"))) {
@@ -132,6 +136,7 @@ public final class LexicalSearchHttpServer {
             } else {
                 results = catalog.search(query, limit);
             }
+            searchMetrics.record(normalizedMode(parameters.get("mode")), results.size(), System.nanoTime() - started);
             respond(exchange, 200, searchJson(query, results));
         }
     }
@@ -229,6 +234,27 @@ public final class LexicalSearchHttpServer {
                 + ",\"useful\":" + feedbackStore.usefulCount()
                 + ",\"notUseful\":" + feedbackStore.notUsefulCount()
                 + ",\"usefulRate\":" + feedbackStore.usefulRate() + "}");
+    }
+
+    private void searchMetrics(HttpExchange exchange) throws IOException {
+        if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
+            respond(exchange, 405, "{\"error\":\"method not allowed\"}");
+            return;
+        }
+        StringBuilder body = new StringBuilder("{\"total\":").append(searchMetrics.getTotalSearches())
+                .append(",\"zeroResults\":").append(searchMetrics.getZeroResultSearches())
+                .append(",\"averageLatencyMs\":").append(searchMetrics.getAverageLatencyMillis())
+                .append(",\"byMode\":{");
+        int index = 0;
+        for (Map.Entry<String, Integer> entry : searchMetrics.getSearchesByMode().entrySet()) {
+            if (index++ > 0) body.append(',');
+            body.append("\"").append(escape(entry.getKey())).append("\":").append(entry.getValue());
+        }
+        respond(exchange, 200, body.append("}}").toString());
+    }
+
+    private static String normalizedMode(String mode) {
+        return mode == null || mode.trim().isEmpty() ? "bm25" : mode.toLowerCase();
     }
 
     private static String searchJson(String query, List<SearchResult> results) {

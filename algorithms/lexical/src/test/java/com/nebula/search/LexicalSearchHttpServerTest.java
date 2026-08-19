@@ -21,6 +21,9 @@ public final class LexicalSearchHttpServerTest {
             check(search.status == 200, "search responds");
             check(search.body.contains("Sharding"), "search returns the indexed document");
             check(search.body.contains("termContributions"), "search returns ranking explanations");
+            Response searchMetrics = request("GET", base + "/v1/metrics/search", null, null);
+            check(searchMetrics.status == 200, "search metrics respond");
+            check(searchMetrics.body.contains("\"total\":1"), "search metrics count requests");
 
             Response trustSearch = request("GET", base + "/v1/search?q=consistent%20hashing&mode=trust&limit=5", null, null);
             check(trustSearch.status == 200, "trust-aware search responds");

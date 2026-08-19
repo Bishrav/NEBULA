@@ -35,6 +35,8 @@ The local pilot records result feedback through `POST /v1/feedback` and exposes 
 
 Autocomplete interactions should be observed during usability sessions: record whether suggestions reduce reformulation or help users discover the vocabulary they need.
 
+The API also exposes session search telemetry at `GET /v1/metrics/search`, including total searches, zero-result searches, average latency, and counts by ranking mode. These values are in-memory pilot metrics and reset on restart.
+
 ## Research safeguards
 
 Do not treat a small interview sample as proof of product-market fit. Separate retrieval quality from interface usability, preserve failed searches for error analysis, and obtain consent before collecting user queries or identifying information.
