@@ -8,6 +8,7 @@
 - [ ] Run `python tools/pilot_preflight.py --output .\data\study-waves\wave-01\preflight.json` and confirm it reports `READY`.
 - [ ] Save the manifest response with the export as the study-wave provenance record.
 - [ ] Open a clean browser profile.
+- [ ] Run the dry-run harness on a fresh telemetry file before the first participant: `python tools/run_pilot_dry_run.py --output-dir .\data\study-waves\wave-01\dry-run`.
 
 ## During the session
 

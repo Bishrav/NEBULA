@@ -24,7 +24,7 @@ jobs:
       - name: Validate research tooling
         shell: bash
         run: |
-          python -m py_compile tools/validate_research_export.py tools/generate_pmf_report.py tools/capture_research_bundle.py tools/generate_pmf_dashboard.py tools/pilot_preflight.py
+          python -m py_compile tools/validate_research_export.py tools/generate_pmf_report.py tools/capture_research_bundle.py tools/generate_pmf_dashboard.py tools/pilot_preflight.py tools/run_pilot_dry_run.py
           python tools/validate_research_export.py data/nebula-research.sample.csv
           mkdir -p reports/generated
           python tools/generate_pmf_report.py \
