@@ -59,3 +59,17 @@ python tools/generate_pmf_dashboard.py .\data\nebula-research.csv --manifest .\d
 ```
 
 The dashboard compares ranking modes, useful-feedback rate, zero-result rate, median latency, offline benchmark metrics, and protocol task outcomes. The benchmark is optional; when supplied, it must be an `evaluation-v1` artifact from the reproducible ranking runner. The dashboard is a snapshot of the supplied files; it does not refresh from the API or establish causal impact.
+
+## Create a publication-safe derivative
+
+Never edit or overwrite the protected raw export. Set a private salt and create a derivative for sharing:
+
+```powershell
+$env:NEBULA_REDACTION_SALT = 'keep-this-private'
+python tools/redact_research_export.py .\data\study-waves\wave-01\nebula-research.csv `
+  --output .\data\study-waves\wave-01\nebula-research-redacted.csv `
+  --record .\data\study-waves\wave-01\redaction-record.json `
+  --hash-queries --hash-sources
+```
+
+The tool always pseudonymizes browser session IDs, removes qualitative notes, optionally pseudonymizes queries and source identifiers, validates the derivative, and records the transformation without storing the salt. Review the derivative for sensitive content before sharing; hashing is not a substitute for human redaction review.
