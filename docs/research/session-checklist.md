@@ -13,6 +13,7 @@
 - [ ] Do not suggest query wording or ranking mode choices.
 - [ ] Record task start and completion times in observer notes.
 - [ ] Record reformulations and the first useful source.
+- [ ] Start and complete each study task in the task panel, marking success only from the agreed task rubric.
 - [ ] Ask for confidence and the reason for trusting the source.
 - [ ] Note autocomplete, evidence-preview, correction, and explanation behavior.
 

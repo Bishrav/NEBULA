@@ -23,7 +23,7 @@ Can engineers find and verify an operational or architectural source faster and 
 2. Start the API with a fresh telemetry file and record the corpus version, code commit, and study wave.
 3. Open the search workspace in a clean browser profile.
 4. Ask the participant to select `Start study session`, review the dialog, and explicitly consent before beginning tasks.
-5. Give the participant one task at a time without suggesting query wording.
+5. Give the participant one task at a time without suggesting query wording; use the task controls to record start and completion.
 6. Ask the participant to explain why they trusted or rejected the first useful source.
 7. Record observer notes separately from the exported telemetry.
 8. Export CSV and JSON, verify the event count, then close the session.

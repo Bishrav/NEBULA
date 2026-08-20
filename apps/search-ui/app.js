@@ -18,6 +18,7 @@
   var consentCheckbox = document.getElementById('consent-checkbox');
   var consented = window.localStorage.getItem('nebula-pilot-consent-v1') === 'true';
   var sessionId = consented ? getSessionId() : null;
+  var taskTimers = {};
   var suggestionTimer;
   var suggestionIndex = -1;
 
@@ -35,6 +36,29 @@
   });
   document.querySelectorAll('[data-query]').forEach(function (button) {
     button.addEventListener('click', function () { query.value = button.getAttribute('data-query'); search(); });
+  });
+  document.querySelector('.task-panel').addEventListener('click', function (event) {
+    var button = event.target.closest('[data-task-action]');
+    if (!button) return;
+    var card = button.closest('[data-task-id]');
+    var taskId = card.dataset.taskId;
+    var action = button.dataset.taskAction;
+    if (!consented) { consentDialog.showModal(); return; }
+    if (action === 'start') {
+      taskTimers[taskId] = performance.now();
+      postTask(taskId, 'start', false, 0).then(function () {
+        card.querySelector('[data-task-action="start"]').disabled = true;
+        card.querySelectorAll('[data-task-action="complete"]').forEach(function (completeButton) { completeButton.disabled = false; });
+        document.getElementById('task-status').textContent = 'Task in progress';
+      });
+    } else {
+      var duration = Math.round(performance.now() - (taskTimers[taskId] || performance.now()));
+      postTask(taskId, 'complete', button.dataset.taskSuccess === 'true', duration).then(function () {
+        card.querySelectorAll('button').forEach(function (taskButton) { taskButton.disabled = true; });
+        card.classList.add('task-complete');
+        document.getElementById('task-status').textContent = 'Task recorded';
+      });
+    }
   });
   results.addEventListener('click', function (event) {
     var evidenceButton = event.target.closest('[data-evidence-path]');
@@ -63,8 +87,9 @@
     studyButton.textContent = 'Study active';
     consentDialog.close();
     setStatus('Study active', false);
+    document.getElementById('task-status').textContent = 'Ready';
   });
-  if (consented) studyButton.textContent = 'Study active';
+  if (consented) { studyButton.textContent = 'Study active'; document.getElementById('task-status').textContent = 'Ready'; }
   metricsRefresh.addEventListener('click', loadMetrics);
   loadMetrics();
 
@@ -135,6 +160,13 @@
     var headers = { 'Content-Type': 'application/json' };
     if (consented && sessionId) { headers['X-Session-Id'] = sessionId; headers['X-Research-Consent'] = 'true'; }
     return headers;
+  }
+  function postTask(taskId, action, success, durationMs) {
+    return fetch(apiBase.value.replace(/\/$/, '') + '/v1/research/tasks', {
+      method: 'POST', headers: researchHeaders(),
+      body: JSON.stringify({ taskId: taskId, action: action, success: success, durationMs: durationMs })
+    }).then(function (response) { if (!response.ok) throw new Error('task tracking failed'); return response.json(); })
+      .catch(function (error) { setStatus('Task unavailable', false); throw error; });
   }
   function loadMetrics() {
     var base = apiBase.value.replace(/\/$/, '');

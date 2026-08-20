@@ -4,9 +4,9 @@ The CSV export contains one row per persisted search or feedback event. JSON pre
 
 The live API publishes this schema as a machine-readable manifest at `/v1/research/manifest`.
 
-| Field | Search | Feedback | Meaning |
-| --- | --- | --- | --- |
-| `type` | yes | yes | `search` or `feedback` |
+| Field | Search | Feedback | Task | Meaning |
+| --- | --- | --- | --- | --- |
+| `type` | yes | yes | yes | `search`, `feedback`, or `task` |
 | `sessionId` | yes | yes | Anonymous browser-local grouping key |
 | `timestamp` | yes | yes | Unix epoch milliseconds recorded by the API |
 | `query` | yes | yes | Query text submitted or judged |
@@ -15,6 +15,10 @@ The live API publishes this schema as a machine-readable manifest at `/v1/resear
 | `latencyNanos` | yes | no | Server-side search duration in nanoseconds |
 | `documentId` | no | yes | Judged result identifier |
 | `sourcePath` | no | yes | Judged result source path |
-| `useful` | no | yes | Participant judgement: `true` or `false` |
+| `useful` | no | yes | no | Participant judgement: `true` or `false` |
+| `taskId` | no | no | yes | Protocol task identifier |
+| `action` | no | no | yes | `start` or `complete` |
+| `durationMs` | no | no | yes | Elapsed task duration on completion |
+| `success` | no | no | yes | Participant/observer task outcome |
 
 Blank fields are expected where a field does not apply to the event type. The sample fixture is synthetic. Real exports must be handled as research data and must not be committed to the repository.

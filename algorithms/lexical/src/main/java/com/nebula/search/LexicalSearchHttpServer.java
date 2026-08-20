@@ -44,6 +44,7 @@ public final class LexicalSearchHttpServer {
         server.createContext("/v1/documents", new DocumentHandler());
         server.createContext("/v1/suggest", new SuggestHandler());
         server.createContext("/v1/feedback", new FeedbackHandler());
+        server.createContext("/v1/research/tasks", exchange -> researchTask(exchange));
         server.createContext("/v1/metrics/feedback", exchange -> feedbackMetrics(exchange));
         server.createContext("/v1/metrics/search", exchange -> searchMetrics(exchange));
         server.createContext("/v1/research/export", exchange -> researchExport(exchange));
@@ -303,11 +304,41 @@ public final class LexicalSearchHttpServer {
             respond(exchange, 405, "{\"error\":\"method not allowed\"}");
             return;
         }
-        respond(exchange, 200, "{\"studyVersion\":\"pilot-v1\",\"eventTypes\":[\"search\",\"feedback\"],"
+        respond(exchange, 200, "{\"studyVersion\":\"pilot-v1\",\"eventTypes\":[\"search\",\"feedback\",\"task\"],"
                 + "\"exportFormats\":[\"csv\",\"json\"],\"sessionId\":{\"source\":\"X-Session-Id\",\"anonymous\":true},"
                 + "\"fields\":[\"type\",\"sessionId\",\"timestamp\",\"query\",\"mode\",\"results\","
-                + "\"latencyNanos\",\"documentId\",\"sourcePath\",\"useful\"],"
+                + "\"latencyNanos\",\"documentId\",\"sourcePath\",\"useful\",\"taskId\",\"action\",\"durationMs\",\"success\"],"
                 + "\"privacy\":{\"identityCollection\":false,\"retention\":\"study-protocol-defined\"}}");
+    }
+
+    private void researchTask(HttpExchange exchange) throws IOException {
+        if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
+            respond(exchange, 405, "{\"error\":\"method not allowed\"}");
+            return;
+        }
+        if (telemetryStore == null) {
+            respond(exchange, 503, "{\"error\":\"persistent telemetry is not enabled\"}");
+            return;
+        }
+        if (!consentedForResearch(exchange)) {
+            respond(exchange, 403, "{\"error\":\"research consent is required\"}");
+            return;
+        }
+        String body = new String(readAll(exchange.getRequestBody()), StandardCharsets.UTF_8);
+        try {
+            String taskId = jsonString(body, "taskId");
+            String action = jsonString(body, "action").toLowerCase();
+            if (!"start".equals(action) && !"complete".equals(action)) {
+                throw new IllegalArgumentException("action must be start or complete");
+            }
+            boolean success = "complete".equals(action) && jsonBoolean(body, "success");
+            long durationMs = body.contains("\"durationMs\"") ? jsonLong(body, "durationMs") : 0L;
+            if (durationMs < 0L) throw new IllegalArgumentException("durationMs must not be negative");
+            telemetryStore.recordTask(sessionId(exchange), taskId, action, success, durationMs);
+            respond(exchange, 201, "{\"status\":\"recorded\",\"taskId\":\"" + escape(taskId) + "\",\"action\":\"" + action + "\"}");
+        } catch (IllegalArgumentException exception) {
+            respond(exchange, 400, "{\"error\":\"" + escape(exception.getMessage()) + "\"}");
+        }
     }
 
     private static String normalizedMode(String mode) {
@@ -376,6 +407,12 @@ public final class LexicalSearchHttpServer {
         Matcher matcher = Pattern.compile("\\\"" + Pattern.quote(field) + "\\\"\\s*:\\s*(true|false)").matcher(body);
         if (!matcher.find()) throw new IllegalArgumentException(field + " is required");
         return Boolean.parseBoolean(matcher.group(1));
+    }
+
+    private static long jsonLong(String body, String field) {
+        Matcher matcher = Pattern.compile("\\\"" + Pattern.quote(field) + "\\\"\\s*:\\s*(-?\\d+)").matcher(body);
+        if (!matcher.find()) throw new IllegalArgumentException(field + " is required");
+        return Long.parseLong(matcher.group(1));
     }
 
     private static void respond(HttpExchange exchange, int status, String body) throws IOException {

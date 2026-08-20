@@ -50,6 +50,14 @@ public final class PersistentTelemetryStore {
                 + "\",\"useful\":" + feedback.isUseful() + "}");
     }
 
+    public synchronized void recordTask(String sessionId, String taskId, String action, boolean success, long durationMs) throws IOException {
+        append("{\"type\":\"task\",\"sessionId\":\"" + escape(sessionId)
+                + "\",\"timestamp\":" + System.currentTimeMillis()
+                + ",\"taskId\":\"" + escape(taskId) + "\",\"action\":\"" + escape(action)
+                + "\",\"durationMs\":" + Math.max(0L, durationMs)
+                + ",\"success\":" + success + "}");
+    }
+
     public FeedbackStore feedbackStore() { return feedbackStore; }
     public SearchMetrics searchMetrics() { return searchMetrics; }
     public Path file() { return file; }
@@ -68,7 +76,7 @@ public final class PersistentTelemetryStore {
 
     public synchronized String exportCsv() throws IOException {
         List<String> lines = Files.exists(file) ? Files.readAllLines(file, StandardCharsets.UTF_8) : List.of();
-        StringBuilder body = new StringBuilder("type,sessionId,timestamp,query,mode,results,latencyNanos,documentId,sourcePath,useful\n");
+        StringBuilder body = new StringBuilder("type,sessionId,timestamp,query,mode,results,latencyNanos,documentId,sourcePath,useful,taskId,action,durationMs,success\n");
         for (String line : lines) {
             if (line.trim().isEmpty()) continue;
             body.append(csv(stringField(line, "type"))).append(',')
@@ -80,7 +88,11 @@ public final class PersistentTelemetryStore {
                     .append(optionalNumber(line, "latencyNanos")).append(',')
                     .append(csv(optionalString(line, "documentId"))).append(',')
                     .append(csv(optionalString(line, "sourcePath"))).append(',')
-                    .append(optionalBoolean(line, "useful")).append('\n');
+                    .append(optionalBoolean(line, "useful")).append(',')
+                    .append(csv(optionalString(line, "taskId"))).append(',')
+                    .append(csv(optionalString(line, "action"))).append(',')
+                    .append(optionalNumber(line, "durationMs")).append(',')
+                    .append(optionalBoolean(line, "success")).append('\n');
         }
         return body.toString();
     }

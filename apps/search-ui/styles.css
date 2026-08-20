@@ -54,6 +54,15 @@ button { cursor: pointer; border: 0; color: var(--text); }
 .metrics-grid strong { font-size: 20px; }
 .metrics-grid span, .metric-modes { color: var(--muted); font-size: 12px; }
 .metric-modes { margin: 15px 0 0; }
+.task-panel { border: 1px solid var(--line); border-radius: 14px; background: var(--panel); padding: 19px 20px; margin: 18px 0; }
+.task-status { color: var(--muted); font-size: 12px; }
+.task-list { display: grid; gap: 10px; margin-top: 15px; }
+.task-card { display: flex; justify-content: space-between; align-items: center; gap: 14px; border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+.task-card strong { font-size: 14px; }
+.task-card p { color: var(--muted); font-size: 12px; margin: 3px 0 0; }
+.task-actions { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.task-actions button { border: 1px solid var(--line); border-radius: 6px; background: transparent; color: var(--cyan); padding: 5px 8px; font-size: 12px; }
+.task-actions button:disabled { color: var(--muted); opacity: .5; cursor: not-allowed; }
 .result-card { border-radius: 14px; padding: 21px 23px; }
 .result-head { display: flex; justify-content: space-between; gap: 20px; }
 .result-title { margin: 0; font-size: 19px; letter-spacing: -.02em; }
@@ -83,4 +92,4 @@ button { cursor: pointer; border: 0; color: var(--text); }
 .empty-icon { color: var(--violet); font-size: 28px; }
 .error { color: #ff9caa; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
-@media (max-width: 680px) { .shell { width: min(100% - 24px, 1120px); padding-top: 30px; } .topbar { display: block; } .topbar-actions { align-items: flex-start; } .status-pill { display: inline-block; margin-top: 8px; } .insight-strip { gap: 18px; flex-wrap: wrap; } .insight-copy { border-left: 0; border-top: 1px solid var(--line); padding: 14px 0 0; width: 100%; } .metrics-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 680px) { .shell { width: min(100% - 24px, 1120px); padding-top: 30px; } .topbar { display: block; } .topbar-actions { align-items: flex-start; } .status-pill { display: inline-block; margin-top: 8px; } .insight-strip { gap: 18px; flex-wrap: wrap; } .insight-copy { border-left: 0; border-top: 1px solid var(--line); padding: 14px 0 0; width: 100%; } .metrics-grid { grid-template-columns: repeat(2, 1fr); } .task-card { align-items: flex-start; flex-direction: column; } .task-actions { justify-content: flex-start; } }

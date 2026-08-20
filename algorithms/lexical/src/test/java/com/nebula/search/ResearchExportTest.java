@@ -22,10 +22,17 @@ public final class ResearchExportTest {
             check(nonConsentedSearch.status == 200, "search works without research consent");
             Response search = request("GET", base + "/v1/search?q=shard%20failure", "session-export", true);
             check(search.status == 200, "consented search is recorded");
+            Response deniedTask = postTask(base, "session-export", false, "{\"taskId\":\"shard-failure\",\"action\":\"start\"}");
+            check(deniedTask.status == 403, "task requires research consent");
+            Response startedTask = postTask(base, "session-export", true, "{\"taskId\":\"shard-failure\",\"action\":\"start\"}");
+            check(startedTask.status == 201, "task start is recorded");
+            Response completedTask = postTask(base, "session-export", true, "{\"taskId\":\"shard-failure\",\"action\":\"complete\",\"success\":true,\"durationMs\":42000}");
+            check(completedTask.status == 201, "task completion is recorded");
             Response exportJson = request("GET", base + "/v1/research/export?format=json", null);
             check(exportJson.status == 200, "JSON export responds");
             check(exportJson.contentType.contains("application/json"), "JSON content type is returned");
             check(exportJson.body.contains("\"sessionId\":\"session-export\""), "JSON contains session ID");
+            check(exportJson.body.contains("\"taskId\":\"shard-failure\""), "JSON contains task data");
             check(!exportJson.body.contains("session-no-consent"), "non-consented search is not persisted");
             Response exportCsv = request("GET", base + "/v1/research/export?format=csv", null);
             check(exportCsv.status == 200, "CSV export responds");
@@ -51,6 +58,23 @@ public final class ResearchExportTest {
         connection.setRequestMethod(method);
         if (sessionId != null) connection.setRequestProperty("X-Session-Id", sessionId);
         if (consented) connection.setRequestProperty("X-Research-Consent", "true");
+        InputStream input = connection.getResponseCode() >= 400 ? connection.getErrorStream() : connection.getInputStream();
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        byte[] buffer = new byte[1024];
+        int count;
+        while ((count = input.read(buffer)) != -1) output.write(buffer, 0, count);
+        return new Response(connection.getResponseCode(), connection.getHeaderField("Content-Type"),
+                new String(output.toByteArray(), StandardCharsets.UTF_8));
+    }
+
+    private static Response postTask(String base, String sessionId, boolean consented, String body) throws Exception {
+        HttpURLConnection connection = (HttpURLConnection) new URL(base + "/v1/research/tasks").openConnection();
+        connection.setRequestMethod("POST");
+        connection.setDoOutput(true);
+        connection.setRequestProperty("Content-Type", "application/json");
+        connection.setRequestProperty("X-Session-Id", sessionId);
+        if (consented) connection.setRequestProperty("X-Research-Consent", "true");
+        connection.getOutputStream().write(body.getBytes(StandardCharsets.UTF_8));
         InputStream input = connection.getResponseCode() >= 400 ? connection.getErrorStream() : connection.getInputStream();
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         byte[] buffer = new byte[1024];
