@@ -59,6 +59,10 @@ The search workspace creates one anonymous session ID per browser profile and se
 
 The running build describes its research event schema and privacy boundary at `GET http://127.0.0.1:8082/v1/research/manifest`.
 
+## Operational metrics
+
+The API exposes a Prometheus-compatible snapshot at `GET http://127.0.0.1:8082/metrics`. It includes total searches, zero-result searches, cumulative and counted search latency, searches by ranking mode, and feedback events. Scrape this endpoint from a restricted monitoring network; it is intentionally unauthenticated in the local pilot baseline and must be protected by the deployment boundary in production.
+
 The UI sends `X-Research-Consent: true` only after the participant accepts the study dialog. Persistent servers ignore research events without that header; in-memory test servers continue recording for integration-test coverage.
 
 Export the persisted research events for analysis:

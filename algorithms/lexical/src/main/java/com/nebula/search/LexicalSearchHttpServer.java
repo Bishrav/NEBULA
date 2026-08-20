@@ -53,6 +53,7 @@ public final class LexicalSearchHttpServer {
         server.createContext("/v1/research/observations", cors(exchange -> researchObservation(exchange)));
         server.createContext("/v1/metrics/feedback", cors(exchange -> feedbackMetrics(exchange)));
         server.createContext("/v1/metrics/search", cors(exchange -> searchMetrics(exchange)));
+        server.createContext("/metrics", cors(exchange -> prometheusMetrics(exchange)));
         server.createContext("/v1/research/export", cors(exchange -> researchExport(exchange)));
         server.createContext("/v1/research/manifest", cors(exchange -> researchManifest(exchange)));
     }
@@ -300,6 +301,37 @@ public final class LexicalSearchHttpServer {
         respond(exchange, 200, body.append("}}").toString());
     }
 
+    private void prometheusMetrics(HttpExchange exchange) throws IOException {
+        if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
+            respond(exchange, 405, "# method not allowed\n", "text/plain; version=0.0.4; charset=utf-8");
+            return;
+        }
+        StringBuilder body = new StringBuilder();
+        body.append("# HELP nebula_search_requests_total Total search requests.\n")
+                .append("# TYPE nebula_search_requests_total counter\n")
+                .append("nebula_search_requests_total ").append(searchMetrics.getTotalSearches()).append('\n')
+                .append("# HELP nebula_search_zero_results_total Searches returning no results.\n")
+                .append("# TYPE nebula_search_zero_results_total counter\n")
+                .append("nebula_search_zero_results_total ").append(searchMetrics.getZeroResultSearches()).append('\n')
+                .append("# HELP nebula_search_latency_seconds_total Cumulative search latency.\n")
+                .append("# TYPE nebula_search_latency_seconds_total counter\n")
+                .append("nebula_search_latency_seconds_total ").append(searchMetrics.getTotalLatencySeconds()).append('\n')
+                .append("# HELP nebula_search_latency_seconds_count Number of measured searches.\n")
+                .append("# TYPE nebula_search_latency_seconds_count counter\n")
+                .append("nebula_search_latency_seconds_count ").append(searchMetrics.getTotalSearches()).append('\n')
+                .append("# HELP nebula_search_requests_by_mode_total Search requests grouped by ranking mode.\n")
+                .append("# TYPE nebula_search_requests_by_mode_total counter\n");
+        for (Map.Entry<String, Integer> entry : searchMetrics.getSearchesByMode().entrySet()) {
+            body.append("nebula_search_requests_by_mode_total{mode=\"")
+                    .append(prometheusLabel(entry.getKey())).append("\"} ")
+                    .append(entry.getValue()).append('\n');
+        }
+        body.append("# HELP nebula_feedback_events_total Feedback events recorded.\n")
+                .append("# TYPE nebula_feedback_events_total counter\n")
+                .append("nebula_feedback_events_total ").append(feedbackStore.total()).append('\n');
+        respond(exchange, 200, body.toString(), "text/plain; version=0.0.4; charset=utf-8");
+    }
+
     private void researchExport(HttpExchange exchange) throws IOException {
         if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
             respond(exchange, 405, "{\"error\":\"method not allowed\"}");
@@ -516,6 +548,10 @@ public final class LexicalSearchHttpServer {
         if (value == null) return "";
         return value.replace("\\", "\\\\").replace("\"", "\\\"")
                 .replace("\r", "\\r").replace("\n", "\\n");
+    }
+
+    private static String prometheusLabel(String value) {
+        return escape(value).replace("\\", "\\\\").replace("\n", "\\n").replace("\r", "\\r");
     }
 
     private static String configuredAllowedOrigin() {
