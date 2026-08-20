@@ -73,3 +73,13 @@ python tools/redact_research_export.py .\data\study-waves\wave-01\nebula-researc
 ```
 
 The tool always pseudonymizes browser session IDs, removes qualitative notes, optionally pseudonymizes queries and source identifiers, validates the derivative, and records the transformation without storing the salt. Review the derivative for sensitive content before sharing; hashing is not a substitute for human redaction review.
+
+## Summarize a study wave
+
+After validation and redaction review, generate session-level completeness checks:
+
+```powershell
+python tools/generate_wave_summary.py .\data\study-waves\wave-01\nebula-research-redacted.csv --output-dir .\data\study-waves\wave-01\summary
+```
+
+The summary reports complete and incomplete protocol sessions, task outcomes, usefulness, duration, and confidence. It treats anonymous session IDs as groupings rather than verified participant identities and never silently removes incomplete sessions.
