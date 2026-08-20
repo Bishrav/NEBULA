@@ -31,3 +31,13 @@ python tools/generate_pmf_report.py .\data\nebula-research.csv --output .\report
 ```
 
 The manifest argument is optional but recommended for real study waves. Save the response from `/v1/research/manifest` beside the export. Use `--generated-at` when a byte-for-byte reproducible report is required.
+
+## Capture a complete study-wave bundle
+
+With the persistent API running, capture all research artifacts in one command:
+
+```powershell
+python tools/capture_research_bundle.py --output-dir .\data\study-waves\wave-01 --captured-at 2026-08-20T00:00:00+00:00
+```
+
+The bundle contains the CSV and JSON exports, manifest, validation result, generated PMF report, and `capture.json` provenance record. The command fails if the manifest lacks study provenance or if the CSV fails validation. Real bundles belong in protected local storage and must not be committed to Git.
