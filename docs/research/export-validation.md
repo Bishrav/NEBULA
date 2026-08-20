@@ -41,3 +41,13 @@ python tools/capture_research_bundle.py --output-dir .\data\study-waves\wave-01 
 ```
 
 The bundle contains the CSV and JSON exports, manifest, validation result, generated PMF report, and `capture.json` provenance record. The command fails if the manifest lacks study provenance or if the CSV fails validation. Real bundles belong in protected local storage and must not be committed to Git.
+
+## Generate the experiment dashboard
+
+Create a portable, read-only comparison dashboard from a validated export:
+
+```powershell
+python tools/generate_pmf_dashboard.py .\data\nebula-research.csv --manifest .\data\nebula-research-manifest.json --output .\reports\generated\pmf-dashboard.html
+```
+
+The dashboard compares ranking modes, useful-feedback rate, zero-result rate, median latency, and protocol task outcomes. It is a snapshot of the supplied export; it does not refresh from the API or establish causal impact.
