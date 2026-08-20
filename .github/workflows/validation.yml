@@ -55,3 +55,12 @@ jobs:
           java -cp build/classes com.nebula.search.PersistentTelemetryStoreTest
           java -cp build/classes com.nebula.search.ResearchExportTest
           java -cp build/classes com.nebula.search.LexicalSearchHttpServerTest
+          java -cp build/classes com.nebula.evaluation.RankingVariantEvaluatorTest
+          java -cp build/classes com.nebula.evaluation.EvaluationRunner \
+            benchmarks/evaluation/corpus-v1 \
+            benchmarks/evaluation/queries-v1.psv \
+            benchmarks/evaluation/trust-v1.psv \
+            reports/generated/benchmark.md \
+            reports/generated/benchmark.json
+          test -s reports/generated/benchmark.json
+          grep -q '"semantic"' reports/generated/benchmark.json

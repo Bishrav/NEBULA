@@ -23,10 +23,11 @@ java -cp .\algorithms\lexical\out com.nebula.evaluation.EvaluationRunner `
   .\benchmarks\evaluation\corpus-v1 `
   .\benchmarks\evaluation\queries-v1.psv `
   .\benchmarks\evaluation\trust-v1.psv `
-  .\benchmarks\evaluation\reports\latest.md
+  .\benchmarks\evaluation\reports\latest.md `
+  .\benchmarks\evaluation\reports\latest.json
 ```
 
-The runner compares BM25, hybrid lexical-semantic retrieval, authority-only, freshness-only, and combined trust-aware ranking. It reports each variant's metrics and deltas versus BM25 using a fixed evaluation timestamp, then writes a Markdown report containing query-level error analysis. Embedding experiments should keep the corpus, query set, cutoff, and timestamp fixed while changing only the `EmbeddingModel` supplied to `SearchCatalog`.
+The runner compares BM25, semantic, hybrid lexical-semantic retrieval, authority-only, freshness-only, and combined trust-aware ranking. It reports each variant's metrics and deltas versus BM25 using a fixed evaluation timestamp, then writes Markdown and machine-readable JSON artifacts containing the same comparison. Embedding experiments should keep the corpus, query set, cutoff, and timestamp fixed while changing only the `EmbeddingModel` supplied to `SearchCatalog`.
 
 When a report path is supplied, the runner also writes `embedding-ablation.md` beside it. This compares hashing and character n-gram embeddings in both semantic-only and hybrid retrieval modes.
 
