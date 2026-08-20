@@ -90,8 +90,13 @@ public final class EvaluationRunner {
             EmbeddingAblationReport ablation = new EmbeddingAblationEvaluator()
                     .evaluate(corpusRecords, queries, 5);
             new EmbeddingAblationReportWriter().write(embeddingReport, catalog.documentCount(), queries.size(), ablation);
+            AnnBenchmark.Result ann = new AnnBenchmark().evaluate(corpusRecords, queries, 5);
+            Path annReport = Paths.get(args[3]).resolveSibling("ann-benchmark.md");
+            new AnnBenchmarkWriter().writeMarkdown(annReport, ann);
+            if (args.length == 5) new AnnBenchmarkWriter().writeJson(Paths.get(args[4]).resolveSibling("ann-benchmark.json"), ann);
             System.out.println("report=" + Paths.get(args[3]).toAbsolutePath());
             System.out.println("embedding_report=" + embeddingReport.toAbsolutePath());
+            System.out.println("ann_report=" + annReport.toAbsolutePath());
             if (args.length == 5) {
                 Path jsonReport = Paths.get(args[4]);
                 new BenchmarkJsonWriter().write(jsonReport, catalog.documentCount(), queries.size(),

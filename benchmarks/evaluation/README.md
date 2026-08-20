@@ -29,6 +29,8 @@ java -cp .\algorithms\lexical\out com.nebula.evaluation.EvaluationRunner `
 
 The runner compares BM25, semantic, hybrid lexical-semantic retrieval, authority-only, freshness-only, and combined trust-aware ranking. It reports each variant's metrics and deltas versus BM25 using a fixed evaluation timestamp, then writes Markdown and machine-readable JSON artifacts containing the same comparison. Embedding experiments should keep the corpus, query set, cutoff, and timestamp fixed while changing only the `EmbeddingModel` supplied to `SearchCatalog`.
 
+When a report path is supplied, the runner also writes `ann-benchmark.md` and, when a JSON comparison path is supplied, `ann-benchmark.json`. This compares custom HNSW recall@k and mean query latency with exact cosine search over the same corpus, model, and cutoff. Latency is a local engineering measurement; recall is the primary regression signal.
+
 When a report path is supplied, the runner also writes `embedding-ablation.md` beside it. This compares hashing and character n-gram embeddings in both semantic-only and hybrid retrieval modes.
 
 The dataset is a starting regression fixture, not a publication-quality benchmark. Future research versions must document corpus construction, query creation, annotator agreement, and split strategy.
