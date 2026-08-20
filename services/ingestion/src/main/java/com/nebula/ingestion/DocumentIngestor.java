@@ -4,10 +4,15 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Locale;
 import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 /**
  * Phase 1 ingestion core for Markdown documents.
@@ -17,6 +22,7 @@ import java.util.regex.Pattern;
  */
 public final class DocumentIngestor {
     private static final Pattern MARKDOWN_LINK = Pattern.compile("\\[([^]]+)]\\([^)]*\\)");
+    private static final Pattern MARKDOWN_LINK_TARGET = Pattern.compile("\\[[^]]*]\\(([^)\\s]+)(?:\\s+\\\"[^\\\"]*\\\")?\\)");
     private static final Pattern HTML_TAG = Pattern.compile("<[^>]+>");
     private static final Pattern EMPHASIS = Pattern.compile("[*_~`]");
     private static final Pattern HEADING_PREFIX = Pattern.compile("^#{1,6}\\s*");
@@ -49,10 +55,11 @@ public final class DocumentIngestor {
         if (raw == null) throw new IllegalArgumentException("raw content must not be null");
         String normalized = normalizeMarkdown(raw);
         String title = extractTitle(raw, fileName);
-        String contentHash = sha256(normalized);
+        List<String> links = extractLinks(raw, sourcePath);
+        String contentHash = sha256(normalized + "\nLINKS\n" + String.join("\n", links));
         String documentId = sha256(sourceType + "\n" + sourcePath + "\n" + contentHash);
 
-        return new DocumentRecord(documentId, sourcePath, sourceType, title, normalized, contentHash);
+        return new DocumentRecord(documentId, sourcePath, sourceType, title, normalized, contentHash, links);
     }
 
     private static String detectSourceType(Path path) {
@@ -87,6 +94,26 @@ public final class DocumentIngestor {
         String name = fileName;
         int extension = name.lastIndexOf('.');
         return extension > 0 ? name.substring(0, extension) : name;
+    }
+
+    static List<String> extractLinks(String raw, String sourcePath) {
+        if (raw == null) return Collections.emptyList();
+        Matcher matcher = MARKDOWN_LINK_TARGET.matcher(raw);
+        List<String> links = new ArrayList<>();
+        Path source = Paths.get(sourcePath);
+        Path parent = source.getParent();
+        while (matcher.find()) {
+            String target = matcher.group(1).trim();
+            if (target.startsWith("#") || target.startsWith("http://") || target.startsWith("https://")
+                    || target.startsWith("mailto:")) continue;
+            int fragment = target.indexOf('#');
+            if (fragment >= 0) target = target.substring(0, fragment);
+            if (target.isEmpty()) continue;
+            Path resolved = parent == null ? Paths.get(target) : parent.resolve(target);
+            String normalized = resolved.normalize().toString().replace('\\', '/');
+            if (!links.contains(normalized)) links.add(normalized);
+        }
+        return Collections.unmodifiableList(links);
     }
 
     static String sha256(String value) {

@@ -1,0 +1,7 @@
+# NEBULA trust metadata dataset v1
+# Format: source_path|authority|days_since_verification|owner|status
+source_path|authority|days_since_verification|owner|status
+architecture.md|0.90|7|platform|verified
+runbook.md|0.80|2|release|verified
+retrieval.md|0.70|60|research|stale
+operations.md|0.95|1|sre|verified
