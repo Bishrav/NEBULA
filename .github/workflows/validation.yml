@@ -1,0 +1,57 @@
+name: NEBULA validation
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  research-and-search:
+    name: Research and search validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Validate research tooling
+        shell: bash
+        run: |
+          python -m py_compile tools/validate_research_export.py tools/generate_pmf_report.py tools/capture_research_bundle.py
+          python tools/validate_research_export.py data/nebula-research.sample.csv
+          mkdir -p reports/generated
+          python tools/generate_pmf_report.py \
+            data/nebula-research.sample.csv \
+            --output reports/generated/pmf-report.sample.md \
+            --generated-at 2026-08-20T00:00:00+00:00
+          test -s reports/generated/pmf-report.sample.md
+          grep -q "synthetic sample fixture" reports/generated/pmf-report.sample.md
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Compile Java production and test sources
+        shell: bash
+        run: |
+          mkdir -p build/classes
+          find services/ingestion/src/main/java algorithms/lexical/src/main/java \
+            algorithms/lexical/src/test/java services/ingestion/src/test/java \
+            -name '*.java' -print > build/java-sources.txt
+          javac -encoding UTF-8 -d build/classes @build/java-sources.txt
+
+      - name: Run research and search integration tests
+        shell: bash
+        run: |
+          java -cp build/classes com.nebula.search.PersistentTelemetryStoreTest
+          java -cp build/classes com.nebula.search.ResearchExportTest
+          java -cp build/classes com.nebula.search.LexicalSearchHttpServerTest

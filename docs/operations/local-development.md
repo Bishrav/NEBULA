@@ -5,6 +5,10 @@
 - JDK 17 or newer (`java` and `javac`)
 - Python 3 for serving the static search workspace
 
+## Continuous validation
+
+GitHub Actions runs the research export validator and deterministic PMF report generation, then compiles the Java production and test sources and runs the telemetry, research export, and HTTP search integration tests. The workflow is defined in `.github/workflows/validation.yml` and runs on pushes and pull requests.
+
 ## Compile the Java backend
 
 From the repository root, compile both dependency-free Java modules into one local build directory:
