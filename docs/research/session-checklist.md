@@ -5,7 +5,7 @@
 - [ ] Confirm consent wording and study task sheet.
 - [ ] Start the API with study version, corpus version, study wave, query-set version, and NEBULA commit SHA metadata.
 - [ ] Start the API with a new local telemetry file.
-- [ ] Confirm `/health/ready` and `/v1/research/manifest` respond successfully.
+- [ ] Run `python tools/pilot_preflight.py --output .\data\study-waves\wave-01\preflight.json` and confirm it reports `READY`.
 - [ ] Save the manifest response with the export as the study-wave provenance record.
 - [ ] Open a clean browser profile.
 

@@ -42,6 +42,14 @@ python tools/capture_research_bundle.py --output-dir .\data\study-waves\wave-01 
 
 The bundle contains the CSV and JSON exports, manifest, validation result, generated PMF report, and `capture.json` provenance record. The command fails if the manifest lacks study provenance or if the CSV fails validation. Real bundles belong in protected local storage and must not be committed to Git.
 
+Before inviting a participant, run the pilot preflight against the configured API:
+
+```powershell
+python tools/pilot_preflight.py --study-wave wave-01 --corpus-version corpus-v1 --query-set-version query-set-v1 --code-version abc1234 --output .\data\study-waves\wave-01\preflight.json
+```
+
+It checks readiness, document availability, event coverage, export formats, anonymous identity handling, and expected study provenance. A failed preflight exits non-zero and should block the session until corrected.
+
 ## Generate the experiment dashboard
 
 Create a portable, read-only comparison dashboard from a validated export:
