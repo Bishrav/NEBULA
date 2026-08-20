@@ -158,7 +158,7 @@ public final class LexicalSearchHttpServer {
             } else if (telemetryStore == null) {
                 searchMetrics.record(normalizedMode(parameters.get("mode")), results.size(), System.nanoTime() - started);
             } else {
-                telemetryStore.recordSearch(sessionId(exchange), query, normalizedMode(parameters.get("mode")), results.size(), System.nanoTime() - started);
+                telemetryStore.recordSearch(sessionId(exchange), taskId(exchange), query, normalizedMode(parameters.get("mode")), results.size(), System.nanoTime() - started);
             }
             respond(exchange, 200, searchJson(query, results));
         }
@@ -242,7 +242,7 @@ public final class LexicalSearchHttpServer {
                         jsonBoolean(body, "useful"));
                 if (telemetryStore == null || consentedForResearch(exchange)) {
                     if (telemetryStore == null) feedbackStore.record(feedback);
-                    else telemetryStore.recordFeedback(sessionId(exchange), feedback);
+                    else telemetryStore.recordFeedback(sessionId(exchange), taskId(exchange), feedback);
                 }
                 respond(exchange, 201, "{\"status\":\"recorded\",\"total\":" + feedbackStore.total() + "}");
             } catch (IllegalArgumentException exception) {
@@ -348,6 +348,12 @@ public final class LexicalSearchHttpServer {
     private static String sessionId(HttpExchange exchange) {
         String value = exchange.getRequestHeaders().getFirst("X-Session-Id");
         if (value == null || value.trim().isEmpty()) return "anonymous";
+        return value.length() > 128 ? value.substring(0, 128) : value;
+    }
+
+    private static String taskId(HttpExchange exchange) {
+        String value = exchange.getRequestHeaders().getFirst("X-Task-Id");
+        if (value == null || value.trim().isEmpty()) return "";
         return value.length() > 128 ? value.substring(0, 128) : value;
     }
 

@@ -31,23 +31,31 @@ public final class PersistentTelemetryStore {
         return new PersistentTelemetryStore(file);
     }
 
-    public synchronized void recordSearch(String sessionId, String query, String mode, int resultCount, long latencyNanos) throws IOException {
+    public synchronized void recordSearch(String sessionId, String taskId, String query, String mode, int resultCount, long latencyNanos) throws IOException {
         searchMetrics.record(mode, resultCount, latencyNanos);
         append("{\"type\":\"search\",\"sessionId\":\"" + escape(sessionId)
                 + "\",\"timestamp\":" + System.currentTimeMillis()
-                + ",\"query\":\"" + escape(query) + "\",\"mode\":\"" + escape(mode)
+                + ",\"taskId\":\"" + escape(taskId) + "\",\"query\":\"" + escape(query) + "\",\"mode\":\"" + escape(mode)
                 + "\",\"results\":" + resultCount + ",\"latencyNanos\":" + Math.max(0L, latencyNanos) + "}");
     }
 
-    public synchronized void recordFeedback(String sessionId, FeedbackRecord feedback) throws IOException {
+    public synchronized void recordSearch(String sessionId, String query, String mode, int resultCount, long latencyNanos) throws IOException {
+        recordSearch(sessionId, "", query, mode, resultCount, latencyNanos);
+    }
+
+    public synchronized void recordFeedback(String sessionId, String taskId, FeedbackRecord feedback) throws IOException {
         feedbackStore.record(feedback);
         append("{\"type\":\"feedback\",\"sessionId\":\"" + escape(sessionId)
                 + "\",\"timestamp\":" + System.currentTimeMillis()
-                + ",\"query\":\"" + escape(feedback.getQuery())
+                + ",\"taskId\":\"" + escape(taskId) + "\",\"query\":\"" + escape(feedback.getQuery())
                 + "\",\"mode\":\"" + escape(feedback.getMode())
                 + "\",\"documentId\":\"" + escape(feedback.getDocumentId())
                 + "\",\"sourcePath\":\"" + escape(feedback.getSourcePath())
                 + "\",\"useful\":" + feedback.isUseful() + "}");
+    }
+
+    public synchronized void recordFeedback(String sessionId, FeedbackRecord feedback) throws IOException {
+        recordFeedback(sessionId, "", feedback);
     }
 
     public synchronized void recordTask(String sessionId, String taskId, String action, boolean success, long durationMs) throws IOException {

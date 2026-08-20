@@ -9,14 +9,15 @@ public final class PersistentTelemetryStoreTest {
         Path directory = Files.createTempDirectory("nebula-telemetry-test");
         Path file = directory.resolve("events.jsonl");
         PersistentTelemetryStore first = PersistentTelemetryStore.open(file);
-        first.recordSearch("session-a", "shard failure", "hybrid", 2, 12_000_000L);
+        first.recordSearch("session-a", "task-a", "shard failure", "hybrid", 2, 12_000_000L);
         first.recordSearch("session-a", "unknown question", "bm25", 0, 18_000_000L);
-        first.recordFeedback("session-a", new FeedbackRecord("shard failure", "hybrid", "doc-1", "docs/runbook.md", true));
+        first.recordFeedback("session-a", "task-a", new FeedbackRecord("shard failure", "hybrid", "doc-1", "docs/runbook.md", true));
 
         String eventLog = Files.readString(file);
         check(eventLog.contains("\"sessionId\":\"session-a\""), "session id is persisted");
         check(eventLog.contains("\"timestamp\":"), "event timestamp is persisted");
         check(eventLog.contains("\"query\":\"shard failure\""), "search query is persisted");
+        check(eventLog.contains("\"taskId\":\"task-a\""), "task id is persisted");
 
         PersistentTelemetryStore restored = PersistentTelemetryStore.open(file);
         check(restored.searchMetrics().getTotalSearches() == 2, "search events are restored");

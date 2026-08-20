@@ -19,6 +19,7 @@
   var consented = window.localStorage.getItem('nebula-pilot-consent-v1') === 'true';
   var sessionId = consented ? getSessionId() : null;
   var taskTimers = {};
+  var activeTaskId = null;
   var suggestionTimer;
   var suggestionIndex = -1;
 
@@ -45,6 +46,7 @@
     var action = button.dataset.taskAction;
     if (!consented) { consentDialog.showModal(); return; }
     if (action === 'start') {
+      activeTaskId = taskId;
       taskTimers[taskId] = performance.now();
       postTask(taskId, 'start', false, 0).then(function () {
         card.querySelector('[data-task-action="start"]').disabled = true;
@@ -56,6 +58,7 @@
       postTask(taskId, 'complete', button.dataset.taskSuccess === 'true', duration).then(function () {
         card.querySelectorAll('button').forEach(function (taskButton) { taskButton.disabled = true; });
         card.classList.add('task-complete');
+        activeTaskId = null;
         document.getElementById('task-status').textContent = 'Task recorded';
       });
     }
@@ -158,7 +161,11 @@
   }
   function researchHeaders() {
     var headers = { 'Content-Type': 'application/json' };
-    if (consented && sessionId) { headers['X-Session-Id'] = sessionId; headers['X-Research-Consent'] = 'true'; }
+    if (consented && sessionId) {
+      headers['X-Session-Id'] = sessionId;
+      headers['X-Research-Consent'] = 'true';
+      if (activeTaskId) headers['X-Task-Id'] = activeTaskId;
+    }
     return headers;
   }
   function postTask(taskId, action, success, durationMs) {
