@@ -3,6 +3,7 @@
 ## Before the participant
 
 - [ ] Confirm consent wording and study task sheet.
+- [ ] Use `docs/research/pilot-session-packet.md` and the approved consent process; do not improvise participant instructions.
 - [ ] Start the API with study version, corpus version, study wave, query-set version, and NEBULA commit SHA metadata.
 - [ ] Start the API with a new local telemetry file.
 - [ ] Run `python tools/pilot_preflight.py --output .\data\study-waves\wave-01\preflight.json` and confirm it reports `READY`.
