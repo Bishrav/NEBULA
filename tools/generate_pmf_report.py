@@ -111,7 +111,7 @@ def build_report(input_path, manifest_path=None, generated_at=None):
         "",
         "## Search behavior shows the main retrieval signal",
         "",
-        f"The export contains {len(searches)} searches with median server latency of {statistics.median(latency_ms):,.1f} ms and a {percent(len(zero_result_searches), len(searches))} zero-result rate. The zero-result rate identifies where retrieval or query phrasing needs investigation; it does not prove that the corpus lacks an answer.",
+        f"The export contains {len(searches)} searches with median server latency of {statistics.median(latency_ms):,.1f} ms and a {percent(len(zero_result_searches), len(searches))} zero-result rate. The zero-result rate identifies where retrieval or query phrasing needs investigation; it does not prove that the corpus lacks an answer." if latency_ms else "No searches were recorded, so retrieval latency and zero-result rate are unavailable. The study should not interpret an empty export as evidence of search quality.",
         "",
         "| Metric | Value |",
         "| --- | ---: |",
