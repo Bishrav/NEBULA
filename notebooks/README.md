@@ -1,6 +1,6 @@
 # NEBULA research notebooks
 
-`nebula_pmf_analysis.ipynb` is the first reproducible analysis artifact for the pilot. It loads the CSV export from the research endpoint, validates the event schema, calculates PMF-oriented measures, analyzes task completion, median duration, reformulations, and time to first useful source, and produces ranking-mode, feedback, task, and time-to-useful charts.
+`nebula_pmf_analysis.ipynb` is the first reproducible analysis artifact for the pilot. It loads the CSV export from the research endpoint, validates the event schema, calculates PMF-oriented measures, analyzes task completion, median duration, reformulations, time to first useful source, confidence ratings, and qualitative notes, and produces research charts.
 
 ## Run with a real pilot export
 

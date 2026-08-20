@@ -45,6 +45,7 @@ public final class LexicalSearchHttpServer {
         server.createContext("/v1/suggest", new SuggestHandler());
         server.createContext("/v1/feedback", new FeedbackHandler());
         server.createContext("/v1/research/tasks", exchange -> researchTask(exchange));
+        server.createContext("/v1/research/observations", exchange -> researchObservation(exchange));
         server.createContext("/v1/metrics/feedback", exchange -> feedbackMetrics(exchange));
         server.createContext("/v1/metrics/search", exchange -> searchMetrics(exchange));
         server.createContext("/v1/research/export", exchange -> researchExport(exchange));
@@ -304,10 +305,10 @@ public final class LexicalSearchHttpServer {
             respond(exchange, 405, "{\"error\":\"method not allowed\"}");
             return;
         }
-        respond(exchange, 200, "{\"studyVersion\":\"pilot-v1\",\"eventTypes\":[\"search\",\"feedback\",\"task\"],"
+        respond(exchange, 200, "{\"studyVersion\":\"pilot-v1\",\"eventTypes\":[\"search\",\"feedback\",\"task\",\"observation\"],"
                 + "\"exportFormats\":[\"csv\",\"json\"],\"sessionId\":{\"source\":\"X-Session-Id\",\"anonymous\":true},"
                 + "\"fields\":[\"type\",\"sessionId\",\"timestamp\",\"query\",\"mode\",\"results\","
-                + "\"latencyNanos\",\"documentId\",\"sourcePath\",\"useful\",\"taskId\",\"action\",\"durationMs\",\"success\"],"
+                + "\"latencyNanos\",\"documentId\",\"sourcePath\",\"useful\",\"taskId\",\"action\",\"durationMs\",\"success\",\"confidence\",\"note\"],"
                 + "\"privacy\":{\"identityCollection\":false,\"retention\":\"study-protocol-defined\"}}");
     }
 
@@ -336,6 +337,33 @@ public final class LexicalSearchHttpServer {
             if (durationMs < 0L) throw new IllegalArgumentException("durationMs must not be negative");
             telemetryStore.recordTask(sessionId(exchange), taskId, action, success, durationMs);
             respond(exchange, 201, "{\"status\":\"recorded\",\"taskId\":\"" + escape(taskId) + "\",\"action\":\"" + action + "\"}");
+        } catch (IllegalArgumentException exception) {
+            respond(exchange, 400, "{\"error\":\"" + escape(exception.getMessage()) + "\"}");
+        }
+    }
+
+    private void researchObservation(HttpExchange exchange) throws IOException {
+        if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
+            respond(exchange, 405, "{\"error\":\"method not allowed\"}");
+            return;
+        }
+        if (telemetryStore == null) {
+            respond(exchange, 503, "{\"error\":\"persistent telemetry is not enabled\"}");
+            return;
+        }
+        if (!consentedForResearch(exchange)) {
+            respond(exchange, 403, "{\"error\":\"research consent is required\"}");
+            return;
+        }
+        String body = new String(readAll(exchange.getRequestBody()), StandardCharsets.UTF_8);
+        try {
+            String taskId = jsonString(body, "taskId");
+            int confidence = (int) jsonLong(body, "confidence");
+            String note = jsonString(body, "note");
+            if (confidence < 1 || confidence > 5) throw new IllegalArgumentException("confidence must be between 1 and 5");
+            if (note.length() > 2000) throw new IllegalArgumentException("note must be 2000 characters or fewer");
+            telemetryStore.recordObservation(sessionId(exchange), taskId, confidence, note);
+            respond(exchange, 201, "{\"status\":\"recorded\",\"taskId\":\"" + escape(taskId) + "\"}");
         } catch (IllegalArgumentException exception) {
             respond(exchange, 400, "{\"error\":\"" + escape(exception.getMessage()) + "\"}");
         }

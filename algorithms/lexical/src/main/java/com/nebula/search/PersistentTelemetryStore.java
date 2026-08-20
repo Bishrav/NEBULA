@@ -66,6 +66,13 @@ public final class PersistentTelemetryStore {
                 + ",\"success\":" + success + "}");
     }
 
+    public synchronized void recordObservation(String sessionId, String taskId, int confidence, String note) throws IOException {
+        append("{\"type\":\"observation\",\"sessionId\":\"" + escape(sessionId)
+                + "\",\"timestamp\":" + System.currentTimeMillis()
+                + ",\"taskId\":\"" + escape(taskId) + "\",\"confidence\":" + confidence
+                + ",\"note\":\"" + escape(note) + "\"}");
+    }
+
     public FeedbackStore feedbackStore() { return feedbackStore; }
     public SearchMetrics searchMetrics() { return searchMetrics; }
     public Path file() { return file; }
@@ -84,7 +91,7 @@ public final class PersistentTelemetryStore {
 
     public synchronized String exportCsv() throws IOException {
         List<String> lines = Files.exists(file) ? Files.readAllLines(file, StandardCharsets.UTF_8) : List.of();
-        StringBuilder body = new StringBuilder("type,sessionId,timestamp,query,mode,results,latencyNanos,documentId,sourcePath,useful,taskId,action,durationMs,success\n");
+        StringBuilder body = new StringBuilder("type,sessionId,timestamp,query,mode,results,latencyNanos,documentId,sourcePath,useful,taskId,action,durationMs,success,confidence,note\n");
         for (String line : lines) {
             if (line.trim().isEmpty()) continue;
             body.append(csv(stringField(line, "type"))).append(',')
@@ -100,7 +107,9 @@ public final class PersistentTelemetryStore {
                     .append(csv(optionalString(line, "taskId"))).append(',')
                     .append(csv(optionalString(line, "action"))).append(',')
                     .append(optionalNumber(line, "durationMs")).append(',')
-                    .append(optionalBoolean(line, "success")).append('\n');
+                    .append(optionalBoolean(line, "success")).append(',')
+                    .append(optionalNumber(line, "confidence")).append(',')
+                    .append(csv(optionalString(line, "note"))).append('\n');
         }
         return body.toString();
     }

@@ -28,11 +28,17 @@ public final class ResearchExportTest {
             check(startedTask.status == 201, "task start is recorded");
             Response completedTask = postTask(base, "session-export", true, "{\"taskId\":\"shard-failure\",\"action\":\"complete\",\"success\":true,\"durationMs\":42000}");
             check(completedTask.status == 201, "task completion is recorded");
+            Response deniedObservation = postObservation(base, "session-export", false, "{\"taskId\":\"shard-failure\",\"confidence\":4,\"note\":\"trusted evidence\"}");
+            check(deniedObservation.status == 403, "observation requires research consent");
+            Response observation = postObservation(base, "session-export", true, "{\"taskId\":\"shard-failure\",\"confidence\":4,\"note\":\"trusted evidence\"}");
+            check(observation.status == 201, "observation is recorded");
             Response exportJson = request("GET", base + "/v1/research/export?format=json", null);
             check(exportJson.status == 200, "JSON export responds");
             check(exportJson.contentType.contains("application/json"), "JSON content type is returned");
             check(exportJson.body.contains("\"sessionId\":\"session-export\""), "JSON contains session ID");
             check(exportJson.body.contains("\"taskId\":\"shard-failure\""), "JSON contains task data");
+            check(exportJson.body.contains("\"confidence\":4"), "JSON contains confidence data");
+            check(exportJson.body.contains("trusted evidence"), "JSON contains qualitative note");
             check(!exportJson.body.contains("session-no-consent"), "non-consented search is not persisted");
             Response exportCsv = request("GET", base + "/v1/research/export?format=csv", null);
             check(exportCsv.status == 200, "CSV export responds");
@@ -68,7 +74,15 @@ public final class ResearchExportTest {
     }
 
     private static Response postTask(String base, String sessionId, boolean consented, String body) throws Exception {
-        HttpURLConnection connection = (HttpURLConnection) new URL(base + "/v1/research/tasks").openConnection();
+        return postJson(base + "/v1/research/tasks", sessionId, consented, body);
+    }
+
+    private static Response postObservation(String base, String sessionId, boolean consented, String body) throws Exception {
+        return postJson(base + "/v1/research/observations", sessionId, consented, body);
+    }
+
+    private static Response postJson(String url, String sessionId, boolean consented, String body) throws Exception {
+        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
         connection.setRequestMethod("POST");
         connection.setDoOutput(true);
         connection.setRequestProperty("Content-Type", "application/json");

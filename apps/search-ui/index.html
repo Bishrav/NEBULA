@@ -101,6 +101,20 @@
     <label class="consent-check"><input id="consent-checkbox" type="checkbox"> I understand and consent to anonymous pilot telemetry.</label>
     <div class="consent-actions"><button id="cancel-consent" class="secondary-button">Cancel</button><button id="accept-consent" class="study-button" disabled>Start session</button></div>
   </dialog>
+  <dialog id="reflection-dialog" class="consent-dialog">
+    <p class="eyebrow">TASK REFLECTION</p>
+    <h2>How confident are you?</h2>
+    <p>Your rating helps compare retrieval success with perceived trust. The explanation is optional; do not include names or sensitive operational details.</p>
+    <label>Confidence
+      <select id="reflection-confidence" class="reflection-input">
+        <option value="1">1 — Not confident</option><option value="2">2</option><option value="3" selected>3 — Neutral</option><option value="4">4</option><option value="5">5 — Very confident</option>
+      </select>
+    </label>
+    <label class="reflection-note">Why did you trust or reject the source?
+      <textarea id="reflection-note" class="reflection-input" maxlength="2000" rows="4" placeholder="Optional explanation"></textarea>
+    </label>
+    <div class="consent-actions"><button id="skip-reflection" class="secondary-button">Skip</button><button id="save-reflection" class="study-button">Save reflection</button></div>
+  </dialog>
   <script src="app.js"></script>
 </body>
 </html>

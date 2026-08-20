@@ -1,4 +1,4 @@
-type,sessionId,timestamp,query,mode,results,latencyNanos,documentId,sourcePath,useful,taskId,action,durationMs,success
+type,sessionId,timestamp,query,mode,results,latencyNanos,documentId,sourcePath,useful,taskId,action,durationMs,success,confidence,note
 search,session-a,1724000095000,shard failure,bm25,2,12000000,,,,shard-failure,,,
 feedback,session-a,1724000105000,shard failure,bm25,,,doc-1,docs/runbook.md,true,shard-failure,,,
 search,session-a,1724000045000,deployment rollback,hybrid,1,18000000,,,,deployment-rollback,,,
@@ -12,3 +12,6 @@ task,session-a,1724000090000,,,,,,,,shard-failure,start,0,false
 task,session-a,1724000150000,,,,,,,,shard-failure,complete,60000,true
 task,session-b,1724000160000,,,,,,,,retrieval-explanation,start,0,false
 task,session-b,1724000215000,,,,,,,,retrieval-explanation,complete,55000,false
+observation,session-a,1724000086000,,,,,,,,deployment-rollback,,,,4,clear rollback evidence
+observation,session-a,1724000151000,,,,,,,,shard-failure,,,,5,runbook was authoritative
+observation,session-b,1724000216000,,,,,,,,retrieval-explanation,,,,2,ranking explanation was unclear

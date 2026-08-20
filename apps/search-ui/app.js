@@ -16,6 +16,8 @@
   var studyButton = document.getElementById('study-session');
   var consentDialog = document.getElementById('consent-dialog');
   var consentCheckbox = document.getElementById('consent-checkbox');
+  var reflectionDialog = document.getElementById('reflection-dialog');
+  var pendingReflectionTask = null;
   var consented = window.localStorage.getItem('nebula-pilot-consent-v1') === 'true';
   var sessionId = consented ? getSessionId() : null;
   var taskTimers = {};
@@ -59,6 +61,10 @@
         card.querySelectorAll('button').forEach(function (taskButton) { taskButton.disabled = true; });
         card.classList.add('task-complete');
         activeTaskId = null;
+        pendingReflectionTask = taskId;
+        document.getElementById('reflection-confidence').value = '3';
+        document.getElementById('reflection-note').value = '';
+        reflectionDialog.showModal();
         document.getElementById('task-status').textContent = 'Task recorded';
       });
     }
@@ -91,6 +97,12 @@
     consentDialog.close();
     setStatus('Study active', false);
     document.getElementById('task-status').textContent = 'Ready';
+  });
+  document.getElementById('skip-reflection').addEventListener('click', function () { pendingReflectionTask = null; reflectionDialog.close(); });
+  document.getElementById('save-reflection').addEventListener('click', function () {
+    if (!pendingReflectionTask) { reflectionDialog.close(); return; }
+    postObservation(pendingReflectionTask, Number(document.getElementById('reflection-confidence').value), document.getElementById('reflection-note').value)
+      .then(function () { pendingReflectionTask = null; reflectionDialog.close(); setStatus('Reflection recorded', false); });
   });
   if (consented) { studyButton.textContent = 'Study active'; document.getElementById('task-status').textContent = 'Ready'; }
   metricsRefresh.addEventListener('click', loadMetrics);
@@ -174,6 +186,13 @@
       body: JSON.stringify({ taskId: taskId, action: action, success: success, durationMs: durationMs })
     }).then(function (response) { if (!response.ok) throw new Error('task tracking failed'); return response.json(); })
       .catch(function (error) { setStatus('Task unavailable', false); throw error; });
+  }
+  function postObservation(taskId, confidence, note) {
+    return fetch(apiBase.value.replace(/\/$/, '') + '/v1/research/observations', {
+      method: 'POST', headers: researchHeaders(),
+      body: JSON.stringify({ taskId: taskId, confidence: confidence, note: note })
+    }).then(function (response) { if (!response.ok) throw new Error('reflection failed'); return response.json(); })
+      .catch(function (error) { setStatus('Reflection unavailable', false); throw error; });
   }
   function loadMetrics() {
     var base = apiBase.value.replace(/\/$/, '');
