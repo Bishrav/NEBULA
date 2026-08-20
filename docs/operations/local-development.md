@@ -33,6 +33,8 @@ $java = Join-Path $env:JAVA_HOME 'bin\java.exe'
 
 The API listens on `http://127.0.0.1:8082` and loads every Markdown file below the supplied directory at startup. This makes the local search index available after every restart.
 
+For deployment, restrict browser access to the known search workspace origin with `NEBULA_ALLOWED_ORIGIN` (or the `nebula.allowedOrigin` Java system property). The default `*` is intended only for local development. API responses include preflight support and browser-safety headers.
+
 To persist pilot search and feedback events across API restarts, pass a third argument for the append-only telemetry log:
 
 ```powershell

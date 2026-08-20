@@ -55,6 +55,7 @@ jobs:
           java -cp build/classes com.nebula.search.PersistentTelemetryStoreTest
           java -cp build/classes com.nebula.search.ResearchExportTest
           java -cp build/classes com.nebula.search.LexicalSearchHttpServerTest
+          java -cp build/classes com.nebula.search.CorsSecurityTest
           java -cp build/classes com.nebula.evaluation.RankingVariantEvaluatorTest
           java -cp build/classes com.nebula.evaluation.EvaluationRunner \
             benchmarks/evaluation/corpus-v1 \
