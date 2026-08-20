@@ -19,6 +19,20 @@ def load_rows(path):
         return list(csv.DictReader(handle))
 
 
+def load_benchmark(path):
+    if path is None:
+        return None
+    with path.open(encoding="utf-8") as handle:
+        value = json.load(handle)
+    if not isinstance(value, dict) or value.get("schemaVersion") != "evaluation-v1":
+        raise ValueError("benchmark must be an evaluation-v1 JSON artifact")
+    variants = value.get("variants")
+    required = {"name", "precisionAtK", "recallAtK", "mrr", "ndcgAtK", "deltaNdcgVsBm25"}
+    if not isinstance(variants, list) or not variants or any(not required.issubset(item) for item in variants):
+        raise ValueError("benchmark variants are missing or incomplete")
+    return value
+
+
 def comparison_rows(rows):
     searches = defaultdict(list)
     feedback = defaultdict(list)
@@ -64,13 +78,14 @@ def task_rows(rows):
     return result
 
 
-def build_dashboard(input_path, manifest_path=None):
+def build_dashboard(input_path, manifest_path=None, benchmark_path=None):
     validation = validate(input_path)
     if validation["status"] != "valid":
         details = "\n".join(f"- {message}" for message in validation["errors"])
         raise ValueError("research export failed validation:\n" + details)
     rows = load_rows(input_path)
     manifest = load_manifest(manifest_path)
+    benchmark = load_benchmark(benchmark_path)
     searches = [row for row in rows if row["type"] == "search"]
     feedback = [row for row in rows if row["type"] == "feedback"]
     tasks = task_rows(rows)
@@ -97,11 +112,25 @@ def build_dashboard(input_path, manifest_path=None):
             "querySetVersion": manifest.get("querySetVersion", "not supplied"),
             "codeVersion": manifest.get("codeVersion", "not supplied"),
         },
+        "benchmark": benchmark,
     }
     payload = json.dumps(data, ensure_ascii=False, separators=(",", ":")).replace("<", "\\u003c")
     title = "NEBULA PMF Experiment Dashboard"
     provenance = data["provenance"]
     warning = "Synthetic fixture — do not use as participant evidence." if provenance["synthetic"] else "Pilot export — interpret within the approved study protocol."
+    benchmark_section = ""
+    if benchmark is not None:
+        rows_html = []
+        for variant in benchmark["variants"]:
+            rows_html.append(
+                f"<tr><td>{html.escape(str(variant['name']))}</td>"
+                f"<td class=\"num\">{float(variant['precisionAtK']):.4f}</td>"
+                f"<td class=\"num\">{float(variant['recallAtK']):.4f}</td>"
+                f"<td class=\"num\">{float(variant['mrr']):.4f}</td>"
+                f"<td class=\"num\">{float(variant['ndcgAtK']):.4f}</td>"
+                f"<td class=\"num\">{float(variant['deltaNdcgVsBm25']):+.4f}</td></tr>"
+            )
+        benchmark_section = f'''<section><h2>Offline ranking benchmark</h2><p>Fixed-corpus evaluation at @{benchmark["cutoff"]} using {benchmark["queryCount"]} labelled queries and evaluation timestamp {benchmark["evaluationNowEpochMillis"]}. Positive deltas show change in NDCG versus BM25; this regression fixture is not publication evidence.</p><div class="panel"><table><thead><tr><th>Variant</th><th class="num">Precision</th><th class="num">Recall</th><th class="num">MRR</th><th class="num">NDCG</th><th class="num">Delta NDCG vs BM25</th></tr></thead><tbody>{''.join(rows_html)}</tbody></table></div></section>'''
     return f'''<!doctype html>
 <html lang="en">
 <head>
@@ -121,6 +150,7 @@ table {{ width:100%; border-collapse:collapse; }} th,td {{ padding:11px 10px; bo
 <h1>{title}</h1><p>Read-only comparison surface for validated NEBULA research telemetry.</p>
 <div class="banner">{warning}</div>
 <section class="cards" id="summary"></section>
+{benchmark_section}
 <section><h2>Ranking-mode comparison</h2><p>Compare search volume, judged usefulness, zero-result rate, and median server latency. Rates use the available event denominator; “n/a” means no observations were recorded.</p>
 <div class="controls"><label for="mode">Focus mode:</label><select id="mode"><option value="all">All modes</option></select></div><div class="panel"><table><thead><tr><th>Mode</th><th class="num">Searches</th><th class="num">Useful rate</th><th class="num">Zero-result rate</th><th class="num">Median latency</th></tr></thead><tbody id="comparison"></tbody></table></div></section>
 <section><h2>Protocol task outcomes</h2><p>Task metrics are completed-task outcomes, not independent search success rates.</p><div class="panel"><table><thead><tr><th>Task</th><th class="num">Completions</th><th class="num">Success rate</th><th class="num">Median duration</th></tr></thead><tbody id="tasks"></tbody></table></div></section>
@@ -138,10 +168,11 @@ def main():
     parser.add_argument("csv_file", type=Path)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--manifest", type=Path)
+    parser.add_argument("--benchmark", type=Path, help="optional evaluation-v1 ranking comparison JSON")
     args = parser.parse_args()
     try:
         args.output.parent.mkdir(parents=True, exist_ok=True)
-        args.output.write_text(build_dashboard(args.csv_file, args.manifest), encoding="utf-8")
+        args.output.write_text(build_dashboard(args.csv_file, args.manifest, args.benchmark), encoding="utf-8")
     except (OSError, ValueError, json.JSONDecodeError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 1

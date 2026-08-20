@@ -47,7 +47,7 @@ The bundle contains the CSV and JSON exports, manifest, validation result, gener
 Create a portable, read-only comparison dashboard from a validated export:
 
 ```powershell
-python tools/generate_pmf_dashboard.py .\data\nebula-research.csv --manifest .\data\nebula-research-manifest.json --output .\reports\generated\pmf-dashboard.html
+python tools/generate_pmf_dashboard.py .\data\nebula-research.csv --manifest .\data\nebula-research-manifest.json --benchmark .\reports\generated\benchmark.json --output .\reports\generated\pmf-dashboard.html
 ```
 
-The dashboard compares ranking modes, useful-feedback rate, zero-result rate, median latency, and protocol task outcomes. It is a snapshot of the supplied export; it does not refresh from the API or establish causal impact.
+The dashboard compares ranking modes, useful-feedback rate, zero-result rate, median latency, offline benchmark metrics, and protocol task outcomes. The benchmark is optional; when supplied, it must be an `evaluation-v1` artifact from the reproducible ranking runner. The dashboard is a snapshot of the supplied files; it does not refresh from the API or establish causal impact.
