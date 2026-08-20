@@ -49,6 +49,9 @@ jobs:
             -name '*.java' -print > build/java-sources.txt
           javac -encoding UTF-8 -d build/classes @build/java-sources.txt
 
+      - name: Build deployment container
+        run: docker build --file infrastructure/docker/Dockerfile --tag nebula-api:ci .
+
       - name: Run research and search integration tests
         shell: bash
         run: |

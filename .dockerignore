@@ -1,0 +1,9 @@
+.git
+.github
+.codex
+build
+data
+reports
+node_modules
+*.log
+

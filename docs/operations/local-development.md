@@ -9,6 +9,10 @@
 
 GitHub Actions runs the research export validator and deterministic PMF report generation, then compiles the Java production and test sources and runs the telemetry, research export, and HTTP search integration tests. The workflow is defined in `.github/workflows/validation.yml` and runs on pushes and pull requests.
 
+## Container deployment baseline
+
+The reproducible API container is defined in `infrastructure/docker`. Run it with `docker compose -f infrastructure/docker/compose.yaml up --build`, then run the pilot preflight against `http://127.0.0.1:8082`. Treat this as a pilot deployment baseline; production use still requires authentication, authorization, TLS, restricted telemetry storage, backups, and alerting.
+
 ## Compile the Java backend
 
 From the repository root, compile both dependency-free Java modules into one local build directory:

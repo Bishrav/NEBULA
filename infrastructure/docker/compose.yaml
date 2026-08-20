@@ -1,0 +1,19 @@
+services:
+  nebula-api:
+    build:
+      context: ../..
+      dockerfile: infrastructure/docker/Dockerfile
+    ports:
+      - "8082:8082"
+    environment:
+      NEBULA_STUDY_VERSION: ${NEBULA_STUDY_VERSION:-pilot-v1}
+      NEBULA_CORPUS_VERSION: ${NEBULA_CORPUS_VERSION:-corpus-v1}
+      NEBULA_STUDY_WAVE: ${NEBULA_STUDY_WAVE:-deployment-check}
+      NEBULA_QUERY_SET_VERSION: ${NEBULA_QUERY_SET_VERSION:-query-set-v1}
+      NEBULA_CODE_VERSION: ${NEBULA_CODE_VERSION:-container}
+      NEBULA_ALLOWED_ORIGIN: ${NEBULA_ALLOWED_ORIGIN:-http://localhost:5173}
+    volumes:
+      - nebula-telemetry:/data
+
+volumes:
+  nebula-telemetry:
