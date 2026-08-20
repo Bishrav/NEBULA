@@ -29,12 +29,15 @@ public final class LexicalSearchHttpServer {
     private final FeedbackStore feedbackStore;
     private final SearchMetrics searchMetrics;
     private final PersistentTelemetryStore telemetryStore;
+    private final ResearchStudyMetadata studyMetadata;
     private ExecutorService executor;
 
-    private LexicalSearchHttpServer(HttpServer server, SearchCatalog catalog, PersistentTelemetryStore telemetryStore) {
+    private LexicalSearchHttpServer(HttpServer server, SearchCatalog catalog, PersistentTelemetryStore telemetryStore,
+                                    ResearchStudyMetadata studyMetadata) {
         this.server = server;
         this.catalog = catalog;
         this.telemetryStore = telemetryStore;
+        this.studyMetadata = studyMetadata;
         this.feedbackStore = telemetryStore == null ? new FeedbackStore() : telemetryStore.feedbackStore();
         this.searchMetrics = telemetryStore == null ? new SearchMetrics() : telemetryStore.searchMetrics();
         server.createContext("/health/live", exchange -> respond(exchange, 200, "{\"status\":\"UP\"}"));
@@ -54,13 +57,21 @@ public final class LexicalSearchHttpServer {
 
     public static LexicalSearchHttpServer create(int port, SearchCatalog catalog) throws IOException {
         return new LexicalSearchHttpServer(
-                HttpServer.create(new InetSocketAddress("127.0.0.1", port), 0), catalog, null);
+                HttpServer.create(new InetSocketAddress("127.0.0.1", port), 0), catalog, null,
+                ResearchStudyMetadata.defaults());
     }
 
     public static LexicalSearchHttpServer create(int port, SearchCatalog catalog, Path telemetryFile) throws IOException {
         return new LexicalSearchHttpServer(
                 HttpServer.create(new InetSocketAddress("127.0.0.1", port), 0), catalog,
-                PersistentTelemetryStore.open(telemetryFile));
+                PersistentTelemetryStore.open(telemetryFile), ResearchStudyMetadata.defaults());
+    }
+
+    public static LexicalSearchHttpServer create(int port, SearchCatalog catalog, Path telemetryFile,
+                                                 ResearchStudyMetadata studyMetadata) throws IOException {
+        return new LexicalSearchHttpServer(
+                HttpServer.create(new InetSocketAddress("127.0.0.1", port), 0), catalog,
+                PersistentTelemetryStore.open(telemetryFile), studyMetadata);
     }
 
     public static LexicalSearchHttpServer createFromSegmentDirectory(int port, Path directory) throws IOException {
@@ -77,6 +88,13 @@ public final class LexicalSearchHttpServer {
         SearchCatalog catalog = new SearchCatalog();
         catalog.indexMarkdownDirectory(directory);
         return create(port, catalog, telemetryFile);
+    }
+
+    public static LexicalSearchHttpServer createFromMarkdownDirectory(int port, Path directory, Path telemetryFile,
+                                                                       ResearchStudyMetadata studyMetadata) throws IOException {
+        SearchCatalog catalog = new SearchCatalog();
+        catalog.indexMarkdownDirectory(directory);
+        return create(port, catalog, telemetryFile, studyMetadata);
     }
 
     public void start() {
@@ -305,7 +323,12 @@ public final class LexicalSearchHttpServer {
             respond(exchange, 405, "{\"error\":\"method not allowed\"}");
             return;
         }
-        respond(exchange, 200, "{\"studyVersion\":\"pilot-v1\",\"eventTypes\":[\"search\",\"feedback\",\"task\",\"observation\"],"
+        respond(exchange, 200, "{\"studyVersion\":\"" + escape(studyMetadata.getStudyVersion())
+                + "\",\"corpusVersion\":\"" + escape(studyMetadata.getCorpusVersion())
+                + "\",\"studyWave\":\"" + escape(studyMetadata.getStudyWave())
+                + "\",\"querySetVersion\":\"" + escape(studyMetadata.getQuerySetVersion())
+                + "\",\"codeVersion\":\"" + escape(studyMetadata.getCodeVersion())
+                + "\",\"eventTypes\":[\"search\",\"feedback\",\"task\",\"observation\"],"
                 + "\"exportFormats\":[\"csv\",\"json\"],\"sessionId\":{\"source\":\"X-Session-Id\",\"anonymous\":true},"
                 + "\"fields\":[\"type\",\"sessionId\",\"timestamp\",\"query\",\"mode\",\"results\","
                 + "\"latencyNanos\",\"documentId\",\"sourcePath\",\"useful\",\"taskId\",\"action\",\"durationMs\",\"success\",\"confidence\",\"note\"],"
@@ -481,8 +504,13 @@ public final class LexicalSearchHttpServer {
     public static void main(String[] args) throws Exception {
         int port = args.length > 1 ? Integer.parseInt(args[1]) : 8082;
         Path telemetryFile = args.length > 2 ? Paths.get(args[2]) : null;
+        ResearchStudyMetadata metadata = args.length > 3
+                ? new ResearchStudyMetadata(args[3], args.length > 4 ? args[4] : "corpus-v1",
+                args.length > 5 ? args[5] : "wave-1", args.length > 6 ? args[6] : "query-set-v1",
+                args.length > 7 ? args[7] : "unknown")
+                : ResearchStudyMetadata.defaults();
         LexicalSearchHttpServer httpServer = args.length > 0 && telemetryFile != null
-                ? createFromMarkdownDirectory(port, Paths.get(args[0]), telemetryFile)
+                ? createFromMarkdownDirectory(port, Paths.get(args[0]), telemetryFile, metadata)
                 : args.length > 0
                 ? createFromMarkdownDirectory(port, Paths.get(args[0]))
                 : create(port, new SearchCatalog());

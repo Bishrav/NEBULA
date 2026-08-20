@@ -3,9 +3,10 @@
 ## Before the participant
 
 - [ ] Confirm consent wording and study task sheet.
-- [ ] Record study wave, corpus version, and NEBULA commit SHA.
+- [ ] Start the API with study version, corpus version, study wave, query-set version, and NEBULA commit SHA metadata.
 - [ ] Start the API with a new local telemetry file.
 - [ ] Confirm `/health/ready` and `/v1/research/manifest` respond successfully.
+- [ ] Save the manifest response with the export as the study-wave provenance record.
 - [ ] Open a clean browser profile.
 
 ## During the session

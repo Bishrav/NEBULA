@@ -14,7 +14,8 @@ public final class ResearchExportTest {
         Path file = Files.createTempDirectory("nebula-export-test").resolve("events.jsonl");
         SearchCatalog catalog = new SearchCatalog();
         catalog.indexMarkdown("docs/runbook.md", "# Shard failure\n\nRestart the shard safely.");
-        LexicalSearchHttpServer server = LexicalSearchHttpServer.create(0, catalog, file);
+        LexicalSearchHttpServer server = LexicalSearchHttpServer.create(0, catalog, file,
+                new ResearchStudyMetadata("pilot-v2", "corpus-v7", "wave-03", "queries-v4", "abc123"));
         server.start();
         try {
             String base = "http://127.0.0.1:" + server.getPort();
@@ -47,7 +48,11 @@ public final class ResearchExportTest {
             check(exportCsv.body.contains("session-export"), "CSV contains session data");
             Response manifest = request("GET", base + "/v1/research/manifest", null);
             check(manifest.status == 200, "research manifest responds");
-            check(manifest.body.contains("\"studyVersion\":\"pilot-v1\""), "manifest contains study version");
+            check(manifest.body.contains("\"studyVersion\":\"pilot-v2\""), "manifest contains study version");
+            check(manifest.body.contains("\"corpusVersion\":\"corpus-v7\""), "manifest contains corpus version");
+            check(manifest.body.contains("\"studyWave\":\"wave-03\""), "manifest contains study wave");
+            check(manifest.body.contains("\"querySetVersion\":\"queries-v4\""), "manifest contains query-set version");
+            check(manifest.body.contains("\"codeVersion\":\"abc123\""), "manifest contains code version");
             check(manifest.body.contains("\"identityCollection\":false"), "manifest states privacy boundary");
             System.out.println("ResearchExportTest: PASS");
         } finally {
