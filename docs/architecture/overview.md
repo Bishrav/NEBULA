@@ -44,3 +44,7 @@ Connectors -> Ingestion -> Processing -> Index Builder
 - Search quality is evaluated against fixed, versioned queries.
 - AI-generated answers are optional and cannot replace deterministic retrieval.
 - Index snapshots must be reproducible and restorable.
+
+## Distributed search baseline
+
+`ConsistentHashRing` provides deterministic virtual-node placement for document keys. `QueryCoordinator` fans requests out to `SearchShard` instances, merges local results with deterministic tie-breaking, and reports unavailable shards through `CoordinatedSearchResponse.isPartial()`. This is an in-process research baseline; network transport, replication, retries, and durable shard membership remain production work.

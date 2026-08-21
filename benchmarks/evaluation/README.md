@@ -33,6 +33,8 @@ When a report path is supplied, the runner also writes `ann-benchmark.md` and, w
 
 The runner also writes `graph-benchmark.md` and `graph-benchmark.json`, recording graph size, dangling nodes, PageRank convergence, score-mass conservation, and deterministic top authority nodes.
 
+The distributed baseline is currently exercised as an in-process coordinator test. It validates deterministic hash placement, fan-out merging, and explicit partial-result reporting when a shard is unavailable. It does not yet provide network transport or replication.
+
 When a report path is supplied, the runner also writes `embedding-ablation.md` beside it. This compares hashing and character n-gram embeddings in both semantic-only and hybrid retrieval modes.
 
 The dataset is a starting regression fixture, not a publication-quality benchmark. Its documents include deterministic cross-links so PageRank and graph-aware trust ranking have a measurable signal. Future research versions must document corpus construction, query creation, annotator agreement, and split strategy.
