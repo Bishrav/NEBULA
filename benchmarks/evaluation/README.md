@@ -39,6 +39,24 @@ Replication tests validate synchronous primary/replica indexing, primary failove
 
 The network coordinator test uses the existing HTTP search API, verifies result merging from a live endpoint, and confirms that an unreachable endpoint becomes an explicit partial-result failure after bounded retries.
 
+## Reproducible experiment manifest
+
+Create a checksum-backed manifest for an experiment after generating its reports:
+
+```powershell
+python tools/generate_experiment_manifest.py `
+  --output .\reports\generated\experiment-manifest.json `
+  --corpus .\benchmarks\evaluation\corpus-v1 `
+  --queries .\benchmarks\evaluation\queries-v1.psv `
+  --trust .\benchmarks\evaluation\trust-v1.psv `
+  --benchmark .\reports\generated\benchmark.json `
+  --ann-benchmark .\reports\generated\ann-benchmark.json `
+  --graph-benchmark .\reports\generated\graph-benchmark.json
+python tools/generate_experiment_manifest.py --verify .\reports\generated\experiment-manifest.json
+```
+
+The manifest records the NEBULA commit, fixed input timestamps, file sizes, and SHA-256 checksums. Verification fails if any recorded input changes. Include the manifest with a research release, but never include private participant exports or secrets.
+
 When a report path is supplied, the runner also writes `embedding-ablation.md` beside it. This compares hashing and character n-gram embeddings in both semantic-only and hybrid retrieval modes.
 
 The dataset is a starting regression fixture, not a publication-quality benchmark. Its documents include deterministic cross-links so PageRank and graph-aware trust ranking have a measurable signal. Future research versions must document corpus construction, query creation, annotator agreement, and split strategy.

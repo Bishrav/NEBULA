@@ -24,7 +24,8 @@ jobs:
       - name: Validate research tooling
         shell: bash
         run: |
-          python -m py_compile tools/validate_research_export.py tools/generate_pmf_report.py tools/capture_research_bundle.py tools/generate_pmf_dashboard.py tools/pilot_preflight.py tools/run_pilot_dry_run.py tools/redact_research_export.py tools/generate_wave_summary.py
+          python -m py_compile tools/validate_research_export.py tools/generate_pmf_report.py tools/capture_research_bundle.py tools/generate_pmf_dashboard.py tools/pilot_preflight.py tools/run_pilot_dry_run.py tools/redact_research_export.py tools/generate_wave_summary.py tools/generate_experiment_manifest.py tools/test_experiment_manifest.py
+          python tools/test_experiment_manifest.py
           python tools/validate_research_export.py data/nebula-research.sample.csv
           mkdir -p reports/generated
           python tools/generate_pmf_report.py \
@@ -78,6 +79,16 @@ jobs:
           test -s reports/generated/graph-benchmark.json
           grep -q '"converged":true' reports/generated/graph-benchmark.json
           grep -q '"edges":8' reports/generated/graph-benchmark.json
+          python tools/generate_experiment_manifest.py \
+            --output reports/generated/experiment-manifest.json \
+            --corpus benchmarks/evaluation/corpus-v1 \
+            --queries benchmarks/evaluation/queries-v1.psv \
+            --trust benchmarks/evaluation/trust-v1.psv \
+            --benchmark reports/generated/benchmark.json \
+            --ann-benchmark reports/generated/ann-benchmark.json \
+            --graph-benchmark reports/generated/graph-benchmark.json \
+            --generated-at 2026-08-21T00:00:00+00:00
+          python tools/generate_experiment_manifest.py --verify reports/generated/experiment-manifest.json
           python tools/generate_pmf_dashboard.py \
             data/nebula-research.sample.csv \
             --benchmark reports/generated/benchmark.json \
