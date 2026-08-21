@@ -94,9 +94,14 @@ public final class EvaluationRunner {
             Path annReport = Paths.get(args[3]).resolveSibling("ann-benchmark.md");
             new AnnBenchmarkWriter().writeMarkdown(annReport, ann);
             if (args.length == 5) new AnnBenchmarkWriter().writeJson(Paths.get(args[4]).resolveSibling("ann-benchmark.json"), ann);
+            GraphBenchmark.Result graph = new GraphBenchmark().evaluate(corpusRecords);
+            Path graphReport = Paths.get(args[3]).resolveSibling("graph-benchmark.md");
+            new GraphBenchmarkWriter().writeMarkdown(graphReport, graph);
+            if (args.length == 5) new GraphBenchmarkWriter().writeJson(Paths.get(args[4]).resolveSibling("graph-benchmark.json"), graph);
             System.out.println("report=" + Paths.get(args[3]).toAbsolutePath());
             System.out.println("embedding_report=" + embeddingReport.toAbsolutePath());
             System.out.println("ann_report=" + annReport.toAbsolutePath());
+            System.out.println("graph_report=" + graphReport.toAbsolutePath());
             if (args.length == 5) {
                 Path jsonReport = Paths.get(args[4]);
                 new BenchmarkJsonWriter().write(jsonReport, catalog.documentCount(), queries.size(),

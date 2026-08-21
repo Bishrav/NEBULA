@@ -31,6 +31,8 @@ The runner compares BM25, semantic, hybrid lexical-semantic retrieval, authority
 
 When a report path is supplied, the runner also writes `ann-benchmark.md` and, when a JSON comparison path is supplied, `ann-benchmark.json`. This compares custom HNSW recall@k and mean query latency with exact cosine search over the same corpus, model, and cutoff. Latency is a local engineering measurement; recall is the primary regression signal.
 
+The runner also writes `graph-benchmark.md` and `graph-benchmark.json`, recording graph size, dangling nodes, PageRank convergence, score-mass conservation, and deterministic top authority nodes.
+
 When a report path is supplied, the runner also writes `embedding-ablation.md` beside it. This compares hashing and character n-gram embeddings in both semantic-only and hybrid retrieval modes.
 
 The dataset is a starting regression fixture, not a publication-quality benchmark. Future research versions must document corpus construction, query creation, annotator agreement, and split strategy.
