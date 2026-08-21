@@ -17,5 +17,6 @@ public final class SearchShard {
         if (!available) throw new IllegalStateException("shard is unavailable: " + shardId);
         return catalog.search(query, limit);
     }
+    public synchronized boolean isAvailable() { return available; }
     public synchronized void setAvailable(boolean available) { this.available = available; }
 }

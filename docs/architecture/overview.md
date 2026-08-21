@@ -48,3 +48,5 @@ Connectors -> Ingestion -> Processing -> Index Builder
 ## Distributed search baseline
 
 `ConsistentHashRing` provides deterministic virtual-node placement for document keys. `QueryCoordinator` fans requests out to `SearchShard` instances, merges local results with deterministic tie-breaking, and reports unavailable shards through `CoordinatedSearchResponse.isPartial()`. This is an in-process research baseline; network transport, replication, retries, and durable shard membership remain production work.
+
+`ReplicatedSearchShard` synchronously writes a primary and replica, while `ResilientQueryCoordinator` retries the replica after primary failure and records recovered or unrecoverable shard groups. The baseline does not yet include asynchronous replication, quorum writes, or network-level retry budgets.
