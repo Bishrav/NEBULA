@@ -57,6 +57,20 @@ python tools/generate_experiment_manifest.py --verify .\reports\generated\experi
 
 The manifest records the NEBULA commit, fixed input timestamps, file sizes, and SHA-256 checksums. Verification fails if any recorded input changes. Include the manifest with a research release, but never include private participant exports or secrets.
 
+Generate a technical report and publication-friendly CSV tables from the same artifacts:
+
+```powershell
+python tools/generate_research_report.py `
+  --benchmark .\reports\generated\benchmark.json `
+  --ann-benchmark .\reports\generated\ann-benchmark.json `
+  --graph-benchmark .\reports\generated\graph-benchmark.json `
+  --manifest .\reports\generated\experiment-manifest.json `
+  --output .\reports\generated\research-report.md `
+  --tables-dir .\reports\generated\publication-tables
+```
+
+The report separates measured findings from limitations and explicitly labels the current fixture as synthetic. The CSV tables are suitable for importing into a paper, spreadsheet, or plotting notebook without copying values manually.
+
 When a report path is supplied, the runner also writes `embedding-ablation.md` beside it. This compares hashing and character n-gram embeddings in both semantic-only and hybrid retrieval modes.
 
 The dataset is a starting regression fixture, not a publication-quality benchmark. Its documents include deterministic cross-links so PageRank and graph-aware trust ranking have a measurable signal. Future research versions must document corpus construction, query creation, annotator agreement, and split strategy.

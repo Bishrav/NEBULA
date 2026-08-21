@@ -24,7 +24,7 @@ jobs:
       - name: Validate research tooling
         shell: bash
         run: |
-          python -m py_compile tools/validate_research_export.py tools/generate_pmf_report.py tools/capture_research_bundle.py tools/generate_pmf_dashboard.py tools/pilot_preflight.py tools/run_pilot_dry_run.py tools/redact_research_export.py tools/generate_wave_summary.py tools/generate_experiment_manifest.py tools/test_experiment_manifest.py
+          python -m py_compile tools/validate_research_export.py tools/generate_pmf_report.py tools/capture_research_bundle.py tools/generate_pmf_dashboard.py tools/pilot_preflight.py tools/run_pilot_dry_run.py tools/redact_research_export.py tools/generate_wave_summary.py tools/generate_experiment_manifest.py tools/test_experiment_manifest.py tools/generate_research_report.py
           python tools/test_experiment_manifest.py
           python tools/validate_research_export.py data/nebula-research.sample.csv
           mkdir -p reports/generated
@@ -89,6 +89,17 @@ jobs:
             --graph-benchmark reports/generated/graph-benchmark.json \
             --generated-at 2026-08-21T00:00:00+00:00
           python tools/generate_experiment_manifest.py --verify reports/generated/experiment-manifest.json
+          python tools/generate_research_report.py \
+            --benchmark reports/generated/benchmark.json \
+            --ann-benchmark reports/generated/ann-benchmark.json \
+            --graph-benchmark reports/generated/graph-benchmark.json \
+            --manifest reports/generated/experiment-manifest.json \
+            --output reports/generated/research-report.md \
+            --tables-dir reports/generated/publication-tables \
+            --generated-at 2026-08-21T00:00:00+00:00
+          test -s reports/generated/research-report.md
+          test -s reports/generated/publication-tables/ranking-comparison.csv
+          grep -q 'Technical summary' reports/generated/research-report.md
           python tools/generate_pmf_dashboard.py \
             data/nebula-research.sample.csv \
             --benchmark reports/generated/benchmark.json \
