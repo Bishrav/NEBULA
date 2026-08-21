@@ -72,6 +72,7 @@ jobs:
           grep -q '"hnswRecallAtK"' reports/generated/ann-benchmark.json
           test -s reports/generated/graph-benchmark.json
           grep -q '"converged":true' reports/generated/graph-benchmark.json
+          grep -q '"edges":8' reports/generated/graph-benchmark.json
           python tools/generate_pmf_dashboard.py \
             data/nebula-research.sample.csv \
             --benchmark reports/generated/benchmark.json \

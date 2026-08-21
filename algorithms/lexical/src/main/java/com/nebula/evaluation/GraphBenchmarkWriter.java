@@ -19,7 +19,7 @@ public final class GraphBenchmarkWriter {
                 + "| Iterations | " + result.getIterations() + " |\n"
                 + "| Converged | " + result.isConverged() + " |\n"
                 + "| Score mass | " + number(result.getScoreMass()) + " |\n\n"
-                + "Top nodes (sorted for reproducible artifact output): " + String.join(", ", result.getTopNodes()) + "\n";
+                + "Top nodes by PageRank: " + String.join(", ", result.getTopNodes()) + "\n";
         Files.write(target, body.getBytes(StandardCharsets.UTF_8));
     }
 

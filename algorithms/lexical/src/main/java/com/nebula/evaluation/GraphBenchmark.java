@@ -20,7 +20,6 @@ public final class GraphBenchmark {
         double mass = 0.0;
         for (double score : pageRank.getScores().values()) mass += score;
         List<String> top = new ArrayList<>(pageRank.topNodes(5));
-        Collections.sort(top);
         return new Result(graph.nodes().size(), graph.edgeCount(), dangling, pageRank.getIterations(),
                 pageRank.isConverged(), mass, top);
     }

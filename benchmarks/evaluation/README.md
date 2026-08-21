@@ -35,7 +35,7 @@ The runner also writes `graph-benchmark.md` and `graph-benchmark.json`, recordin
 
 When a report path is supplied, the runner also writes `embedding-ablation.md` beside it. This compares hashing and character n-gram embeddings in both semantic-only and hybrid retrieval modes.
 
-The dataset is a starting regression fixture, not a publication-quality benchmark. Future research versions must document corpus construction, query creation, annotator agreement, and split strategy.
+The dataset is a starting regression fixture, not a publication-quality benchmark. Its documents include deterministic cross-links so PageRank and graph-aware trust ranking have a measurable signal. Future research versions must document corpus construction, query creation, annotator agreement, and split strategy.
 
 ## Annotation protocol
 
