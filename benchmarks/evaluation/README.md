@@ -37,6 +37,8 @@ The distributed baseline is currently exercised as an in-process coordinator tes
 
 Replication tests validate synchronous primary/replica indexing, primary failover, and explicit reporting when both copies are unavailable.
 
+The network coordinator test uses the existing HTTP search API, verifies result merging from a live endpoint, and confirms that an unreachable endpoint becomes an explicit partial-result failure after bounded retries.
+
 When a report path is supplied, the runner also writes `embedding-ablation.md` beside it. This compares hashing and character n-gram embeddings in both semantic-only and hybrid retrieval modes.
 
 The dataset is a starting regression fixture, not a publication-quality benchmark. Its documents include deterministic cross-links so PageRank and graph-aware trust ranking have a measurable signal. Future research versions must document corpus construction, query creation, annotator agreement, and split strategy.
