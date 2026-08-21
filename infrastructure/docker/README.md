@@ -20,3 +20,5 @@ Set `NEBULA_ALLOWED_ORIGIN` to the exact browser origin before exposing the API 
 The container currently ships the public synthetic evaluation corpus. Private document ingestion, authentication, authorization, TLS termination, backups, and operational alerting remain deployment requirements before production use.
 
 For internal shard traffic, set `NEBULA_API_TOKEN` on the API container and configure the coordinator with the same secret through its deployment secret manager. Do not place the token in Compose files, source code, or committed `.env` files.
+
+Monitor coordinator-side `ShardHealth` snapshots for open circuits, retry exhaustion, and recovered probes. The current implementation is an in-process monitoring baseline; export these values to the deployment metrics system before production.

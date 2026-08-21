@@ -23,22 +23,30 @@ public final class HttpShardClient {
     private final int timeoutMillis;
     private final int maxAttempts;
     private final String apiToken;
+    private final ShardHealth health;
 
     public HttpShardClient(String shardId, String baseUrl, int timeoutMillis, int maxAttempts) {
         this(shardId, baseUrl, timeoutMillis, maxAttempts, null);
     }
     public HttpShardClient(String shardId, String baseUrl, int timeoutMillis, int maxAttempts, String apiToken) {
+        this(shardId, baseUrl, timeoutMillis, maxAttempts, apiToken, 3, 5000L);
+    }
+    public HttpShardClient(String shardId, String baseUrl, int timeoutMillis, int maxAttempts, String apiToken,
+                           int failureThreshold, long cooldownMillis) {
         if (shardId == null || shardId.trim().isEmpty() || baseUrl == null || baseUrl.trim().isEmpty()) throw new IllegalArgumentException("shard identity and URL are required");
         if (timeoutMillis <= 0 || maxAttempts <= 0) throw new IllegalArgumentException("timeouts and attempts must be positive");
         this.shardId = shardId; this.baseUrl = baseUrl.replaceAll("/+$", "");
         this.timeoutMillis = timeoutMillis; this.maxAttempts = maxAttempts; this.apiToken = apiToken;
+        this.health = new ShardHealth(failureThreshold, cooldownMillis);
     }
     public String getShardId() { return shardId; }
+    public ShardHealth health() { return health; }
     public List<SearchResult> search(String query, int limit) throws Exception {
+        if (!health.allowRequest()) throw new IllegalStateException("circuit open for shard: " + shardId);
         Exception last = null;
         for (int attempt = 1; attempt <= maxAttempts; attempt++) {
-            try { return request(query, limit); }
-            catch (Exception failure) { last = failure; }
+            try { List<SearchResult> result = request(query, limit); health.recordSuccess(); return result; }
+            catch (Exception failure) { last = failure; health.recordFailure(); }
         }
         throw last == null ? new IllegalStateException("request failed") : last;
     }
