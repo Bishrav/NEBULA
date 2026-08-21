@@ -18,3 +18,5 @@ python tools/pilot_preflight.py --base-url http://127.0.0.1:8082 --study-wave de
 Set `NEBULA_ALLOWED_ORIGIN` to the exact browser origin before exposing the API beyond local development. Keep the telemetry volume restricted to the research team, export it through the approved workflow, and never commit its contents.
 
 The container currently ships the public synthetic evaluation corpus. Private document ingestion, authentication, authorization, TLS termination, backups, and operational alerting remain deployment requirements before production use.
+
+For internal shard traffic, set `NEBULA_API_TOKEN` on the API container and configure the coordinator with the same secret through its deployment secret manager. Do not place the token in Compose files, source code, or committed `.env` files.

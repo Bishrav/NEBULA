@@ -52,3 +52,5 @@ Connectors -> Ingestion -> Processing -> Index Builder
 `ReplicatedSearchShard` synchronously writes a primary and replica, while `ResilientQueryCoordinator` retries the replica after primary failure and records recovered or unrecoverable shard groups. The baseline does not yet include asynchronous replication, quorum writes, or network-level retry budgets.
 
 `HttpShardClient` and `NetworkQueryCoordinator` exercise the same contract over HTTP with connect/read timeouts and bounded retries. Failed endpoints are returned as partial-result metadata; production deployments still need service discovery, authentication, circuit breaking, and observability around retry exhaustion.
+
+Set `NEBULA_API_TOKEN` (or `-Dnebula.apiToken`) to require `Authorization: Bearer ...` on shard search requests. `ShardEndpointRegistry` parses static startup configuration in the form `shard-a=http://host-a:8082,shard-b=http://host-b:8082`. Protect tokens with the deployment secret manager; never commit them.

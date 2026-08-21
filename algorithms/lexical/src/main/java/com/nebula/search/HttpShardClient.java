@@ -22,12 +22,16 @@ public final class HttpShardClient {
     private final String baseUrl;
     private final int timeoutMillis;
     private final int maxAttempts;
+    private final String apiToken;
 
     public HttpShardClient(String shardId, String baseUrl, int timeoutMillis, int maxAttempts) {
+        this(shardId, baseUrl, timeoutMillis, maxAttempts, null);
+    }
+    public HttpShardClient(String shardId, String baseUrl, int timeoutMillis, int maxAttempts, String apiToken) {
         if (shardId == null || shardId.trim().isEmpty() || baseUrl == null || baseUrl.trim().isEmpty()) throw new IllegalArgumentException("shard identity and URL are required");
         if (timeoutMillis <= 0 || maxAttempts <= 0) throw new IllegalArgumentException("timeouts and attempts must be positive");
         this.shardId = shardId; this.baseUrl = baseUrl.replaceAll("/+$", "");
-        this.timeoutMillis = timeoutMillis; this.maxAttempts = maxAttempts;
+        this.timeoutMillis = timeoutMillis; this.maxAttempts = maxAttempts; this.apiToken = apiToken;
     }
     public String getShardId() { return shardId; }
     public List<SearchResult> search(String query, int limit) throws Exception {
@@ -42,6 +46,7 @@ public final class HttpShardClient {
         String target = baseUrl + "/v1/search?q=" + URLEncoder.encode(query, "UTF-8") + "&limit=" + limit;
         HttpURLConnection connection = (HttpURLConnection) new URL(target).openConnection();
         connection.setConnectTimeout(timeoutMillis); connection.setReadTimeout(timeoutMillis); connection.setRequestMethod("GET");
+        if (apiToken != null && !apiToken.trim().isEmpty()) connection.setRequestProperty("Authorization", "Bearer " + apiToken);
         int status = connection.getResponseCode();
         InputStream input = status >= 400 ? connection.getErrorStream() : connection.getInputStream();
         String body = read(input);

@@ -31,6 +31,7 @@ public final class LexicalSearchHttpServer {
     private final PersistentTelemetryStore telemetryStore;
     private final ResearchStudyMetadata studyMetadata;
     private final String allowedOrigin;
+    private final String apiToken;
     private ExecutorService executor;
 
     private LexicalSearchHttpServer(HttpServer server, SearchCatalog catalog, PersistentTelemetryStore telemetryStore,
@@ -40,6 +41,7 @@ public final class LexicalSearchHttpServer {
         this.telemetryStore = telemetryStore;
         this.studyMetadata = studyMetadata;
         this.allowedOrigin = configuredAllowedOrigin();
+        this.apiToken = configuredApiToken();
         this.feedbackStore = telemetryStore == null ? new FeedbackStore() : telemetryStore.feedbackStore();
         this.searchMetrics = telemetryStore == null ? new SearchMetrics() : telemetryStore.searchMetrics();
         server.createContext("/health/live", cors(exchange -> respond(exchange, 200, "{\"status\":\"UP\"}")));
@@ -144,6 +146,7 @@ public final class LexicalSearchHttpServer {
     private final class SearchHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
+            if (!authorized(exchange)) return;
             if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
                 respond(exchange, 405, "{\"error\":\"method not allowed\"}");
                 return;
@@ -558,6 +561,23 @@ public final class LexicalSearchHttpServer {
         String value = System.getProperty("nebula.allowedOrigin");
         if (value == null || value.trim().isEmpty()) value = System.getenv("NEBULA_ALLOWED_ORIGIN");
         return value == null || value.trim().isEmpty() ? "*" : value.trim();
+    }
+
+    private boolean authorized(HttpExchange exchange) throws IOException {
+        if (apiToken == null) return true;
+        String header = exchange.getRequestHeaders().getFirst("Authorization");
+        if (header == null || !header.equals("Bearer " + apiToken)) {
+            exchange.getResponseHeaders().set("WWW-Authenticate", "Bearer");
+            respond(exchange, 401, "{\"error\":\"authentication required\"}");
+            return false;
+        }
+        return true;
+    }
+
+    private static String configuredApiToken() {
+        String value = System.getProperty("nebula.apiToken");
+        if (value == null || value.trim().isEmpty()) value = System.getenv("NEBULA_API_TOKEN");
+        return value == null || value.trim().isEmpty() ? null : value.trim();
     }
 
     public static void main(String[] args) throws Exception {
