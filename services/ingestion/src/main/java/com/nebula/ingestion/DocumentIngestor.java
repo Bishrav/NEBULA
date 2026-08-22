@@ -108,6 +108,8 @@ public final class DocumentIngestor {
                     || target.startsWith("mailto:")) continue;
             int fragment = target.indexOf('#');
             if (fragment >= 0) target = target.substring(0, fragment);
+            int query = target.indexOf('?');
+            if (query >= 0) target = target.substring(0, query);
             if (target.isEmpty()) continue;
             Path resolved = parent == null ? Paths.get(target) : parent.resolve(target);
             String normalized = resolved.normalize().toString().replace('\\', '/');

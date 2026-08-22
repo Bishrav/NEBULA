@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Create deterministic blinded annotation packets from reviewed candidate queries."""
+"""Legacy synthetic-fixture packet generator.
+
+This module is retained for existing regression tests. It injects grounding
+documents and must not be used for the frozen research annotation stage. Use
+generate_blinded_annotation_packages.py for the research pipeline.
+"""
 
 import argparse
 import csv
