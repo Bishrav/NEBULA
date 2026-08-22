@@ -34,7 +34,13 @@ The weighted fusion score is:
 H(d,q) = w_L\hat{L}(d,q) + w_S\hat{S}(d,q)
 \]
 
-The default configuration is (w_L=0.5), (w_S=0.5). All weights are normalized and serializable through `RankingConfiguration`. Candidate-set normalization is a known methodological limitation: identical raw scores can receive different normalized values for different queries. RRF is a required Phase 4 comparison, not yet implemented.
+The default configuration is (w_L=0.5), (w_S=0.5). All weights are normalized and serializable through `RankingConfiguration`. Candidate-set normalization is a known methodological limitation: identical raw scores can receive different normalized values for different queries. NEBULA also implements Reciprocal Rank Fusion with k=60 as a rank-based comparison that does not assume compatible lexical and semantic score scales:
+
+\[
+RRF(d)=\sum_i\frac{1}{k+rank_i(d)}
+\]
+
+RRF is a stronger baseline, not automatically a better method. Its performance must be measured on the frozen validation/test protocol.
 
 ## Trust-oriented score
 
@@ -72,4 +78,3 @@ The public compatibility API accepts a combined authority weight and explicitly 
 ## Configuration and reproducibility
 
 The implementation class is `com.nebula.search.RankingConfiguration`. The experiment configuration should be serialized beside every result artifact and included in the experiment manifest. A fixed configuration is necessary but not sufficient for reproducibility; the corpus, qrels, split, code revision, evaluation timestamp, embedding model, runtime, and hardware also need to be recorded.
-

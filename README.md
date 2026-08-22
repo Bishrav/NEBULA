@@ -48,6 +48,7 @@ The result is designed to answer not only **“what matches?”**, but also **�
 - Semantic hashing and character n-gram retrieval baselines
 - Exact cosine search and a custom HNSW approximate-nearest-neighbour index
 - Hybrid lexical-semantic ranking with score normalisation
+- Reciprocal Rank Fusion (RRF) as a score-scale-robust hybrid baseline
 - Freshness, source authority, graph/PageRank, and trust-oriented ranking variants
 - Evidence-oriented result explanations and machine-readable evaluation reports
 
@@ -153,11 +154,12 @@ PostgreSQL for metadata and job state, object storage for raw documents and inde
 
 1. BM25 lexical retrieval
 2. Semantic retrieval
-3. Hybrid lexical-semantic retrieval
-4. Authority-only and freshness-only variants
-5. Trust-aware combined ranking
-6. Exact vector search versus custom HNSW
-7. Healthy, degraded, replica-recovery, and partial-result distributed scenarios
+3. Hybrid lexical-semantic retrieval with weighted score fusion
+4. Reciprocal Rank Fusion with fixed rank constant `k=60`
+5. Authority-only and freshness-only variants
+6. Trust-oriented combined ranking
+7. Exact vector search versus custom HNSW
+8. Healthy, degraded, replica-recovery, and partial-result distributed scenarios
 
 ### Research safeguards
 

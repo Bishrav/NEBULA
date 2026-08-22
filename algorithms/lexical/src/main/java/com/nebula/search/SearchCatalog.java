@@ -24,6 +24,7 @@ public final class SearchCatalog {
     private final VectorIndex vectorIndex;
     private final SemanticSearchEngine semanticSearchEngine;
     private final HybridSearchEngine hybridSearchEngine;
+    private final ReciprocalRankFusion reciprocalRankFusion;
     private final HnswIndex hnswIndex;
     private final HnswSemanticSearchEngine hnswSearchEngine;
     private PageRankResult pageRank;
@@ -58,6 +59,7 @@ public final class SearchCatalog {
         }
         this.semanticSearchEngine = new SemanticSearchEngine(embeddingModel, vectorIndex);
         this.hybridSearchEngine = new HybridSearchEngine(searchEngine, semanticSearchEngine);
+        this.reciprocalRankFusion = new ReciprocalRankFusion(60);
         this.hnswSearchEngine = new HnswSemanticSearchEngine(embeddingModel, hnswIndex, 32);
         for (IndexedDocument document : index.documents()) linkGraph.add(document.getDocument());
         this.pageRank = PageRank.compute(linkGraph);
@@ -111,6 +113,14 @@ public final class SearchCatalog {
 
     public List<SearchResult> hybridSearch(String query, int limit) {
         return hybridSearchEngine.search(query, limit);
+    }
+
+    /** Fuses lexical and semantic ranks without assuming compatible score scales. */
+    public List<SearchResult> rrfSearch(String query, int limit) {
+        int candidateLimit = Math.max(limit * 5, limit);
+        return reciprocalRankFusion.fuse(java.util.Arrays.asList(
+                searchEngine.search(query, candidateLimit),
+                semanticSearchEngine.search(query, candidateLimit)), limit);
     }
 
     public List<SearchResult> hnswSemanticSearch(String query, int limit) {

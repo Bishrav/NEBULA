@@ -17,6 +17,7 @@ public final class RankingVariantEvaluator {
         reports.put("bm25", evaluateVariant(catalog, queries, cutoff, nowEpochMillis, "bm25"));
         reports.put("semantic", evaluateVariant(catalog, queries, cutoff, nowEpochMillis, "semantic"));
         reports.put("hybrid", evaluateVariant(catalog, queries, cutoff, nowEpochMillis, "hybrid"));
+        reports.put("rrf", evaluateVariant(catalog, queries, cutoff, nowEpochMillis, "rrf"));
         reports.put("authority_only", evaluateVariant(catalog, queries, cutoff, nowEpochMillis, "authority_only"));
         reports.put("freshness_only", evaluateVariant(catalog, queries, cutoff, nowEpochMillis, "freshness_only"));
         reports.put("trust_aware", evaluateVariant(catalog, queries, cutoff, nowEpochMillis, "trust_aware"));
@@ -38,6 +39,7 @@ public final class RankingVariantEvaluator {
         if ("bm25".equals(variant)) return catalog.search(query.getText(), cutoff);
         if ("semantic".equals(variant)) return catalog.semanticSearch(query.getText(), cutoff);
         if ("hybrid".equals(variant)) return catalog.hybridSearch(query.getText(), cutoff);
+        if ("rrf".equals(variant)) return catalog.rrfSearch(query.getText(), cutoff);
         if ("authority_only".equals(variant)) {
             return catalog.searchTrustAware(query.getText(), cutoff, nowEpochMillis, 0.0, 1.0, 0.0);
         }
