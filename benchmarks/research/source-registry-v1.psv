@@ -1,4 +1,5 @@
-# Proposed public source registry; entries require human attribution/licensing review before acquisition.
-# source_id|project|scope|source_url|license|attribution|status|notes
-source-kubernetes-docs|Kubernetes|official technical documentation|https://github.com/kubernetes/website/tree/main/content/en/docs|CC-BY-4.0|The Kubernetes Authors|proposed|Use only content whose repository path and third-party notices are reviewed before redistribution.
-source-postgresql-docs|PostgreSQL|official database documentation|https://www.postgresql.org/docs/|PostgreSQL License|PostgreSQL Global Development Group|proposed|Retain the official source URL, version, copyright notice, and exact snapshot checksum.
+# Source-level licensing is documented by the official upstream references below.
+# Corpus admission remains provisional until human review checks third-party notices and attribution obligations.
+source_id|project|upstream_repository|scope|source_url|license|attribution|license_evidence_url|status|notes
+source-kubernetes-docs|Kubernetes|kubernetes/website|content/en/docs/**/*.md,*.mdx|https://github.com/kubernetes/website/tree/main/content/en/docs|CC-BY-4.0|The Kubernetes Authors|https://github.com/kubernetes/website/blob/main/LICENSE|ACCEPTED|Official repository license is identified; third-party content and attribution must be reviewed before publication.
+source-postgresql-docs|PostgreSQL|postgres/postgres|doc/src/sgml/**/*.sgml,*.xml|https://github.com/postgres/postgres/tree/master/doc/src/sgml|PostgreSQL License|PostgreSQL Global Development Group|https://www.postgresql.org/about/licence/|ACCEPTED|Official documentation source and license notice are identified; preserve COPYRIGHT and review generated/third-party material.

@@ -1,0 +1,3 @@
+%allfiles_func;
+
+%allfiles;

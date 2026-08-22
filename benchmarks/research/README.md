@@ -34,6 +34,8 @@ Do not create relevance judgements by assuming that a retrieved document is corr
 
 Trust-conflict cases are specified in `trust-conflicts-v1.psv`. They define evaluation scenarios only; they are not relevance judgements or measured results.
 
+The first acquired snapshot is under `datasets/research-corpus-v1`. Its manifest and reports are provisional until human licensing and attribution review is completed.
+
 ## Split policy
 
 Use the deterministic split tool only after query IDs and judgements are frozen for a dataset version:

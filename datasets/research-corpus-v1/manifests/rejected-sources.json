@@ -1,0 +1,37 @@
+[
+  {
+    "path": "content/en/docs/_index.md",
+    "reason": "empty after normalization",
+    "source_id": "source-kubernetes-docs"
+  },
+  {
+    "path": "content/en/docs/concepts/configuration/_index.md",
+    "reason": "empty after normalization",
+    "source_id": "source-kubernetes-docs"
+  },
+  {
+    "path": "content/en/docs/concepts/storage/_index.md",
+    "reason": "empty after normalization",
+    "source_id": "source-kubernetes-docs"
+  },
+  {
+    "path": "content/en/docs/home/_index.md",
+    "reason": "empty after normalization",
+    "source_id": "source-kubernetes-docs"
+  },
+  {
+    "path": "content/en/docs/reference/command-line-tools-reference/_index.md",
+    "reason": "empty after normalization",
+    "source_id": "source-kubernetes-docs"
+  },
+  {
+    "path": "doc/src/sgml/func/allfiles.sgml",
+    "reason": "empty after normalization",
+    "source_id": "source-postgresql-docs"
+  },
+  {
+    "path": "doc/src/sgml/ref/allfiles.sgml",
+    "reason": "empty after normalization",
+    "source_id": "source-postgresql-docs"
+  }
+]

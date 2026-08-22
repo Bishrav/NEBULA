@@ -27,7 +27,7 @@ The registry is deliberately small. Additional sources should be admitted only a
 
 ## Corpus composition target
 
-The first research release should target at least 100 documents across multiple projects and documentation types, subject to licensing and acquisition feasibility. It should report the actual counts by project, source type, version, authority category, and topic rather than promising a balanced sample in advance.
+The first research release targets at least 500 documents, with 1,000+ preferred if licensing and storage remain practical. The first deterministic snapshot currently contains 843 admitted documents: 595 Kubernetes documents and 248 PostgreSQL documents. It reports actual counts by project, source type, version, license, and word count rather than promising a balanced sample in advance.
 
 ## Known threats to validity
 
@@ -39,5 +39,4 @@ The first research release should target at least 100 documents across multiple 
 
 ## Current status
 
-The source registry and admission contract exist. **No public source snapshot has yet been admitted to the NEBULA repository.** The existing four-document synthetic fixture remains the only checked-in evaluation corpus.
-
+The source registry, acquisition tool, normalization rules, manifest validator, checksums, statistics report, and rejected-source report exist. `datasets/research-corpus-v1` contains a **provisional** 843-document snapshot from fixed upstream commits. It is marked **NEEDS HUMAN LICENSING REVIEW** for third-party notices, generated content, attribution, and redistribution obligations. The existing four-document synthetic fixture remains regression-only.

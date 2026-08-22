@@ -1,0 +1,11 @@
+{
+  "attributions": [
+    "PostgreSQL Global Development Group",
+    "The Kubernetes Authors"
+  ],
+  "licenses": [
+    "CC-BY-4.0",
+    "PostgreSQL License"
+  ],
+  "status": "NEEDS_HUMAN_LICENSING_REVIEW"
+}

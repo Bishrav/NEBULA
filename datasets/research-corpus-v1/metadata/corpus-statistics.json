@@ -1,0 +1,35 @@
+{
+  "attributions": [
+    "PostgreSQL Global Development Group",
+    "The Kubernetes Authors"
+  ],
+  "composition": [
+    {
+      "documents": 595,
+      "license": "CC-BY-4.0",
+      "project": "Kubernetes",
+      "source_type": "official-documentation",
+      "version": "9b5eeef",
+      "words": 421182
+    },
+    {
+      "documents": 248,
+      "license": "PostgreSQL License",
+      "project": "PostgreSQL",
+      "source_type": "official-documentation",
+      "version": "e2c812f",
+      "words": 743751
+    }
+  ],
+  "corpus_version": "research-corpus-v1",
+  "documents": 843,
+  "licenses": [
+    "CC-BY-4.0",
+    "PostgreSQL License"
+  ],
+  "licensing_status": "NEEDS_HUMAN_LICENSING_REVIEW",
+  "provisional": true,
+  "rejected": 7,
+  "schema_version": "research-corpus-statistics-v1",
+  "words": 1164933
+}
