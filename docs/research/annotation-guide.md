@@ -2,6 +2,8 @@
 
 This guide defines labels for the fixed evaluation query set. Freeze the guide and query set before measuring annotator agreement. Annotators should work independently, without seeing another annotator's labels or the ranking output being evaluated.
 
+Store records using `benchmarks/evaluation/annotations-v1.template.psv` with the columns `query_id|source_path|annotator_id|grade|evidence_note`. Keep completed files in protected study storage and validate them with `python tools/validate_annotations.py <annotations.psv> --queries benchmarks/evaluation/queries-v1.psv --corpus-dir benchmarks/evaluation/corpus-v1`. The validator checks identifiers, source paths, grades, evidence notes, and duplicate annotator records; it does not detect personal information, so a human privacy review remains required.
+
 ## Unit of annotation
 
 For each query–document pair, judge whether the document would help an engineer answer the information need stated by the query. Read enough of the document to judge the claim; do not infer missing evidence from the filename or title alone.

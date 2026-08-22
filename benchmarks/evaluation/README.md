@@ -83,3 +83,5 @@ The dataset is a starting regression fixture, not a publication-quality benchmar
 Each query should represent a realistic engineering-information need rather than a document title. Annotators assign `3` when a document directly answers the need, `2` when it provides substantial supporting evidence, `1` when it is useful context, and `0` when it is a plausible but non-answering result. Queries with no positive document are excluded from ranking evaluation.
 
 For a publication study, freeze a query set before tuning ranking parameters, use at least two independent annotators, measure agreement, adjudicate disagreements, and keep held-out queries for final reporting. The current v1 fixture is a regression dataset and should not be presented as a statistically representative sample.
+
+Annotation records use the protected template `annotations-v1.template.psv`. Validate a completed file before analysis; never commit participant-linked annotations or free-form sensitive evidence notes.

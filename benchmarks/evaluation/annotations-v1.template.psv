@@ -1,0 +1,3 @@
+# NEBULA annotation records v1
+# query_id|source_path|annotator_id|grade|evidence_note
+# Replace this template only in protected study storage; never commit participant-linked annotations.
