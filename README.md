@@ -12,7 +12,7 @@ NEBULA is a research-driven search platform that helps engineering teams find, v
 [![Java 17](https://img.shields.io/badge/Java-17-orange?logo=openjdk)](https://openjdk.org/)
 [![Python 3](https://img.shields.io/badge/Python-3.x-3776ab?logo=python)](https://www.python.org/)
 
-**[Repository](https://github.com/Bishrav/NEBULA)** · **[Architecture](docs/architecture/overview.md)** · **[Research plan](docs/research/research-plan.md)** · **[Professor approval letter](docs/research/university-supervisor-approval-letter.md)**
+**[Repository](https://github.com/Bishrav/NEBULA)** · **[Architecture](docs/architecture/overview.md)** · **[Research plan](docs/research/research-plan.md)**
 
 </div>
 
@@ -38,7 +38,7 @@ The result is designed to answer not only **“what matches?”**, but also **�
 | Current data | Versioned public-safe synthetic engineering corpus and labelled query set |
 | Evaluation | Precision@k, Recall@k, MRR, NDCG, HNSW recall, latency, graph metrics, and failure behaviour |
 | Engineering principle | Build the core from first principles so trade-offs remain inspectable and reproducible |
-| Academic readiness | Research plan, study-registration draft, annotation protocol, held-out split, release gate, and professor approval letter |
+| Academic readiness | Research plan, study-registration draft, annotation protocol, held-out split, and release gate |
 
 ## What is implemented
 
@@ -228,8 +228,6 @@ docs/research/              Research plan, protocols, annotation and approval ma
 - [Pilot protocol](docs/research/pilot-protocol.md)
 - [Annotation guide](docs/research/annotation-guide.md)
 - [Evaluation dataset and frozen held-out split](benchmarks/evaluation/README.md)
-- [Professor approval letter — Markdown](docs/research/university-supervisor-approval-letter.md)
-- [Professor approval letter — Word document](docs/research/NEBULA_Professor_Approval_Letter.docx)
 - [Docker deployment guide](infrastructure/docker/README.md)
 
 ## Roadmap

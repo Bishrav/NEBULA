@@ -28,6 +28,10 @@ __pycache__/
 venv/
 .jupyter/
 
+# Private academic correspondence (kept locally for email submission)
+docs/research/university-supervisor-approval-letter.md
+docs/research/NEBULA_Professor_Approval_Letter.docx
+
 # Generated evaluation artifacts
 reports/generated/
 benchmarks/results/
