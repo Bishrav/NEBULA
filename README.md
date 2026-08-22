@@ -232,6 +232,7 @@ docs/research/              Research plan, protocols, annotation and approval ma
 - [Publication claim ledger](docs/research/claim-ledger.md)
 - [Statistical analysis protocol](docs/research/statistical-analysis.md)
 - [Public corpus acquisition plan](docs/research/public-corpus-acquisition.md)
+- [ANN scalability benchmark](docs/research/ann-scaling.md)
 - [Study registration draft](docs/research/study-registration.md)
 - [Pilot protocol](docs/research/pilot-protocol.md)
 - [Annotation guide](docs/research/annotation-guide.md)

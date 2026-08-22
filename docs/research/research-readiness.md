@@ -20,7 +20,7 @@
 | Weight sensitivity | NOT STARTED | No grid or robustness study exists. |
 | Per-query and category analysis | PARTIAL | Error analysis exists; signal-level and category summaries are incomplete. |
 | Statistical uncertainty | PARTIAL | Paired bootstrap intervals, permutation p-values, effect sizes, and Holm correction tooling now exist; no adequately powered research result exists. |
-| ANN scaling | NOT STARTED | Current benchmark has four documents and mean latency only. |
+| ANN scaling | PARTIAL | Configurable synthetic vector-scale harness now records recall, p50/p95/p99 latency, build time, and heap delta; large runs are not yet measured. |
 | Distributed experiments | PARTIAL | In-process and HTTP failure tests exist; multi-container measurements are absent. |
 | Failure injection | NOT STARTED | No deterministic latency/error injection harness. |
 | Reproducible manifests | PARTIAL | Checksums and Git revision exist; runtime/config/hardware/dirty-tree fields are missing. |
