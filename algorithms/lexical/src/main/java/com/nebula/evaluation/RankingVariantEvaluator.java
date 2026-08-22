@@ -21,6 +21,13 @@ public final class RankingVariantEvaluator {
         reports.put("authority_only", evaluateVariant(catalog, queries, cutoff, nowEpochMillis, "authority_only"));
         reports.put("freshness_only", evaluateVariant(catalog, queries, cutoff, nowEpochMillis, "freshness_only"));
         reports.put("trust_aware", evaluateVariant(catalog, queries, cutoff, nowEpochMillis, "trust_aware"));
+        reports.put("a3_hybrid_freshness", evaluateVariant(catalog, queries, cutoff, nowEpochMillis, "a3_hybrid_freshness"));
+        reports.put("a4_hybrid_authority", evaluateVariant(catalog, queries, cutoff, nowEpochMillis, "a4_hybrid_authority"));
+        reports.put("a5_hybrid_graph", evaluateVariant(catalog, queries, cutoff, nowEpochMillis, "a5_hybrid_graph"));
+        reports.put("a6_hybrid_freshness_authority", evaluateVariant(catalog, queries, cutoff, nowEpochMillis, "a6_hybrid_freshness_authority"));
+        reports.put("a7_hybrid_authority_graph", evaluateVariant(catalog, queries, cutoff, nowEpochMillis, "a7_hybrid_authority_graph"));
+        reports.put("a8_hybrid_freshness_graph", evaluateVariant(catalog, queries, cutoff, nowEpochMillis, "a8_hybrid_freshness_graph"));
+        reports.put("a9_full_nebula", evaluateVariant(catalog, queries, cutoff, nowEpochMillis, "a9_full_nebula"));
         return new RankingComparisonReport(reports);
     }
 
@@ -49,6 +56,13 @@ public final class RankingVariantEvaluator {
         if ("trust_aware".equals(variant)) {
             return catalog.searchTrustAware(query.getText(), cutoff, nowEpochMillis, 0.70, 0.20, 0.10);
         }
+        if ("a3_hybrid_freshness".equals(variant)) return catalog.searchTrustOrientedHybrid(query.getText(), cutoff, nowEpochMillis, 0.45, 0.45, 0.0, 0.10, 0.0);
+        if ("a4_hybrid_authority".equals(variant)) return catalog.searchTrustOrientedHybrid(query.getText(), cutoff, nowEpochMillis, 0.45, 0.45, 0.10, 0.0, 0.0);
+        if ("a5_hybrid_graph".equals(variant)) return catalog.searchTrustOrientedHybrid(query.getText(), cutoff, nowEpochMillis, 0.45, 0.45, 0.0, 0.0, 0.10);
+        if ("a6_hybrid_freshness_authority".equals(variant)) return catalog.searchTrustOrientedHybrid(query.getText(), cutoff, nowEpochMillis, 0.40, 0.40, 0.10, 0.10, 0.0);
+        if ("a7_hybrid_authority_graph".equals(variant)) return catalog.searchTrustOrientedHybrid(query.getText(), cutoff, nowEpochMillis, 0.40, 0.40, 0.10, 0.0, 0.10);
+        if ("a8_hybrid_freshness_graph".equals(variant)) return catalog.searchTrustOrientedHybrid(query.getText(), cutoff, nowEpochMillis, 0.40, 0.40, 0.0, 0.10, 0.10);
+        if ("a9_full_nebula".equals(variant)) return catalog.searchTrustOrientedHybrid(query.getText(), cutoff, nowEpochMillis, 0.35, 0.35, 0.10, 0.10, 0.10);
         throw new IllegalArgumentException("unknown ranking variant: " + variant);
     }
 }

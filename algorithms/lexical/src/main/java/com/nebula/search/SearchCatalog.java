@@ -123,6 +123,17 @@ public final class SearchCatalog {
                 semanticSearchEngine.search(query, candidateLimit)), limit);
     }
 
+    /** Full trust-oriented hybrid mode used by the A9 research ablation. */
+    public List<SearchResult> searchTrustOrientedHybrid(String query, int limit, long nowEpochMillis,
+                                                        double lexicalWeight, double semanticWeight,
+                                                        double authorityWeight, double freshnessWeight,
+                                                        double graphWeight) {
+        RankingConfiguration configuration = RankingConfiguration.trustOrientedHybrid(
+                lexicalWeight, semanticWeight, authorityWeight, freshnessWeight, graphWeight, 30.0);
+        return new TrustOrientedHybridSearchEngine(hybridSearchEngine, trustMetadata,
+                new FreshnessScorer(30.0), pageRank, configuration).search(query, limit, nowEpochMillis);
+    }
+
     public List<SearchResult> hnswSemanticSearch(String query, int limit) {
         return hnswSearchEngine.search(query, limit);
     }

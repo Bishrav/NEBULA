@@ -51,6 +51,13 @@ public final class RankingConfiguration {
                 authorityWeight, freshnessWeight, graphWeight, freshnessHalfLifeDays);
     }
 
+    public static RankingConfiguration trustOrientedHybrid(double lexicalWeight, double semanticWeight,
+                                                           double authorityWeight, double freshnessWeight,
+                                                           double graphWeight, double freshnessHalfLifeDays) {
+        return new RankingConfiguration("weighted_observable_signals", lexicalWeight, semanticWeight,
+                authorityWeight, freshnessWeight, graphWeight, freshnessHalfLifeDays);
+    }
+
     public String getSchemaVersion() { return schemaVersion; }
     public String getFusionStrategy() { return fusionStrategy; }
     public double getLexicalWeight() { return lexicalWeight; }

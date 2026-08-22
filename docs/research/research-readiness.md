@@ -16,7 +16,7 @@
 | Weighted agreement | PARTIAL | Agreement tool now reports nominal, linear weighted, and quadratic weighted kappa; real independently labelled qrels are absent. |
 | Development/validation/test split | PARTIAL | Deterministic three-way split tool and manifest now exist; no research query set has been split yet. |
 | Strong baselines | PARTIAL | BM25, semantic, hybrid, RRF, authority, freshness, and trust variants exist; a modern encoder and learned ranking remain absent. |
-| Trust-signal ablation | PARTIAL | Initial variants exist; full A0–A9 matrix is absent. |
+| Trust-signal ablation | PARTIAL | Legacy variants and explicit A3–A9 hybrid signal combinations now run; real research results and A0–A2 labels still require the expanded benchmark. |
 | Weight sensitivity | NOT STARTED | No grid or robustness study exists. |
 | Per-query and category analysis | PARTIAL | Error analysis exists; signal-level and category summaries are incomplete. |
 | Statistical uncertainty | PARTIAL | Paired bootstrap intervals, permutation p-values, effect sizes, and Holm correction tooling now exist; no adequately powered research result exists. |

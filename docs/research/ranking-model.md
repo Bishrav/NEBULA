@@ -42,6 +42,25 @@ RRF(d)=\sum_i\frac{1}{k+rank_i(d)}
 
 RRF is a stronger baseline, not automatically a better method. Its performance must be measured on the frozen validation/test protocol.
 
+## Ablation identifiers
+
+The evaluator exposes the requested matrix in addition to legacy baseline names:
+
+| ID | Configuration |
+| --- | --- |
+| A0 | BM25 (`bm25`) |
+| A1 | Semantic (`semantic`) |
+| A2 | Weighted lexical-semantic hybrid (`hybrid`) |
+| A3 | Hybrid + freshness |
+| A4 | Hybrid + source authority |
+| A5 | Hybrid + graph authority |
+| A6 | Hybrid + freshness + source authority |
+| A7 | Hybrid + source authority + graph authority |
+| A8 | Hybrid + freshness + graph authority |
+| A9 | Full trust-oriented hybrid (`a9_full_nebula`) |
+
+The separate RRF, authority-only, freshness-only, and compatibility trust-oriented variants remain available as additional baselines. The matrix defines configurations; it does not imply that any variant improves retrieval until measured on held-out data.
+
 ## Trust-oriented score
 
 The current trust-oriented ranker operates on BM25 candidates. Let:

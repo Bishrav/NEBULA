@@ -18,7 +18,7 @@ public final class RankingVariantEvaluatorTest {
         EvaluationQuery query = new EvaluationQuery("q1", "incident response", Collections.singletonMap("docs/notes.md", 3));
         RankingComparisonReport report = new RankingVariantEvaluator().evaluate(
                 catalog, Collections.singletonList(query), 2, now);
-        check(report.getVariants().size() == 7, "seven ranking variants are evaluated");
+        check(report.getVariants().size() == 14, "legacy baselines and A0-A9 variants are evaluated");
         check(report.get("semantic") != null && report.get("hybrid") != null, "semantic and hybrid reports exist");
         check(report.get("bm25") != null && report.get("trust_aware") != null, "baseline and trust reports exist");
         check(report.ndcgDelta("trust_aware", "bm25") >= 0.0, "trust delta is calculable");

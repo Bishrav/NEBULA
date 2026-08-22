@@ -82,6 +82,7 @@ jobs:
           java -cp build/classes com.nebula.search.ShardHealthTest
           java -cp build/classes com.nebula.search.RankingConfigurationTest
           java -cp build/classes com.nebula.search.ReciprocalRankFusionTest
+          java -cp build/classes com.nebula.search.TrustOrientedHybridSearchEngineTest
           java -cp build/classes com.nebula.evaluation.EvaluationRunner \
             benchmarks/evaluation/corpus-v1 \
             benchmarks/evaluation/queries-v1.psv \
