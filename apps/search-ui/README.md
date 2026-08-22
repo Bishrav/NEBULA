@@ -25,6 +25,7 @@ Engineering users will trust and prefer NEBULA when they can find a relevant sou
 - Browser-local pilot session IDs connect searches and feedback for research analysis without requiring user accounts.
 - Participants can explicitly start an optional study session from the consent dialog; persistent telemetry is sent only after consent.
 - The study-task panel records task start, completion, duration, and success for the three protocol tasks.
+- After completion, participants can submit a 1–5 confidence rating and optional qualitative explanation.
 - Persisted pilot events can be exported as CSV or JSON from `/v1/research/export`.
 - The API must be running separately.
 - Authentication, permissions, filters, feedback capture, and document previews are future milestones.
