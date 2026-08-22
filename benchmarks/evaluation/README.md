@@ -1,6 +1,6 @@
 # NEBULA Evaluation Dataset v1
 
-This directory contains a small synthetic engineering corpus and a labelled query set for regression testing. It is intentionally versioned and public-safe; it contains no private customer data.
+This directory contains a small synthetic engineering corpus and a 30-query labelled set for regression testing. It is intentionally versioned and public-safe; it contains no private customer data.
 
 ## Format
 
@@ -11,6 +11,8 @@ query_id|query|source_path:relevance_grade;source_path:relevance_grade
 ```
 
 Relevance grades are integer values where `0` means not relevant and larger values indicate stronger relevance. The evaluator currently treats grades greater than zero as relevant for Precision@k, Recall@k, and MRR, while NDCG uses the grade magnitude.
+
+`query-set-v1-metadata.psv` records each query's category, freshness expectation, and whether the current fixture is expected to contain sufficient evidence. The evaluator requires at least one positive judgement, so the `no-valid-answer` row is currently a weak contextual label and must not be treated as evidence that the corpus answers that question.
 
 Before evaluation, the dataset validator requires unique query IDs, non-empty queries, at least one positive judgement per query, source paths that exist in the corpus, and grades in the closed interval `0..3`. Explicit grade-0 judgements are retained as hard negatives.
 
@@ -48,6 +50,7 @@ python tools/generate_experiment_manifest.py `
   --output .\reports\generated\experiment-manifest.json `
   --corpus .\benchmarks\evaluation\corpus-v1 `
   --queries .\benchmarks\evaluation\queries-v1.psv `
+  --query-metadata .\benchmarks\evaluation\query-set-v1-metadata.psv `
   --trust .\benchmarks\evaluation\trust-v1.psv `
   --benchmark .\reports\generated\benchmark.json `
   --ann-benchmark .\reports\generated\ann-benchmark.json `

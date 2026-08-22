@@ -71,6 +71,7 @@ def main():
     parser.add_argument("--verify", type=Path)
     parser.add_argument("--corpus", type=Path)
     parser.add_argument("--queries", type=Path)
+    parser.add_argument("--query-metadata", type=Path)
     parser.add_argument("--trust", type=Path)
     parser.add_argument("--benchmark", type=Path)
     parser.add_argument("--ann-benchmark", type=Path)
@@ -84,6 +85,7 @@ def main():
         if not args.output or not args.corpus or not args.queries or not args.trust:
             parser.error("--output, --corpus, --queries, and --trust are required when generating")
         files = {"corpus": args.corpus, "queries": args.queries, "trust": args.trust}
+        if args.query_metadata: files["queryMetadata"] = args.query_metadata
         for label, path in (("benchmark", args.benchmark), ("annBenchmark", args.ann_benchmark), ("graphBenchmark", args.graph_benchmark)):
             if path: files[label] = path
         manifest = build_manifest(args.root, files, args.generated_at)

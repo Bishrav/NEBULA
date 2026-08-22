@@ -83,6 +83,7 @@ jobs:
             --output reports/generated/experiment-manifest.json \
             --corpus benchmarks/evaluation/corpus-v1 \
             --queries benchmarks/evaluation/queries-v1.psv \
+            --query-metadata benchmarks/evaluation/query-set-v1-metadata.psv \
             --trust benchmarks/evaluation/trust-v1.psv \
             --benchmark reports/generated/benchmark.json \
             --ann-benchmark reports/generated/ann-benchmark.json \
