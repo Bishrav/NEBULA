@@ -12,7 +12,7 @@
 | Regression benchmark | COMPLETE | `benchmarks/evaluation/corpus-v1`, `queries-v1.psv`, CI runner. |
 | Realistic public corpus | PARTIAL | Provisional `datasets/research-corpus-v1` contains 843 documents from fixed Kubernetes/PostgreSQL commits with raw/normalized checksums and reports; human licensing review remains required. |
 | Sufficient research query set | PARTIAL | 400 corpus-grounded candidate information needs exist across 13 categories; all require human review and no qrels/final split exist. |
-| Multi-annotator relevance judgements | PARTIAL | Template, validator, agreement, and synthetic fixture exist; real labels are absent. |
+| Multi-annotator relevance judgements | PARTIAL | Blinded A01/A02 packets, anonymous templates, validator, weighted agreement, disagreement, and guarded qrels tooling exist; human labels are absent. |
 | Weighted agreement | PARTIAL | Agreement tool now reports nominal, linear weighted, and quadratic weighted kappa; real independently labelled qrels are absent. |
 | Development/validation/test split | PARTIAL | Deterministic three-way split tool and manifest now exist; no research query set has been split yet. |
 | Strong baselines | PARTIAL | BM25, semantic, hybrid, RRF, authority, freshness, and trust variants exist; a modern encoder and learned ranking remain absent. |
