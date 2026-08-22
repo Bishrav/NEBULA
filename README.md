@@ -6,7 +6,7 @@ NEBULA is a research-driven, privacy-first search and retrieval platform for eng
 
 NEBULA is also a search-engine laboratory. Its core indexing, ranking, compression, sharding, and approximate-nearest-neighbour components are implemented from first principles so that relevance, latency, memory, and reliability can be measured rather than hidden behind a black-box search product.
 
-> **Project status:** Phase 0 - product discovery and foundation
+> **Project status:** Research prototype — core retrieval, trust ranking, distributed resilience, evaluation, and reproducibility foundations implemented. External academic approval, human-study work, and production integrations remain.
 
 ## Why NEBULA exists
 
@@ -40,7 +40,7 @@ The first implementation deliberately starts with a measurable lexical baseline:
 7. Track freshness and source metadata.
 8. Evaluate results against a versioned labelled query set.
 
-Semantic retrieval, distributed shards, and grounded answers will be added after the lexical baseline is measurable.
+The lexical baseline is now complemented by semantic retrieval, HNSW experiments, trust-aware ranking, distributed coordination, replication, failure handling, and research-grade evaluation tooling. Grounded answer generation and external connectors remain controlled follow-on work.
 
 ## Planned capabilities
 
@@ -180,7 +180,10 @@ docs/             Product, architecture, ADRs, and operations documentation
 - [Phase 0 validation plan](docs/product/validation-plan.md)
 - [System architecture](docs/architecture/overview.md)
 - [Research plan](docs/research/research-plan.md)
+- [Professor approval and supervision letter (Markdown)](docs/research/university-supervisor-approval-letter.md)
+- [Professor approval and supervision letter (Word)](docs/research/NEBULA_Professor_Approval_Letter.docx)
 - [Evaluation metrics](docs/evaluation/metrics.md)
+- [Evaluation dataset and frozen held-out split](benchmarks/evaluation/README.md)
 - [ADR-0001: Initial product scope](docs/adr/0001-initial-product-scope.md)
 
 ## Responsible use and data
