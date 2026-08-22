@@ -32,6 +32,7 @@ jobs:
           python tools/test_validate_annotation_release.py
           python tools/test_dataset_tools.py
           python tools/test_analyze_paired_metrics.py
+          python tools/test_run_experiment.py
           python tools/validate_annotations.py benchmarks/evaluation/annotations-v1.synthetic.psv \
             --queries benchmarks/evaluation/queries-v1.psv \
             --corpus-dir benchmarks/evaluation/corpus-v1
@@ -83,6 +84,7 @@ jobs:
           java -cp build/classes com.nebula.search.RankingConfigurationTest
           java -cp build/classes com.nebula.search.ReciprocalRankFusionTest
           java -cp build/classes com.nebula.search.TrustOrientedHybridSearchEngineTest
+          java -cp build/classes com.nebula.search.ShardFaultInjectionTest
           java -cp build/classes com.nebula.evaluation.EvaluationRunner \
             benchmarks/evaluation/corpus-v1 \
             benchmarks/evaluation/queries-v1.psv \

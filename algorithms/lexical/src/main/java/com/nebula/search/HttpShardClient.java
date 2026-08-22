@@ -24,6 +24,7 @@ public final class HttpShardClient {
     private final int maxAttempts;
     private final String apiToken;
     private final ShardHealth health;
+    private final ShardFaultInjector faultInjector;
 
     public HttpShardClient(String shardId, String baseUrl, int timeoutMillis, int maxAttempts) {
         this(shardId, baseUrl, timeoutMillis, maxAttempts, null);
@@ -33,10 +34,15 @@ public final class HttpShardClient {
     }
     public HttpShardClient(String shardId, String baseUrl, int timeoutMillis, int maxAttempts, String apiToken,
                            int failureThreshold, long cooldownMillis) {
+        this(shardId, baseUrl, timeoutMillis, maxAttempts, apiToken, failureThreshold, cooldownMillis, ShardFaultInjector.none());
+    }
+    public HttpShardClient(String shardId, String baseUrl, int timeoutMillis, int maxAttempts, String apiToken,
+                           int failureThreshold, long cooldownMillis, ShardFaultInjector faultInjector) {
         if (shardId == null || shardId.trim().isEmpty() || baseUrl == null || baseUrl.trim().isEmpty()) throw new IllegalArgumentException("shard identity and URL are required");
         if (timeoutMillis <= 0 || maxAttempts <= 0) throw new IllegalArgumentException("timeouts and attempts must be positive");
+        if (faultInjector == null) throw new IllegalArgumentException("fault injector is required");
         this.shardId = shardId; this.baseUrl = baseUrl.replaceAll("/+$", "");
-        this.timeoutMillis = timeoutMillis; this.maxAttempts = maxAttempts; this.apiToken = apiToken;
+        this.timeoutMillis = timeoutMillis; this.maxAttempts = maxAttempts; this.apiToken = apiToken; this.faultInjector = faultInjector;
         this.health = new ShardHealth(failureThreshold, cooldownMillis);
     }
     public String getShardId() { return shardId; }
@@ -45,7 +51,7 @@ public final class HttpShardClient {
         if (!health.allowRequest()) throw new IllegalStateException("circuit open for shard: " + shardId);
         Exception last = null;
         for (int attempt = 1; attempt <= maxAttempts; attempt++) {
-            try { List<SearchResult> result = request(query, limit); health.recordSuccess(); return result; }
+            try { faultInjector.beforeAttempt(shardId, attempt); List<SearchResult> result = request(query, limit); health.recordSuccess(); return result; }
             catch (Exception failure) { last = failure; health.recordFailure(); }
         }
         throw last == null ? new IllegalStateException("request failed") : last;
