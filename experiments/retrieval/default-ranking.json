@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "ranking-configuration-v1",
+  "purpose": "development baseline only; not a held-out test configuration",
+  "hybrid": {
+    "fusionStrategy": "weighted_min_max",
+    "lexicalWeight": 0.5,
+    "semanticWeight": 0.5
+  },
+  "trustOriented": {
+    "fusionStrategy": "weighted_observable_signals",
+    "lexicalWeight": 0.70,
+    "authorityWeight": 0.14,
+    "freshnessWeight": 0.10,
+    "graphWeight": 0.06,
+    "freshnessHalfLifeDays": 30.0
+  },
+  "interpretation": "Observable ranking proxies; not an estimate of truth or source correctness."
+}

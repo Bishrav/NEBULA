@@ -2,7 +2,7 @@
 
 # NEBULA
 
-### Trust-aware, explainable hybrid search for engineering knowledge
+### Trust-oriented, explainable hybrid search for engineering knowledge
 
 NEBULA is a research-driven search platform that helps engineering teams find, verify, and trust technical knowledge.
 
@@ -33,8 +33,8 @@ The result is designed to answer not only **“what matches?”**, but also **�
 | Dimension | NEBULA focus |
 | --- | --- |
 | Product | Self-hostable search for engineering knowledge |
-| Research area | Information retrieval, trustworthy AI, distributed systems, human-computer interaction |
-| Core question | Do trust-aware hybrid signals improve relevance and verifiability over simpler retrieval baselines? |
+| Research area | Information retrieval, trustworthy AI, distributed systems, empirical systems evaluation |
+| Core question | How do observable trust-related signals affect relevance and verifiability over simpler retrieval baselines? |
 | Current data | Versioned public-safe synthetic engineering corpus and labelled query set |
 | Evaluation | Precision@k, Recall@k, MRR, NDCG, HNSW recall, latency, graph metrics, and failure behaviour |
 | Engineering principle | Build the core from first principles so trade-offs remain inspectable and reproducible |
@@ -48,7 +48,7 @@ The result is designed to answer not only **“what matches?”**, but also **�
 - Semantic hashing and character n-gram retrieval baselines
 - Exact cosine search and a custom HNSW approximate-nearest-neighbour index
 - Hybrid lexical-semantic ranking with score normalisation
-- Freshness, source authority, graph/PageRank, and trust-aware ranking variants
+- Freshness, source authority, graph/PageRank, and trust-oriented ranking variants
 - Evidence-oriented result explanations and machine-readable evaluation reports
 
 ### Distributed and reliable search
@@ -224,6 +224,10 @@ docs/research/              Research plan, protocols, annotation and approval ma
 
 - [System architecture](docs/architecture/overview.md)
 - [Research plan](docs/research/research-plan.md)
+- [Formal ranking model and signal definitions](docs/research/ranking-model.md)
+- [Repository research audit](docs/research/repository-audit.md)
+- [Research-readiness dashboard](docs/research/research-readiness.md)
+- [Publication claim ledger](docs/research/claim-ledger.md)
 - [Study registration draft](docs/research/study-registration.md)
 - [Pilot protocol](docs/research/pilot-protocol.md)
 - [Annotation guide](docs/research/annotation-guide.md)
@@ -234,7 +238,7 @@ docs/research/              Research plan, protocols, annotation and approval ma
 
 | Status | Workstream |
 | --- | --- |
-| Complete | Retrieval baselines, trust signals, graph ranking, HNSW baseline, distributed coordinator, replication, health and circuit monitoring |
+| Complete | Retrieval baselines, trust-related signals, graph ranking, HNSW baseline, distributed coordinator, replication, health and circuit monitoring |
 | Complete | Synthetic evaluation set, annotation workflow, agreement analysis, adjudication, release gate, manifests and research report generation |
 | In progress | Professor review, research scope refinement, held-out experiment package, and product-market-fit interviews |
 | External | Ethics determination, recruitment, informed consent, human annotation, user study, and publication decision |
