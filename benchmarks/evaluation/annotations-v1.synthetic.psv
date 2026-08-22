@@ -1,0 +1,10 @@
+# Synthetic-only annotation fixture for CI. Not participant data and not a research result.
+# query_id|source_path|annotator_id|grade|evidence_note
+q1|architecture.md|annotator-a|3|Directly describes the query coordinator.
+q1|architecture.md|annotator-b|3|Directly describes the query coordinator.
+q4|operations.md|annotator-a|3|Explains shard failure response.
+q4|operations.md|annotator-b|2|Supports the failure response but omits coordination detail.
+q4|architecture.md|annotator-a|1|Provides related distributed context.
+q4|architecture.md|annotator-b|1|Provides related distributed context.
+q30|runbook.md|annotator-a|0|Does not describe a database migration.
+q30|runbook.md|annotator-b|1|Only weakly related deployment context.

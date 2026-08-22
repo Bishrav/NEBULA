@@ -87,3 +87,5 @@ For a publication study, freeze a query set before tuning ranking parameters, us
 Annotation records use the protected template `annotations-v1.template.psv`. Validate a completed file before analysis; never commit participant-linked annotations or free-form sensitive evidence notes.
 
 For two or more validated annotators, compute pairwise agreement and Cohen's kappa with `tools/analyze_annotation_agreement.py`. Preserve the pre-adjudication JSON output beside the protected annotation file; do not replace disagreements with adjudicated labels before calculating agreement.
+
+CI uses `annotations-v1.synthetic.psv` only to exercise the adjudication workflow. It is synthetic fixture data and must not be presented as human annotation evidence. Real adjudication packets belong in protected study storage.
