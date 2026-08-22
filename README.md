@@ -1,208 +1,255 @@
+<div align="center">
+
 # NEBULA
 
-## Trustworthy, explainable hybrid search for engineering knowledge
+### Trust-aware, explainable hybrid search for engineering knowledge
 
-NEBULA is a research-driven, privacy-first search and retrieval platform for engineering teams. It is designed to help developers find technical knowledge, verify the evidence behind a result, and identify information that is stale, duplicated, or contradictory.
+NEBULA is a research-driven search platform that helps engineering teams find, verify, and trust technical knowledge.
 
-NEBULA is also a search-engine laboratory. Its core indexing, ranking, compression, sharding, and approximate-nearest-neighbour components are implemented from first principles so that relevance, latency, memory, and reliability can be measured rather than hidden behind a black-box search product.
+[![CI](https://github.com/Bishrav/NEBULA/actions/workflows/validation.yml/badge.svg)](https://github.com/Bishrav/NEBULA/actions/workflows/validation.yml)
+[![Research prototype](https://img.shields.io/badge/status-research%20prototype-2563eb)](https://github.com/Bishrav/NEBULA)
+[![Reproducible evaluation](https://img.shields.io/badge/evaluation-reproducible-059669)](benchmarks/evaluation/README.md)
+[![Java 17](https://img.shields.io/badge/Java-17-orange?logo=openjdk)](https://openjdk.org/)
+[![Python 3](https://img.shields.io/badge/Python-3.x-3776ab?logo=python)](https://www.python.org/)
 
-> **Project status:** Research prototype — core retrieval, trust ranking, distributed resilience, evaluation, and reproducibility foundations implemented. External academic approval, human-study work, and production integrations remain.
+**[Repository](https://github.com/Bishrav/NEBULA)** · **[Architecture](docs/architecture/overview.md)** · **[Research plan](docs/research/research-plan.md)** · **[Professor approval letter](docs/research/university-supervisor-approval-letter.md)**
 
-## Why NEBULA exists
+</div>
 
-Engineering knowledge is distributed across READMEs, architecture decisions, runbooks, incident reports, API specifications, and project notes. Existing keyword search misses meaning, while AI search can return plausible answers without enough evidence or freshness context.
+> **Project status:** Core retrieval, trust ranking, graph authority, HNSW experimentation, distributed resilience, evaluation, and reproducibility foundations are implemented. Academic supervision, ethics review, human-study work, and external production integrations are intentionally pending.
 
-NEBULA explores a different approach:
+## Why NEBULA?
 
-> Combine lexical precision, semantic similarity, document relationships, freshness, authority, and evidence into a transparent retrieval system.
+Engineering knowledge is spread across READMEs, architecture decisions, runbooks, incident reports, API specifications, and project notes. Keyword search misses meaning; opaque AI search can produce plausible answers without enough evidence, freshness, or ownership context.
 
-## Product vision
+NEBULA treats search as a measurable systems and research problem:
 
-NEBULA will become a self-hostable knowledge search system for small and medium-sized engineering teams. A user should be able to ask a technical question and receive:
+> **Relevance + semantic meaning + freshness + authority + graph context + evidence + resilience**
 
-- Relevant documents and passages
-- A clear explanation of ranking signals
-- Source and ownership information
-- Freshness and verification status
-- Related and conflicting documents
-- An optional answer grounded in cited evidence
+The result is designed to answer not only **“what matches?”**, but also **“why this result, how trustworthy is it, and what happens when part of the system fails?”**
 
-## Initial product slice
+## Project at a glance
 
-The first implementation deliberately starts with a measurable lexical baseline:
-
-1. Ingest Markdown and PDF engineering documents.
-2. Normalize, version, and deduplicate documents.
-3. Build an inverted index from first principles.
-4. Rank results with TF-IDF and BM25.
-5. Support field-aware and phrase queries.
-6. Display matching passages and ranking explanations.
-7. Track freshness and source metadata.
-8. Evaluate results against a versioned labelled query set.
-
-The lexical baseline is now complemented by semantic retrieval, HNSW experiments, trust-aware ranking, distributed coordination, replication, failure handling, and research-grade evaluation tooling. Grounded answer generation and external connectors remain controlled follow-on work.
-
-## Planned capabilities
-
-| Area | Planned capability |
+| Dimension | NEBULA focus |
 | --- | --- |
-| Ingestion | Markdown, PDF, repository, and documentation connectors |
-| Indexing | Inverted index, forward index, immutable segments, background merges |
-| Ranking | TF-IDF, BM25, field boosts, freshness, authority, and hybrid fusion |
-| Search UX | Phrase queries, filters, autocomplete, explanations, and evidence passages |
-| Trust | Freshness, verification, ownership, duplicate, and contradiction signals |
-| Graph intelligence | Link extraction, related documents, and PageRank |
-| Semantic retrieval | Embeddings, exact cosine baseline, and custom HNSW |
-| Distributed systems | Sharding, consistent hashing, query coordination, replicas, and failure handling |
-| Research | Reproducible datasets, baselines, ablations, benchmarks, and error analysis |
+| Product | Self-hostable search for engineering knowledge |
+| Research area | Information retrieval, trustworthy AI, distributed systems, human-computer interaction |
+| Core question | Do trust-aware hybrid signals improve relevance and verifiability over simpler retrieval baselines? |
+| Current data | Versioned public-safe synthetic engineering corpus and labelled query set |
+| Evaluation | Precision@k, Recall@k, MRR, NDCG, HNSW recall, latency, graph metrics, and failure behaviour |
+| Engineering principle | Build the core from first principles so trade-offs remain inspectable and reproducible |
+| Academic readiness | Research plan, study-registration draft, annotation protocol, held-out split, release gate, and professor approval letter |
 
-## System design
+## What is implemented
 
-```text
-                         +-----------------------+
-                         |  Web UI / API Clients |
-                         +-----------+-----------+
-                                     |
-                         +-----------v-----------+
-                         |      Search API       |
-                         +-----------+-----------+
-                                     |
-                         +-----------v-----------+
-                         | Query Coordinator     |
-                         | fan-out / timeout     |
-                         | global top-k merge    |
-                         +-----+-----------+-----+
-                               |           |
-                    +----------v--+   +---v-----------+
-                    | Shard Server |   | Trust / Hybrid|
-                    | BM25 index   |   | Ranking       |
-                    | Vector index |   | explanations  |
-                    +------+-------+   +-------+-------+
-                           |                     |
-              +------------v---------------------v-----------+
-              | Inverted Index | Vector Index | Link Graph   |
-              +----------------+--------------+--------------+
-                                     ^
-                                     |
-              +---------------------+-----------------------+
-              | Document Processing and Index Builder       |
-              | parse / normalize / deduplicate / tokenize  |
-              | extract links / generate embeddings         |
-              +---------------------^-----------------------+
-                                    |
-              +---------------------+-----------------------+
-              | Connectors: Markdown, PDF, repositories    |
-              +---------------------------------------------+
+### Retrieval and ranking
+
+- Inverted indexing, TF-IDF, BM25, phrase queries, and deterministic tie-breaking
+- Semantic hashing and character n-gram retrieval baselines
+- Exact cosine search and a custom HNSW approximate-nearest-neighbour index
+- Hybrid lexical-semantic ranking with score normalisation
+- Freshness, source authority, graph/PageRank, and trust-aware ranking variants
+- Evidence-oriented result explanations and machine-readable evaluation reports
+
+### Distributed and reliable search
+
+- Consistent-hash document placement and query fan-out
+- Deterministic global top-k result merging
+- Primary/replica indexing and replica failover
+- HTTP shard clients with bounded retries and timeouts
+- API-token protected shard traffic
+- Endpoint registry, health monitoring, circuit breaking, and explicit partial-result reporting
+
+### Research and reproducibility
+
+- Versioned synthetic corpus, query judgements, trust metadata, and benchmark fixtures
+- Frozen development/held-out evaluation split: 20 development queries and 10 held-out queries
+- Reproducible experiment manifests with Git revision, file sizes, and SHA-256 checksums
+- Ranking, ANN, graph, and embedding ablation reports
+- Annotation validation, agreement analysis, adjudication packets, and release-quality gates
+- GitHub Actions validation, Java integration tests, Python tooling tests, and Docker builds
+
+## System architecture
+
+```mermaid
+flowchart TB
+    A[Markdown / PDF / repository sources] --> B[Ingestion and document lifecycle]
+    B --> C[Normalise, version, deduplicate, extract links]
+    C --> D[Index builder]
+
+    D --> E[Inverted index<br/>BM25 / phrase search]
+    D --> F[Vector index<br/>exact cosine / HNSW]
+    D --> G[Link graph<br/>PageRank authority]
+    D --> H[Freshness and source metadata]
+
+    Q[Web UI / API client] --> R[Search API]
+    R --> S[Query coordinator]
+    S --> T[Shard fan-out, retries, health and circuit state]
+    T --> E
+    T --> F
+    E --> U[Hybrid and trust-aware ranker]
+    F --> U
+    G --> U
+    H --> U
+    U --> V[Top-k results + evidence + explanations]
+    V --> Q
+
+    W[Versioned benchmark and annotations] --> X[Evaluation runner]
+    X --> Y[Metrics, ablations, manifests and research reports]
 ```
 
-### Core data flow
+### Request lifecycle
 
 ```text
-Source document
-  -> ingestion job
-  -> canonical document and version
-  -> normalized fields and tokens
-  -> immutable index segment
-  -> segment merge and snapshot
+source document
+  -> canonical version
+  -> normalised fields and tokens
+  -> lexical / vector / graph indexes
   -> shard query
-  -> hybrid ranking and evidence response
+  -> local ranking
+  -> coordinator merge
+  -> trust-aware reranking
+  -> evidence-backed response
 ```
 
-### Planned infrastructure
-
-- Java for indexing, ranking, shard, and algorithm services
-- Python for embeddings, evaluation, and model experiments
-- PostgreSQL for metadata and job state
-- Redis for cache and coordination where useful
-- Kafka or Redpanda for versioned asynchronous events
-- MinIO or S3-compatible storage for raw documents and index snapshots
-- Prometheus, Grafana, and OpenTelemetry for observability
-- Docker Compose for local development, Kubernetes after the core is stable
-
-## Research direction
-
-The planned research question is:
-
-> Does trust-aware hybrid ranking improve the relevance, verifiability, and freshness of engineering knowledge retrieval compared with lexical-only, semantic-only, and conventional hybrid baselines?
-
-The research will compare:
-
-- TF-IDF
-- BM25
-- Dense vector retrieval
-- BM25 plus vector retrieval
-- Hybrid retrieval with trust signals
-- Exact vector search versus custom HNSW
-
-Evaluation will include Precision@k, Recall@k, MRR, NDCG, citation accuracy, stale-result rate, p50/p95 latency, index size, memory usage, throughput, and failure recovery measurements.
-
-## Repository layout
+### Reliability model
 
 ```text
-apps/             User-facing applications and API gateway
-services/         Ingestion, indexing, query, and ranking services
-algorithms/       Search and data-structure implementations
-ml/               Embeddings, evaluation, and model experiments
-schemas/          Versioned events and API schemas
-tests/            Unit, integration, contract, performance, and E2E tests
-benchmarks/       Reproducible performance experiments
-infrastructure/   Docker, deployment, and observability configuration
-docs/             Product, architecture, ADRs, and operations documentation
+query
+  -> coordinator
+  -> shard fan-out
+       ├─ healthy shard       -> results
+       ├─ transient failure   -> bounded retry
+       ├─ primary unavailable -> replica recovery
+       └─ repeated failure    -> circuit opens + partial-result metadata
+  -> deterministic global top-k response
 ```
 
-## Engineering standards
+## Technology stack
 
-- Build the search core from first principles; do not hide the core behind Elasticsearch.
-- Keep deterministic retrieval and ranking separate from generative AI.
-- Establish a measurable baseline before adding complexity.
-- Every major design choice gets an Architecture Decision Record.
-- Every performance or quality claim must have a reproducible benchmark.
-- Every service exposes health, readiness, and metrics endpoints.
-- Critical workflows use unit, integration, contract, performance, and end-to-end tests.
-- AI outputs must be schema-validated and grounded in retrieved evidence.
+| Layer | Current technology | Role |
+| --- | --- | --- |
+| Search algorithms | Java 17 | Indexing, BM25, ranking, vectors, HNSW, graph, sharding, replication |
+| API and services | Java HTTP server | Search API, health/readiness, metrics, shard communication |
+| Frontend | HTML, CSS, vanilla JavaScript | Lightweight search interface and demo experience |
+| Research tooling | Python 3.x | Dataset validation, agreement analysis, manifests, reports, PMF analysis |
+| Deployment | Docker and Docker Compose | Reproducible local and pilot-like runtime |
+| Observability | Prometheus-compatible metrics | Search and coordinator health signals |
+| Quality | GitHub Actions | Compilation, tests, research-tool validation, container build, benchmark checks |
+| Data format | Versioned PSV, JSON, Markdown, CSV | Human-readable labels, machine-readable reports, publication tables |
+| Version control | Git and GitHub | Traceable milestone commits and reproducible source history |
 
-## Development roadmap
+### Planned production integrations
 
-1. Product discovery, evaluation corpus, and repository foundation
-2. Document ingestion and metadata lifecycle
-3. Inverted index, TF-IDF, BM25, and phrase queries
-4. Posting compression and autocomplete
-5. Trust signals, freshness, evidence, and quality feedback
-6. Link graph and PageRank
-7. Sharding, consistent hashing, and query coordination
-8. Semantic retrieval and custom HNSW
-9. Hybrid ranking, grounded answers, and pilot deployment
-10. Research experiments, technical report, and reproducible release
+PostgreSQL for metadata and job state, object storage for raw documents and index snapshots, Redis or a durable coordination service, OpenTelemetry/Grafana dashboards, authenticated connectors, and Kubernetes deployment are future integration work. They are intentionally separated from the current first-principles research core.
 
-## Documentation map
+## Research design
 
-- [Product brief](docs/product/product-brief.md)
-- [Phase 0 validation plan](docs/product/validation-plan.md)
+### Research question
+
+**Does adding freshness, source-authority, graph, and evidence signals to hybrid lexical-semantic retrieval improve retrieval quality and user verifiability compared with lexical-only, semantic-only, and conventional hybrid baselines?**
+
+### Baselines and comparisons
+
+1. BM25 lexical retrieval
+2. Semantic retrieval
+3. Hybrid lexical-semantic retrieval
+4. Authority-only and freshness-only variants
+5. Trust-aware combined ranking
+6. Exact vector search versus custom HNSW
+7. Healthy, degraded, replica-recovery, and partial-result distributed scenarios
+
+### Research safeguards
+
+- The current corpus is synthetic and public-safe; it is not presented as human-subject evidence.
+- Development queries are separated from a frozen held-out split before future tuning.
+- Claims must be supported by generated reports and checksum-backed experiment manifests.
+- Human evaluation, recruitment, consent, and publication require university guidance and approval.
+- Annotation disagreements are measured before adjudication; unresolved labels cannot enter a release package silently.
+
+## Evidence of engineering quality
+
+- Automated CI compiles production and test sources, builds the deployment container, runs integration tests, and validates research tooling.
+- Evaluation outputs include Markdown reports, JSON results, CSV publication tables, ANN benchmarks, graph diagnostics, and embedding ablations.
+- Experiment manifests record the exact code revision and input checksums.
+- Failure paths are explicit: retries are bounded, circuits open, replicas recover, and partial results are observable.
+- The project uses focused commits for each completed feature so its evolution can be reviewed chronologically.
+
+## Quick start
+
+### Run the search API with Docker
+
+```powershell
+docker compose -f infrastructure/docker/compose.yaml up --build
+```
+
+Verify readiness:
+
+```powershell
+Invoke-WebRequest http://127.0.0.1:8082/health/ready
+```
+
+The container uses the versioned synthetic evaluation corpus. Before any wider deployment, configure an exact allowed browser origin, secrets through a secret manager, authentication, TLS, backups, and operational alerting.
+
+### Run the evaluation suite
+
+After compiling the Java sources into `build/classes`:
+
+```powershell
+java -cp build/classes com.nebula.evaluation.EvaluationRunner `
+  benchmarks/evaluation/corpus-v1 `
+  benchmarks/evaluation/queries-v1.psv `
+  benchmarks/evaluation/trust-v1.psv `
+  reports/generated/benchmark.md `
+  reports/generated/benchmark.json
+```
+
+For research reporting, run the same evaluator separately with `queries-v1-train.psv` and `queries-v1-heldout.psv`. Never tune against the held-out file.
+
+## Repository map
+
+```text
+apps/search-ui/             Lightweight browser search interface
+services/ingestion/         API, ingestion lifecycle, shard and telemetry services
+algorithms/lexical/         Indexing, ranking, vectors, HNSW, graph and coordinator code
+benchmarks/evaluation/      Synthetic corpus, labels, splits and evaluation instructions
+tools/                      Validation, agreement, manifest and research-report tooling
+infrastructure/docker/      Dockerfile, Compose deployment and operations notes
+docs/architecture/          System design and architecture constraints
+docs/research/              Research plan, protocols, annotation and approval materials
+.github/workflows/          Continuous integration and release-quality checks
+```
+
+## Documentation and academic review
+
 - [System architecture](docs/architecture/overview.md)
 - [Research plan](docs/research/research-plan.md)
-- [Professor approval and supervision letter (Markdown)](docs/research/university-supervisor-approval-letter.md)
-- [Professor approval and supervision letter (Word)](docs/research/NEBULA_Professor_Approval_Letter.docx)
-- [Evaluation metrics](docs/evaluation/metrics.md)
+- [Study registration draft](docs/research/study-registration.md)
+- [Pilot protocol](docs/research/pilot-protocol.md)
+- [Annotation guide](docs/research/annotation-guide.md)
 - [Evaluation dataset and frozen held-out split](benchmarks/evaluation/README.md)
-- [ADR-0001: Initial product scope](docs/adr/0001-initial-product-scope.md)
+- [Professor approval letter — Markdown](docs/research/university-supervisor-approval-letter.md)
+- [Professor approval letter — Word document](docs/research/NEBULA_Professor_Approval_Letter.docx)
+- [Docker deployment guide](infrastructure/docker/README.md)
 
-## Responsible use and data
+## Roadmap
 
-Do not commit private company documents, credentials, production indexes, API keys, or personal data. Use synthetic, public, or explicitly consented documents for examples and evaluation. Permission-aware retrieval is a product requirement before connecting private sources.
+| Status | Workstream |
+| --- | --- |
+| Complete | Retrieval baselines, trust signals, graph ranking, HNSW baseline, distributed coordinator, replication, health and circuit monitoring |
+| Complete | Synthetic evaluation set, annotation workflow, agreement analysis, adjudication, release gate, manifests and research report generation |
+| In progress | Professor review, research scope refinement, held-out experiment package, and product-market-fit interviews |
+| External | Ethics determination, recruitment, informed consent, human annotation, user study, and publication decision |
+| Planned | Authenticated external connectors, durable metadata/object storage, production observability, and grounded answer generation |
+
+## Responsible use
+
+Do not commit private company documents, credentials, production indexes, API keys, participant data, or unapproved research exports. Use synthetic, public, or explicitly consented documents. Permission-aware retrieval is a prerequisite before connecting private sources.
 
 ## License
 
 License selection will be made before the first public implementation release.
 
-## Product thesis
+## Project thesis
 
-Engineering teams do not only need relevant search results; they need results they can verify and trust. NEBULA treats evidence, freshness, authority, and explainability as first-class retrieval signals.
-
-## Engineering principles
-
-- Build the search core from first principles; do not hide the core behind Elasticsearch.
-- Keep deterministic ranking and retrieval logic separate from generative AI.
-- Establish a measurable baseline before adding complexity.
-- Every major design choice gets an architecture decision record.
-- Every performance or quality claim must have a reproducible benchmark.
-- All services expose health, readiness, and metrics endpoints.
+Engineering teams do not only need relevant search results; they need results they can verify and trust. NEBULA makes evidence, freshness, authority, explainability, and resilience first-class retrieval concerns.
