@@ -1,0 +1,3 @@
+# NEBULA public research corpus manifest template
+# document_id|title|source|source_type|project|created_at|updated_at|version|authority_category|source_url|graph_links|text_path|sha256|license|attribution
+document_id|title|source|source_type|project|created_at|updated_at|version|authority_category|source_url|graph_links|text_path|sha256|license|attribution

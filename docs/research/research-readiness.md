@@ -10,11 +10,11 @@
 | Ranking formula and configuration | PARTIAL | `HybridSearchEngine.java`, `TrustAwareSearchEngine.java`; weights are constructor defaults, not serialized. |
 | Defensible trust definition | NOT STARTED | Current code uses authority, freshness, and graph signals without a formal construct. |
 | Regression benchmark | COMPLETE | `benchmarks/evaluation/corpus-v1`, `queries-v1.psv`, CI runner. |
-| Realistic public corpus | NOT STARTED | Current corpus has four synthetic Markdown files. |
+| Realistic public corpus | PARTIAL | Admission contract and provenance validator exist in `benchmarks/research`; no public corpus has been admitted yet. |
 | Sufficient research query set | NOT STARTED | Current set has 30 queries. |
 | Multi-annotator relevance judgements | PARTIAL | Template, validator, agreement, and synthetic fixture exist; real labels are absent. |
 | Weighted agreement | NOT STARTED | Current tool computes nominal Cohen’s kappa only. |
-| Development/validation/test split | PARTIAL | Train/held-out split exists; validation split and split manifest are missing. |
+| Development/validation/test split | PARTIAL | Deterministic three-way split tool and manifest now exist; no research query set has been split yet. |
 | Strong baselines | PARTIAL | BM25, semantic, hybrid, authority, freshness, and trust variants exist; RRF and modern encoder are absent. |
 | Trust-signal ablation | PARTIAL | Initial variants exist; full A0–A9 matrix is absent. |
 | Weight sensitivity | NOT STARTED | No grid or robustness study exists. |
@@ -34,4 +34,3 @@
 ## Publication gate
 
 NEBULA must not be called publication-ready until the NOT STARTED items that support the primary research question are complete, independently checked, and represented by versioned evidence. Until then, the safe label is **research prototype / preliminary study**.
-
