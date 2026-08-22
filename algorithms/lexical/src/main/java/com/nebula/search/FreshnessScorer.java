@@ -10,6 +10,8 @@ public final class FreshnessScorer {
         this.halfLifeDays = halfLifeDays;
     }
 
+    public double getHalfLifeDays() { return halfLifeDays; }
+
     public double score(long lastVerifiedEpochMillis, long nowEpochMillis) {
         if (lastVerifiedEpochMillis >= nowEpochMillis) return 1.0;
         double ageDays = (nowEpochMillis - lastVerifiedEpochMillis) / MILLIS_PER_DAY;

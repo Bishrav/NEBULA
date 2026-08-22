@@ -10,21 +10,15 @@ import java.util.Optional;
 
 /** Reranks lexical candidates with freshness and source-authority signals. */
 public final class TrustAwareSearchEngine {
-    private static final double DEFAULT_LEXICAL_WEIGHT = 0.70;
-    private static final double DEFAULT_AUTHORITY_WEIGHT = 0.20;
-    private static final double DEFAULT_FRESHNESS_WEIGHT = 0.10;
-
     private final BM25SearchEngine lexicalSearch;
     private final TrustMetadataStore metadataStore;
     private final FreshnessScorer freshnessScorer;
     private final PageRankResult pageRank;
-    private final double lexicalWeight;
-    private final double authorityWeight;
-    private final double freshnessWeight;
+    private final RankingConfiguration configuration;
 
     public TrustAwareSearchEngine(BM25SearchEngine lexicalSearch, TrustMetadataStore metadataStore) {
         this(lexicalSearch, metadataStore, new FreshnessScorer(30.0),
-                DEFAULT_LEXICAL_WEIGHT, DEFAULT_AUTHORITY_WEIGHT, DEFAULT_FRESHNESS_WEIGHT);
+                RankingConfiguration.trustAware(0.70, 0.20, 0.10, 30.0), null);
     }
 
     public TrustAwareSearchEngine(BM25SearchEngine lexicalSearch, TrustMetadataStore metadataStore,
@@ -36,22 +30,26 @@ public final class TrustAwareSearchEngine {
     public TrustAwareSearchEngine(BM25SearchEngine lexicalSearch, TrustMetadataStore metadataStore,
                                   FreshnessScorer freshnessScorer, double lexicalWeight,
                                   double authorityWeight, double freshnessWeight, PageRankResult pageRank) {
+        this(lexicalSearch, metadataStore, freshnessScorer,
+                RankingConfiguration.trustAware(lexicalWeight, authorityWeight, freshnessWeight,
+                        freshnessScorer == null ? 30.0 : freshnessScorer.getHalfLifeDays()), pageRank);
+    }
+
+    public TrustAwareSearchEngine(BM25SearchEngine lexicalSearch, TrustMetadataStore metadataStore,
+                                  FreshnessScorer freshnessScorer, RankingConfiguration configuration,
+                                  PageRankResult pageRank) {
         if (lexicalSearch == null || metadataStore == null || freshnessScorer == null) {
             throw new IllegalArgumentException("search, metadata, and freshness scorer are required");
         }
-        if (lexicalWeight < 0 || authorityWeight < 0 || freshnessWeight < 0
-                || lexicalWeight + authorityWeight + freshnessWeight <= 0) {
-            throw new IllegalArgumentException("trust weights must be non-negative and non-zero");
-        }
+        if (configuration == null) throw new IllegalArgumentException("ranking configuration is required");
         this.lexicalSearch = lexicalSearch;
         this.metadataStore = metadataStore;
         this.freshnessScorer = freshnessScorer;
         this.pageRank = pageRank;
-        double total = lexicalWeight + authorityWeight + freshnessWeight;
-        this.lexicalWeight = lexicalWeight / total;
-        this.authorityWeight = authorityWeight / total;
-        this.freshnessWeight = freshnessWeight / total;
+        this.configuration = configuration;
     }
+
+    public RankingConfiguration getConfiguration() { return configuration; }
 
     public List<SearchResult> search(String query, int limit, long nowEpochMillis) {
         if (limit <= 0) throw new IllegalArgumentException("limit must be positive");
@@ -81,16 +79,20 @@ public final class TrustAwareSearchEngine {
             double graphAuthority = pageRank == null ? 0.5 : pageRank.score(candidate.getDocument().getSourcePath());
             if (graphMax != graphMin) graphAuthority = (graphAuthority - graphMin) / (graphMax - graphMin);
             else graphAuthority = 0.5;
-            authority = 0.7 * authority + 0.3 * graphAuthority;
             double freshness = metadata.isPresent()
                     ? freshnessScorer.score(metadata.get().getLastVerifiedEpochMillis(), nowEpochMillis) : 0.5;
-            double score = lexicalWeight * normalizedLexical
-                    + authorityWeight * authority + freshnessWeight * freshness;
+            double score = configuration.getLexicalWeight() * normalizedLexical
+                    + configuration.getAuthorityWeight() * authority
+                    + configuration.getFreshnessWeight() * freshness
+                    + configuration.getGraphWeight() * graphAuthority;
             Map<String, Double> contributions = new LinkedHashMap<>(candidate.getTermContributions());
             contributions.put("signal:lexical", normalizedLexical);
             contributions.put("signal:authority", authority);
             contributions.put("signal:pagerank", graphAuthority);
             contributions.put("signal:freshness", freshness);
+            contributions.put("signal:trust_related", configuration.getAuthorityWeight() * authority
+                    + configuration.getFreshnessWeight() * freshness
+                    + configuration.getGraphWeight() * graphAuthority);
             reranked.add(new SearchResult(candidate.getDocument(), score, contributions));
         }
         Collections.sort(reranked, new Comparator<SearchResult>() {

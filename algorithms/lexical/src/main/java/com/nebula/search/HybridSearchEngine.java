@@ -9,31 +9,31 @@ import java.util.Map;
 
 /** Explainable score fusion for lexical and exact semantic retrieval. */
 public final class HybridSearchEngine {
-    private static final double DEFAULT_LEXICAL_WEIGHT = 0.5;
-    private static final double DEFAULT_SEMANTIC_WEIGHT = 0.5;
     private static final int CANDIDATE_MULTIPLIER = 5;
 
     private final BM25SearchEngine lexical;
     private final SemanticSearchEngine semantic;
-    private final double lexicalWeight;
-    private final double semanticWeight;
+    private final RankingConfiguration configuration;
 
     public HybridSearchEngine(BM25SearchEngine lexical, SemanticSearchEngine semantic) {
-        this(lexical, semantic, DEFAULT_LEXICAL_WEIGHT, DEFAULT_SEMANTIC_WEIGHT);
+        this(lexical, semantic, RankingConfiguration.hybrid(0.5, 0.5));
     }
 
     public HybridSearchEngine(BM25SearchEngine lexical, SemanticSearchEngine semantic,
                               double lexicalWeight, double semanticWeight) {
+        this(lexical, semantic, RankingConfiguration.hybrid(lexicalWeight, semanticWeight));
+    }
+
+    public HybridSearchEngine(BM25SearchEngine lexical, SemanticSearchEngine semantic,
+                              RankingConfiguration configuration) {
         if (lexical == null || semantic == null) throw new IllegalArgumentException("search engines are required");
-        if (lexicalWeight < 0.0 || semanticWeight < 0.0 || lexicalWeight + semanticWeight <= 0.0) {
-            throw new IllegalArgumentException("weights must be non-negative and have a positive sum");
-        }
+        if (configuration == null) throw new IllegalArgumentException("ranking configuration is required");
         this.lexical = lexical;
         this.semantic = semantic;
-        double total = lexicalWeight + semanticWeight;
-        this.lexicalWeight = lexicalWeight / total;
-        this.semanticWeight = semanticWeight / total;
+        this.configuration = configuration;
     }
+
+    public RankingConfiguration getConfiguration() { return configuration; }
 
     public List<SearchResult> search(String query, int limit) {
         if (limit <= 0) throw new IllegalArgumentException("limit must be positive");
@@ -55,7 +55,8 @@ public final class HybridSearchEngine {
                     lexicalMin, lexicalMax);
             double normalizedSemantic = normalize(candidate.semanticScore, candidate.hasSemantic,
                     semanticMin, semanticMax);
-            double score = lexicalWeight * normalizedLexical + semanticWeight * normalizedSemantic;
+            double score = configuration.getLexicalWeight() * normalizedLexical
+                    + configuration.getSemanticWeight() * normalizedSemantic;
             Map<String, Double> explanation = new LinkedHashMap<>();
             explanation.put("signal:lexical", normalizedLexical);
             explanation.put("signal:semantic", normalizedSemantic);
