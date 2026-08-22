@@ -3,6 +3,7 @@
 ## Before the participant
 
 - [ ] Confirm consent wording and study task sheet.
+- [ ] Confirm the approved study-registration, recruitment, and annotation documents are versioned with this wave.
 - [ ] Use `docs/research/pilot-session-packet.md` and the approved consent process; do not improvise participant instructions.
 - [ ] Start the API with study version, corpus version, study wave, query-set version, and NEBULA commit SHA metadata.
 - [ ] Start the API with a new local telemetry file.
@@ -27,3 +28,4 @@
 - [ ] Store exports outside Git with restricted access.
 - [ ] Run `notebooks/nebula_pmf_analysis.ipynb` against the approved export.
 - [ ] Redact sensitive queries before sharing or publishing.
+- [ ] Preserve independent annotation labels and adjudication notes outside raw participant telemetry.
