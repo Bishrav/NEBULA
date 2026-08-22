@@ -1,0 +1,137 @@
+name: NEBULA validation
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  research-and-search:
+    name: Research and search validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Validate research tooling
+        shell: bash
+        run: |
+          python -m py_compile tools/validate_research_export.py tools/generate_pmf_report.py tools/capture_research_bundle.py tools/generate_pmf_dashboard.py tools/pilot_preflight.py tools/run_pilot_dry_run.py tools/redact_research_export.py tools/generate_wave_summary.py tools/generate_experiment_manifest.py tools/test_experiment_manifest.py tools/generate_research_report.py tools/validate_annotations.py tools/test_validate_annotations.py tools/analyze_annotation_agreement.py tools/test_analyze_annotation_agreement.py tools/generate_adjudication_packet.py tools/test_generate_adjudication_packet.py tools/validate_annotation_release.py tools/test_validate_annotation_release.py
+          python tools/test_experiment_manifest.py
+          python tools/test_validate_annotations.py
+          python tools/test_analyze_annotation_agreement.py
+          python tools/test_generate_adjudication_packet.py
+          python tools/test_validate_annotation_release.py
+          python tools/validate_annotations.py benchmarks/evaluation/annotations-v1.synthetic.psv \
+            --queries benchmarks/evaluation/queries-v1.psv \
+            --corpus-dir benchmarks/evaluation/corpus-v1
+          python tools/generate_adjudication_packet.py benchmarks/evaluation/annotations-v1.synthetic.psv \
+            --queries benchmarks/evaluation/queries-v1.psv \
+            --corpus-dir benchmarks/evaluation/corpus-v1 \
+            --output reports/generated/synthetic-adjudication-packet.json
+          grep -q '"disagreementCount": 2' reports/generated/synthetic-adjudication-packet.json
+          python tools/validate_research_export.py data/nebula-research.sample.csv
+          mkdir -p reports/generated
+          python tools/generate_pmf_report.py \
+            data/nebula-research.sample.csv \
+            --output reports/generated/pmf-report.sample.md \
+            --generated-at 2026-08-20T00:00:00+00:00
+          test -s reports/generated/pmf-report.sample.md
+          grep -q "synthetic sample fixture" reports/generated/pmf-report.sample.md
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Compile Java production and test sources
+        shell: bash
+        run: |
+          mkdir -p build/classes
+          find services/ingestion/src/main/java algorithms/lexical/src/main/java \
+            algorithms/lexical/src/test/java services/ingestion/src/test/java \
+            -name '*.java' -print > build/java-sources.txt
+          javac -encoding UTF-8 -d build/classes @build/java-sources.txt
+
+      - name: Build deployment container
+        run: docker build --file infrastructure/docker/Dockerfile --tag nebula-api:ci .
+
+      - name: Run research and search integration tests
+        shell: bash
+        run: |
+          java -cp build/classes com.nebula.search.PersistentTelemetryStoreTest
+          java -cp build/classes com.nebula.search.ResearchExportTest
+          java -cp build/classes com.nebula.search.LexicalSearchHttpServerTest
+          java -cp build/classes com.nebula.search.CorsSecurityTest
+          java -cp build/classes com.nebula.evaluation.RankingVariantEvaluatorTest
+          java -cp build/classes com.nebula.search.DistributedSearchTest
+          java -cp build/classes com.nebula.search.ReplicationRecoveryTest
+          java -cp build/classes com.nebula.search.NetworkQueryCoordinatorTest
+          java -cp build/classes com.nebula.search.ShardSecurityTest
+          java -cp build/classes com.nebula.search.ShardHealthTest
+          java -cp build/classes com.nebula.evaluation.EvaluationRunner \
+            benchmarks/evaluation/corpus-v1 \
+            benchmarks/evaluation/queries-v1.psv \
+            benchmarks/evaluation/trust-v1.psv \
+            reports/generated/benchmark.md \
+            reports/generated/benchmark.json
+          java -cp build/classes com.nebula.evaluation.EvaluationRunner \
+            benchmarks/evaluation/corpus-v1 \
+            benchmarks/evaluation/queries-v1-train.psv \
+            benchmarks/evaluation/trust-v1.psv \
+            reports/generated/benchmark-train.md \
+            reports/generated/benchmark-train.json
+          java -cp build/classes com.nebula.evaluation.EvaluationRunner \
+            benchmarks/evaluation/corpus-v1 \
+            benchmarks/evaluation/queries-v1-heldout.psv \
+            benchmarks/evaluation/trust-v1.psv \
+            reports/generated/benchmark-heldout.md \
+            reports/generated/benchmark-heldout.json
+          test -s reports/generated/benchmark.json
+          grep -q '"semantic"' reports/generated/benchmark.json
+          grep -q '"queryCount":20' reports/generated/benchmark-train.json
+          grep -q '"queryCount":10' reports/generated/benchmark-heldout.json
+          test -s reports/generated/benchmark-train.md
+          test -s reports/generated/benchmark-heldout.md
+          test -s reports/generated/ann-benchmark.json
+          grep -q '"hnswRecallAtK"' reports/generated/ann-benchmark.json
+          test -s reports/generated/graph-benchmark.json
+          grep -q '"converged":true' reports/generated/graph-benchmark.json
+          grep -q '"edges":8' reports/generated/graph-benchmark.json
+          python tools/generate_experiment_manifest.py \
+            --output reports/generated/experiment-manifest.json \
+            --corpus benchmarks/evaluation/corpus-v1 \
+            --queries benchmarks/evaluation/queries-v1.psv \
+            --query-metadata benchmarks/evaluation/query-set-v1-metadata.psv \
+            --trust benchmarks/evaluation/trust-v1.psv \
+            --benchmark reports/generated/benchmark.json \
+            --ann-benchmark reports/generated/ann-benchmark.json \
+            --graph-benchmark reports/generated/graph-benchmark.json \
+            --generated-at 2026-08-21T00:00:00+00:00
+          python tools/generate_experiment_manifest.py --verify reports/generated/experiment-manifest.json
+          python tools/generate_research_report.py \
+            --benchmark reports/generated/benchmark.json \
+            --ann-benchmark reports/generated/ann-benchmark.json \
+            --graph-benchmark reports/generated/graph-benchmark.json \
+            --manifest reports/generated/experiment-manifest.json \
+            --output reports/generated/research-report.md \
+            --tables-dir reports/generated/publication-tables \
+            --generated-at 2026-08-21T00:00:00+00:00
+          test -s reports/generated/research-report.md
+          test -s reports/generated/publication-tables/ranking-comparison.csv
+          grep -q 'Technical summary' reports/generated/research-report.md
+          python tools/generate_pmf_dashboard.py \
+            data/nebula-research.sample.csv \
+            --benchmark reports/generated/benchmark.json \
+            --output reports/generated/pmf-dashboard.html
+          test -s reports/generated/pmf-dashboard.html
+          grep -q 'Offline ranking benchmark' reports/generated/pmf-dashboard.html

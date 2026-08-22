@@ -5,6 +5,14 @@
 - JDK 17 or newer (`java` and `javac`)
 - Python 3 for serving the static search workspace
 
+## Continuous validation
+
+GitHub Actions runs the research export validator and deterministic PMF report generation, then compiles the Java production and test sources and runs the telemetry, research export, and HTTP search integration tests. The workflow is defined in `.github/workflows/validation.yml` and runs on pushes and pull requests.
+
+## Container deployment baseline
+
+The reproducible API container is defined in `infrastructure/docker`. Run it with `docker compose -f infrastructure/docker/compose.yaml up --build`, then run the pilot preflight against `http://127.0.0.1:8082`. Treat this as a pilot deployment baseline; production use still requires authentication, authorization, TLS, restricted telemetry storage, backups, and alerting.
+
 ## Compile the Java backend
 
 From the repository root, compile both dependency-free Java modules into one local build directory:
@@ -29,6 +37,8 @@ $java = Join-Path $env:JAVA_HOME 'bin\java.exe'
 
 The API listens on `http://127.0.0.1:8082` and loads every Markdown file below the supplied directory at startup. This makes the local search index available after every restart.
 
+For deployment, restrict browser access to the known search workspace origin with `NEBULA_ALLOWED_ORIGIN` (or the `nebula.allowedOrigin` Java system property). The default `*` is intended only for local development. API responses include preflight support and browser-safety headers.
+
 To persist pilot search and feedback events across API restarts, pass a third argument for the append-only telemetry log:
 
 ```powershell
@@ -48,6 +58,10 @@ The same values can be supplied through `NEBULA_STUDY_VERSION`, `NEBULA_CORPUS_V
 The search workspace creates one anonymous session ID per browser profile and sends it as `X-Session-Id`. The API records that ID, an epoch timestamp, and the query with each persisted event. No account or personal identity is required for session-level analysis.
 
 The running build describes its research event schema and privacy boundary at `GET http://127.0.0.1:8082/v1/research/manifest`.
+
+## Operational metrics
+
+The API exposes a Prometheus-compatible snapshot at `GET http://127.0.0.1:8082/metrics`. It includes total searches, zero-result searches, cumulative and counted search latency, searches by ranking mode, and feedback events. Scrape this endpoint from a restricted monitoring network; it is intentionally unauthenticated in the local pilot baseline and must be protected by the deployment boundary in production.
 
 The UI sends `X-Research-Consent: true` only after the participant accepts the study dialog. Persistent servers ignore research events without that header; in-memory test servers continue recording for integration-test coverage.
 

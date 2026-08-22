@@ -1,0 +1,14 @@
+# NEBULA evaluation dataset v1 — held-out split
+# Frozen split: q21–q30. Do not tune against this file.
+# Format: query_id|query|source_path:relevance_grade;source_path:relevance_grade
+query_id|query|judgments
+q21|exact phrase "query coordinator"|architecture.md:3
+q22|coordinator timeout|operations.md:2;architecture.md:1
+q23|distributed architecture design|architecture.md:3;retrieval.md:1
+q24|deployment health verification|runbook.md:3
+q25|retrieval ranking signals|retrieval.md:3
+q26|which document explains replicas|operations.md:3
+q27|how does a shard respond to failure|operations.md:3;architecture.md:1
+q28|document graph authority|architecture.md:2;retrieval.md:1
+q29|vector index configuration|retrieval.md:2;architecture.md:1
+q30|unseen database migration procedure|runbook.md:1

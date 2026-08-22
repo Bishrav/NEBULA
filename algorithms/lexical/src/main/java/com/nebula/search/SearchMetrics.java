@@ -24,6 +24,9 @@ public final class SearchMetrics {
     public synchronized double getAverageLatencyMillis() {
         return totalSearches == 0 ? 0.0 : totalLatencyNanos / 1_000_000.0 / totalSearches;
     }
+    public synchronized double getTotalLatencySeconds() {
+        return totalLatencyNanos / 1_000_000_000.0;
+    }
     public synchronized Map<String, Integer> getSearchesByMode() {
         return Collections.unmodifiableMap(new LinkedHashMap<>(searchesByMode));
     }

@@ -30,6 +30,8 @@ public final class LexicalSearchHttpServer {
     private final SearchMetrics searchMetrics;
     private final PersistentTelemetryStore telemetryStore;
     private final ResearchStudyMetadata studyMetadata;
+    private final String allowedOrigin;
+    private final String apiToken;
     private ExecutorService executor;
 
     private LexicalSearchHttpServer(HttpServer server, SearchCatalog catalog, PersistentTelemetryStore telemetryStore,
@@ -38,21 +40,24 @@ public final class LexicalSearchHttpServer {
         this.catalog = catalog;
         this.telemetryStore = telemetryStore;
         this.studyMetadata = studyMetadata;
+        this.allowedOrigin = configuredAllowedOrigin();
+        this.apiToken = configuredApiToken();
         this.feedbackStore = telemetryStore == null ? new FeedbackStore() : telemetryStore.feedbackStore();
         this.searchMetrics = telemetryStore == null ? new SearchMetrics() : telemetryStore.searchMetrics();
-        server.createContext("/health/live", exchange -> respond(exchange, 200, "{\"status\":\"UP\"}"));
-        server.createContext("/health/ready", exchange -> ready(exchange));
-        server.createContext("/v1/index/documents", new IndexHandler());
-        server.createContext("/v1/search", new SearchHandler());
-        server.createContext("/v1/documents", new DocumentHandler());
-        server.createContext("/v1/suggest", new SuggestHandler());
-        server.createContext("/v1/feedback", new FeedbackHandler());
-        server.createContext("/v1/research/tasks", exchange -> researchTask(exchange));
-        server.createContext("/v1/research/observations", exchange -> researchObservation(exchange));
-        server.createContext("/v1/metrics/feedback", exchange -> feedbackMetrics(exchange));
-        server.createContext("/v1/metrics/search", exchange -> searchMetrics(exchange));
-        server.createContext("/v1/research/export", exchange -> researchExport(exchange));
-        server.createContext("/v1/research/manifest", exchange -> researchManifest(exchange));
+        server.createContext("/health/live", cors(exchange -> respond(exchange, 200, "{\"status\":\"UP\"}")));
+        server.createContext("/health/ready", cors(exchange -> ready(exchange)));
+        server.createContext("/v1/index/documents", cors(new IndexHandler()));
+        server.createContext("/v1/search", cors(new SearchHandler()));
+        server.createContext("/v1/documents", cors(new DocumentHandler()));
+        server.createContext("/v1/suggest", cors(new SuggestHandler()));
+        server.createContext("/v1/feedback", cors(new FeedbackHandler()));
+        server.createContext("/v1/research/tasks", cors(exchange -> researchTask(exchange)));
+        server.createContext("/v1/research/observations", cors(exchange -> researchObservation(exchange)));
+        server.createContext("/v1/metrics/feedback", cors(exchange -> feedbackMetrics(exchange)));
+        server.createContext("/v1/metrics/search", cors(exchange -> searchMetrics(exchange)));
+        server.createContext("/metrics", cors(exchange -> prometheusMetrics(exchange)));
+        server.createContext("/v1/research/export", cors(exchange -> researchExport(exchange)));
+        server.createContext("/v1/research/manifest", cors(exchange -> researchManifest(exchange)));
     }
 
     public static LexicalSearchHttpServer create(int port, SearchCatalog catalog) throws IOException {
@@ -141,6 +146,7 @@ public final class LexicalSearchHttpServer {
     private final class SearchHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
+            if (!authorized(exchange)) return;
             if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
                 respond(exchange, 405, "{\"error\":\"method not allowed\"}");
                 return;
@@ -296,6 +302,37 @@ public final class LexicalSearchHttpServer {
             body.append("\"").append(escape(entry.getKey())).append("\":").append(entry.getValue());
         }
         respond(exchange, 200, body.append("}}").toString());
+    }
+
+    private void prometheusMetrics(HttpExchange exchange) throws IOException {
+        if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
+            respond(exchange, 405, "# method not allowed\n", "text/plain; version=0.0.4; charset=utf-8");
+            return;
+        }
+        StringBuilder body = new StringBuilder();
+        body.append("# HELP nebula_search_requests_total Total search requests.\n")
+                .append("# TYPE nebula_search_requests_total counter\n")
+                .append("nebula_search_requests_total ").append(searchMetrics.getTotalSearches()).append('\n')
+                .append("# HELP nebula_search_zero_results_total Searches returning no results.\n")
+                .append("# TYPE nebula_search_zero_results_total counter\n")
+                .append("nebula_search_zero_results_total ").append(searchMetrics.getZeroResultSearches()).append('\n')
+                .append("# HELP nebula_search_latency_seconds_total Cumulative search latency.\n")
+                .append("# TYPE nebula_search_latency_seconds_total counter\n")
+                .append("nebula_search_latency_seconds_total ").append(searchMetrics.getTotalLatencySeconds()).append('\n')
+                .append("# HELP nebula_search_latency_seconds_count Number of measured searches.\n")
+                .append("# TYPE nebula_search_latency_seconds_count counter\n")
+                .append("nebula_search_latency_seconds_count ").append(searchMetrics.getTotalSearches()).append('\n')
+                .append("# HELP nebula_search_requests_by_mode_total Search requests grouped by ranking mode.\n")
+                .append("# TYPE nebula_search_requests_by_mode_total counter\n");
+        for (Map.Entry<String, Integer> entry : searchMetrics.getSearchesByMode().entrySet()) {
+            body.append("nebula_search_requests_by_mode_total{mode=\"")
+                    .append(prometheusLabel(entry.getKey())).append("\"} ")
+                    .append(entry.getValue()).append('\n');
+        }
+        body.append("# HELP nebula_feedback_events_total Feedback events recorded.\n")
+                .append("# TYPE nebula_feedback_events_total counter\n")
+                .append("nebula_feedback_events_total ").append(feedbackStore.total()).append('\n');
+        respond(exchange, 200, body.toString(), "text/plain; version=0.0.4; charset=utf-8");
     }
 
     private void researchExport(HttpExchange exchange) throws IOException {
@@ -472,18 +509,33 @@ public final class LexicalSearchHttpServer {
         return Long.parseLong(matcher.group(1));
     }
 
-    private static void respond(HttpExchange exchange, int status, String body) throws IOException {
+    private HttpHandler cors(HttpHandler handler) {
+        return exchange -> {
+            if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+                exchange.getResponseHeaders().set("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+                exchange.getResponseHeaders().set("Access-Control-Allow-Headers", "Content-Type,X-Session-Id,X-Task-Id,X-Research-Consent,X-Source-Path,X-Source-Authority,X-Last-Verified-Epoch-Millis");
+                respond(exchange, 204, "");
+                return;
+            }
+            handler.handle(exchange);
+        };
+    }
+
+    private void respond(HttpExchange exchange, int status, String body) throws IOException {
         respond(exchange, status, body, "application/json; charset=utf-8");
     }
 
-    private static void respond(HttpExchange exchange, int status, String body, String contentType) throws IOException {
+    private void respond(HttpExchange exchange, int status, String body, String contentType) throws IOException {
         byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
         exchange.getResponseHeaders().set("Content-Type", contentType);
-        exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
+        exchange.getResponseHeaders().set("Access-Control-Allow-Origin", allowedOrigin.equals("*") ? "*" : allowedOrigin);
+        exchange.getResponseHeaders().set("Vary", "Origin");
+        exchange.getResponseHeaders().set("X-Content-Type-Options", "nosniff");
+        exchange.getResponseHeaders().set("Referrer-Policy", "no-referrer");
         exchange.getResponseHeaders().set("Cache-Control", "no-store");
-        exchange.sendResponseHeaders(status, bytes.length);
+        exchange.sendResponseHeaders(status, status == 204 ? -1 : bytes.length);
         try (OutputStream output = exchange.getResponseBody()) {
-            output.write(bytes);
+            if (status != 204) output.write(bytes);
         }
     }
 
@@ -499,6 +551,33 @@ public final class LexicalSearchHttpServer {
         if (value == null) return "";
         return value.replace("\\", "\\\\").replace("\"", "\\\"")
                 .replace("\r", "\\r").replace("\n", "\\n");
+    }
+
+    private static String prometheusLabel(String value) {
+        return escape(value).replace("\\", "\\\\").replace("\n", "\\n").replace("\r", "\\r");
+    }
+
+    private static String configuredAllowedOrigin() {
+        String value = System.getProperty("nebula.allowedOrigin");
+        if (value == null || value.trim().isEmpty()) value = System.getenv("NEBULA_ALLOWED_ORIGIN");
+        return value == null || value.trim().isEmpty() ? "*" : value.trim();
+    }
+
+    private boolean authorized(HttpExchange exchange) throws IOException {
+        if (apiToken == null) return true;
+        String header = exchange.getRequestHeaders().getFirst("Authorization");
+        if (header == null || !header.equals("Bearer " + apiToken)) {
+            exchange.getResponseHeaders().set("WWW-Authenticate", "Bearer");
+            respond(exchange, 401, "{\"error\":\"authentication required\"}");
+            return false;
+        }
+        return true;
+    }
+
+    private static String configuredApiToken() {
+        String value = System.getProperty("nebula.apiToken");
+        if (value == null || value.trim().isEmpty()) value = System.getenv("NEBULA_API_TOKEN");
+        return value == null || value.trim().isEmpty() ? null : value.trim();
     }
 
     public static void main(String[] args) throws Exception {

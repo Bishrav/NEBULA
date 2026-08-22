@@ -7,3 +7,27 @@ q3|hybrid retrieval|retrieval.md:3
 q4|shard failure|operations.md:3;architecture.md:1
 q5|"query coordinator"|architecture.md:3
 q6|vector retrieval|retrieval.md:2;architecture.md:0
+q7|distributed search|architecture.md:3;operations.md:1
+q8|consistent hashing|architecture.md:3
+q9|query coordinator merges results|architecture.md:3
+q10|blue-green deployment|runbook.md:3
+q11|traffic shifting rollback|runbook.md:3
+q12|health checks release unhealthy|runbook.md:3
+q13|incident response procedure|operations.md:3;runbook.md:1
+q14|replica after shard failure|operations.md:3;architecture.md:1
+q15|partial result|operations.md:3
+q16|fresh deployment source|runbook.md:2;operations.md:1
+q17|stale operational documentation|operations.md:2;runbook.md:1
+q18|semantic retrieval meaning|retrieval.md:3
+q19|score normalization|retrieval.md:3
+q20|lexical semantic combination|retrieval.md:3
+q21|exact phrase "query coordinator"|architecture.md:3
+q22|coordinator timeout|operations.md:2;architecture.md:1
+q23|distributed architecture design|architecture.md:3;retrieval.md:1
+q24|deployment health verification|runbook.md:3
+q25|retrieval ranking signals|retrieval.md:3
+q26|which document explains replicas|operations.md:3
+q27|how does a shard respond to failure|operations.md:3;architecture.md:1
+q28|document graph authority|architecture.md:2;retrieval.md:1
+q29|vector index configuration|retrieval.md:2;architecture.md:1
+q30|unseen database migration procedure|runbook.md:1

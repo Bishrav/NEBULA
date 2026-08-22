@@ -1,0 +1,32 @@
+# NEBULA query-set metadata v1
+# query_id|category|freshness_expectation|evidence_sufficient
+q1|exact terminology|none|true
+q2|natural language|none|true
+q3|exact terminology|none|true
+q4|failure response|current|true
+q5|phrase search|none|true
+q6|semantic concept|none|true
+q7|natural language|none|true
+q8|exact terminology|none|true
+q9|natural language|none|true
+q10|exact terminology|current|true
+q11|natural language|current|true
+q12|freshness-sensitive|current|true
+q13|natural language|current|true
+q14|failure response|current|true
+q15|exact terminology|current|true
+q16|freshness-sensitive|current|true
+q17|freshness-sensitive|current|true
+q18|semantic concept|none|true
+q19|exact terminology|none|true
+q20|semantic concept|none|true
+q21|phrase search|none|true
+q22|ambiguous|current|true
+q23|natural language|none|true
+q24|freshness-sensitive|current|true
+q25|semantic concept|none|true
+q26|natural language|none|true
+q27|natural language|current|true
+q28|semantic concept|none|true
+q29|ambiguous|none|true
+q30|no-valid-answer|current|false

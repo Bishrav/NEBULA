@@ -24,6 +24,9 @@ public final class LexicalSearchHttpServerTest {
             Response searchMetrics = request("GET", base + "/v1/metrics/search", null, null);
             check(searchMetrics.status == 200, "search metrics respond");
             check(searchMetrics.body.contains("\"total\":1"), "search metrics count requests");
+            Response prometheus = request("GET", base + "/metrics", null, null);
+            check(prometheus.status == 200, "Prometheus metrics respond");
+            check(prometheus.body.contains("nebula_search_requests_total 1"), "Prometheus metrics count requests");
 
             Response trustSearch = request("GET", base + "/v1/search?q=consistent%20hashing&mode=trust&limit=5", null, null);
             check(trustSearch.status == 200, "trust-aware search responds");
