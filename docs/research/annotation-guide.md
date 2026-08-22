@@ -33,7 +33,7 @@ Recommended records:
 - adjudicated grade and adjudicator;
 - timestamp and code revision.
 
-After validation, calculate pairwise agreement with `python tools/analyze_annotation_agreement.py <annotations.psv> --queries benchmarks/evaluation/queries-v1.psv --corpus-dir benchmarks/evaluation/corpus-v1 --output <agreement.json>`. The output reports overlap, raw agreement, Cohen's kappa, and disagreement counts for each annotator pair. Agreement statistics are descriptive quality checks, not proof that the rubric is valid.
+After validation, calculate pairwise agreement with `python tools/analyze_annotation_agreement.py <annotations.psv> --queries benchmarks/evaluation/queries-v1.psv --corpus-dir benchmarks/evaluation/corpus-v1 --output <agreement.json>`. The output reports overlap, raw agreement, nominal Cohen's kappa, linear weighted kappa, quadratic weighted kappa, and disagreement counts for each annotator pair. Weighted kappa treats a 3-versus-2 disagreement as less severe than a 3-versus-0 disagreement. Agreement statistics are descriptive quality checks, not proof that the rubric is valid.
 
 Generate a non-destructive adjudication packet with `python tools/generate_adjudication_packet.py <annotations.psv> --queries benchmarks/evaluation/queries-v1.psv --corpus-dir benchmarks/evaluation/corpus-v1 --output <packet.json>`. Each disagreement includes all independent labels and blank adjudicator fields. A qualified adjudicator must complete those fields; the tool never selects a label automatically.
 

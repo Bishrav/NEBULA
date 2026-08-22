@@ -17,6 +17,8 @@ def main():
         result = analyze(annotations, queries, corpus)
         pair = result["pairs"][0]
         assert pair["overlap"] == 2 and pair["agreement"] == 0.5
+        assert "weightedKappaLinear" in pair and "weightedKappaQuadratic" in pair
+        assert pair["weightedKappaQuadratic"] >= pair["weightedKappaLinear"]
         print("test_analyze_annotation_agreement: PASS")
 
 

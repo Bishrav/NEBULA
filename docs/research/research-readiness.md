@@ -13,7 +13,7 @@
 | Realistic public corpus | PARTIAL | Admission contract and provenance validator exist in `benchmarks/research`; no public corpus has been admitted yet. |
 | Sufficient research query set | NOT STARTED | Current set has 30 queries. |
 | Multi-annotator relevance judgements | PARTIAL | Template, validator, agreement, and synthetic fixture exist; real labels are absent. |
-| Weighted agreement | NOT STARTED | Current tool computes nominal Cohen’s kappa only. |
+| Weighted agreement | PARTIAL | Agreement tool now reports nominal, linear weighted, and quadratic weighted kappa; real independently labelled qrels are absent. |
 | Development/validation/test split | PARTIAL | Deterministic three-way split tool and manifest now exist; no research query set has been split yet. |
 | Strong baselines | PARTIAL | BM25, semantic, hybrid, authority, freshness, and trust variants exist; RRF and modern encoder are absent. |
 | Trust-signal ablation | PARTIAL | Initial variants exist; full A0–A9 matrix is absent. |

@@ -35,7 +35,34 @@ def pair_result(left, right, records):
     right_counts = [right_values.count(grade) for grade in range(4)]
     expected = sum(a * b for a, b in zip(left_counts, right_counts)) / (len(common) * len(common))
     kappa = 1.0 if expected == 1.0 and observed == 1.0 else ((observed - expected) / (1.0 - expected) if expected != 1.0 else 0.0)
-    return {"annotatorA": left, "annotatorB": right, "overlap": len(common), "agreement": observed, "cohensKappa": kappa, "disagreements": len(common) - round(observed * len(common))}
+    linear = weighted_kappa(left_values, right_values, "linear")
+    quadratic = weighted_kappa(left_values, right_values, "quadratic")
+    return {"annotatorA": left, "annotatorB": right, "overlap": len(common), "agreement": observed,
+            "cohensKappa": kappa, "weightedKappaLinear": linear, "weightedKappaQuadratic": quadratic,
+            "disagreements": len(common) - round(observed * len(common))}
+
+
+def weighted_kappa(left_values, right_values, kind):
+    """Weighted Cohen's kappa for ordinal grades 0..3.
+
+    Agreement weights are one minus normalized grade distance. Linear and
+    quadratic distance make the penalty for near versus far disagreements
+    explicit instead of treating all disagreements as nominal categories.
+    """
+    categories = range(4)
+
+    def weight(left, right):
+        distance = abs(left - right) / 3.0
+        return 1.0 - (distance if kind == "linear" else distance * distance)
+
+    observed = sum(weight(left, right) for left, right in zip(left_values, right_values)) / len(left_values)
+    left_counts = [left_values.count(category) for category in categories]
+    right_counts = [right_values.count(category) for category in categories]
+    expected = sum(left_counts[left] * right_counts[right] * weight(left, right)
+                   for left in categories for right in categories) / (len(left_values) * len(right_values))
+    if expected == 1.0:
+        return 1.0 if observed == 1.0 else 0.0
+    return (observed - expected) / (1.0 - expected)
 
 
 def analyze(path, query_path, corpus_dir):
