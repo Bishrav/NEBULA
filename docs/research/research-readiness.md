@@ -10,7 +10,7 @@
 | Ranking formula and configuration | PARTIAL | `HybridSearchEngine.java`, `TrustAwareSearchEngine.java`; weights are constructor defaults, not serialized. |
 | Defensible trust definition | NOT STARTED | Current code uses authority, freshness, and graph signals without a formal construct. |
 | Regression benchmark | COMPLETE | `benchmarks/evaluation/corpus-v1`, `queries-v1.psv`, CI runner. |
-| Realistic public corpus | PARTIAL | Admission contract and provenance validator exist in `benchmarks/research`; no public corpus has been admitted yet. |
+| Realistic public corpus | PARTIAL | Admission contract, provenance validator, and proposed Kubernetes/PostgreSQL source registry exist; no public snapshot has been admitted yet. |
 | Sufficient research query set | NOT STARTED | Current set has 30 queries. |
 | Multi-annotator relevance judgements | PARTIAL | Template, validator, agreement, and synthetic fixture exist; real labels are absent. |
 | Weighted agreement | PARTIAL | Agreement tool now reports nominal, linear weighted, and quadratic weighted kappa; real independently labelled qrels are absent. |

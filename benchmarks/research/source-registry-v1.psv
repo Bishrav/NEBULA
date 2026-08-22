@@ -1,0 +1,4 @@
+# Proposed public source registry; entries require human attribution/licensing review before acquisition.
+# source_id|project|scope|source_url|license|attribution|status|notes
+source-kubernetes-docs|Kubernetes|official technical documentation|https://github.com/kubernetes/website/tree/main/content/en/docs|CC-BY-4.0|The Kubernetes Authors|proposed|Use only content whose repository path and third-party notices are reviewed before redistribution.
+source-postgresql-docs|PostgreSQL|official database documentation|https://www.postgresql.org/docs/|PostgreSQL License|PostgreSQL Global Development Group|proposed|Retain the official source URL, version, copyright notice, and exact snapshot checksum.

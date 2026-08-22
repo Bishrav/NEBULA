@@ -231,6 +231,7 @@ docs/research/              Research plan, protocols, annotation and approval ma
 - [Research-readiness dashboard](docs/research/research-readiness.md)
 - [Publication claim ledger](docs/research/claim-ledger.md)
 - [Statistical analysis protocol](docs/research/statistical-analysis.md)
+- [Public corpus acquisition plan](docs/research/public-corpus-acquisition.md)
 - [Study registration draft](docs/research/study-registration.md)
 - [Pilot protocol](docs/research/pilot-protocol.md)
 - [Annotation guide](docs/research/annotation-guide.md)
@@ -243,7 +244,7 @@ docs/research/              Research plan, protocols, annotation and approval ma
 | --- | --- |
 | Complete | Retrieval baselines, trust-related signals, graph ranking, HNSW baseline, distributed coordinator, replication, health and circuit monitoring |
 | Complete | Synthetic evaluation set, annotation workflow, agreement analysis, adjudication, release gate, manifests and research report generation |
-| In progress | Professor review, research scope refinement, held-out experiment package, and product-market-fit interviews |
+| In progress | Public corpus acquisition, research query construction, research scope refinement, and product-market-fit interviews |
 | External | Ethics determination, recruitment, informed consent, human annotation, user study, and publication decision |
 | Planned | Authenticated external connectors, durable metadata/object storage, production observability, and grounded answer generation |
 
