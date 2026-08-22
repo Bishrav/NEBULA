@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "embedding-model-config-v1",
+  "modelId": "BAAI/bge-base-en-v1.5",
+  "revision": "a5beb1e3e68b9ab74eb54cfd186867f64f240e1a",
+  "license": "MIT",
+  "dimension": 768,
+  "language": "English",
+  "retrievalUse": "dense text retrieval",
+  "normalization": "L2 unit norm",
+  "batchSize": 32,
+  "offlineCacheFormat": "modern-embedding-cache-v1",
+  "evidenceStatus": "BASELINE CONFIGURED; NOT YET EVALUATED ON FROZEN HUMAN-QRELS"
+}

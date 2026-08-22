@@ -26,6 +26,7 @@ The lexical index is the first search-engine component in NEBULA.
 - Document link graph and PageRank authority signal
 - Exact brute-force semantic retrieval baseline
 - Character n-gram semantic baseline for subword robustness experiments
+- Offline cached modern embedding adapter with explicit model revision metadata
 - Explainable hybrid lexical-semantic score fusion
 - Custom multi-layer HNSW approximate-nearest-neighbor retrieval
 

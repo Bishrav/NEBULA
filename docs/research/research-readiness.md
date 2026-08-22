@@ -15,7 +15,7 @@
 | Multi-annotator relevance judgements | PARTIAL | Blinded A01/A02 packets, anonymous templates, validator, weighted agreement, disagreement, and guarded qrels tooling exist; human labels are absent. |
 | Weighted agreement | PARTIAL | Agreement tool now reports nominal, linear weighted, and quadratic weighted kappa; real independently labelled qrels are absent. |
 | Development/validation/test split | PARTIAL | Deterministic three-way split tool and manifest now exist; no research query set has been split yet. |
-| Strong baselines | PARTIAL | BM25, semantic, hybrid, RRF, authority, freshness, and trust variants exist; a modern encoder and learned ranking remain absent. |
+| Strong baselines | PARTIAL | BM25, hashing, character n-gram, hybrid, RRF, authority, freshness, and trust variants exist; BGE modern-cache adapter is configured but not yet evaluated on human qrels. |
 | Trust-signal ablation | PARTIAL | Legacy variants and explicit A3–A9 hybrid signal combinations now run; real research results and A0–A2 labels still require the expanded benchmark. |
 | Weight sensitivity | NOT STARTED | Requires development-set grid execution; no results are claimed. |
 | Per-query and category analysis | PARTIAL | Error analysis exists; signal-level and category summaries are incomplete. |
