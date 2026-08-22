@@ -27,7 +27,7 @@
 | Publication tables and plots | PARTIAL | CSV/Markdown tables exist; plotting and uncertainty outputs are missing. |
 | Literature positioning | PARTIAL | [Related-work map](related-work-map.md) covers established methods; broader literature review remains. |
 | Claim ledger | COMPLETE | [Claim ledger](claim-ledger.md) constrains wording and prohibits unsupported claims. |
-| Human study | BLOCKED | Requires supervisor/ethics review, recruitment, consent, and real data. |
+| Human study | BLOCKED | Draft submission package now exists in docs/research/human-study with protocol, participant materials, consent, risk, data-management, task, questionnaire, debriefing, analysis, and checklist documents; supervisor/institutional review, recruitment, consent, and real data remain outstanding. |
 | Ethics review | BLOCKED | Institutional determination is external. |
 | Paper | NOT STARTED | Must wait for sufficient corpus, labels, experiments, and analysis. |
 

@@ -166,7 +166,7 @@ PostgreSQL for metadata and job state, object storage for raw documents and inde
 - The current corpus is synthetic and public-safe; it is not presented as human-subject evidence.
 - Development queries are separated from a frozen held-out split before future tuning.
 - Claims must be supported by generated reports and checksum-backed experiment manifests.
-- Human evaluation, recruitment, consent, and publication require university guidance and approval.
+- Human evaluation, recruitment, consent, and publication require university guidance and approval. The draft submission package is in docs/research/human-study; it is not approval or participant evidence.
 - Annotation disagreements are measured before adjudication; unresolved labels cannot enter a release package silently.
 
 ## Evidence of engineering quality
