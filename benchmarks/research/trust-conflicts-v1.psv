@@ -1,0 +1,9 @@
+case_id|scenario|relevance_expectation|signals_in_conflict|required_measurement|status
+TC01|authoritative_but_stale|relevant canonical source|authority high; freshness low|rank change and stale-result rate|fixture specification
+TC02|fresh_low_authority|relevant recent source|freshness high; authority low|rank change and low-authority-result rate|fixture specification
+TC03|linked_but_outdated|relevant but outdated source|graph high; freshness low|rank change and query-level error|fixture specification
+TC04|semantic_weak_source|semantically excellent result|semantic high; authority low|rank change and evidence review|fixture specification
+TC05|lexical_paraphrase|correct paraphrase|lexical low; semantic high|baseline rank comparison|fixture specification
+TC06|popular_wrong_context|popular but contextually incorrect source|graph high; relevance low|failure rate under graph weighting|fixture specification
+TC07|new_correct_low_graph|correct new source|freshness high; graph low|recall and suppression rate|fixture specification
+TC08|metadata_manipulation|unchanged relevance|authority/freshness/links manipulated|ranking delta and attack amplification|fixture specification

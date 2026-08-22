@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "nebula-experiment-v1",
+  "name": "regression-v1",
+  "purpose": "deterministic regression fixture; not publication evidence",
+  "corpus": "benchmarks/evaluation/corpus-v1",
+  "queries": "benchmarks/evaluation/queries-v1.psv",
+  "trust": "benchmarks/evaluation/trust-v1.psv",
+  "output": "reports/generated/regression-v1.md",
+  "comparison": "reports/generated/regression-v1.json",
+  "java_classpath": "build/classes"
+}

@@ -32,6 +32,8 @@ Queries must express an information need, not repeat a document title. Record th
 
 Do not create relevance judgements by assuming that a retrieved document is correct. Freeze the query wording and corpus version first, then obtain independent judgements using the annotation workflow. The current `benchmarks/evaluation` fixture remains a regression benchmark and must not be relabelled as the research corpus.
 
+Trust-conflict cases are specified in `trust-conflicts-v1.psv`. They define evaluation scenarios only; they are not relevance judgements or measured results.
+
 ## Split policy
 
 Use the deterministic split tool only after query IDs and judgements are frozen for a dataset version:
@@ -46,4 +48,3 @@ python tools/split_query_set.py `
 ```
 
 The generated manifest records every query assignment. Development, validation, and test/held-out queries must be disjoint. Do not use the test split for weight tuning, model selection, query rewriting, or error-driven corpus changes.
-

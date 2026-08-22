@@ -1,6 +1,6 @@
 # NEBULA Architecture Overview
 
-## Phase 0 architecture
+## Current architecture
 
 ```text
 Markdown/PDF files
@@ -18,7 +18,7 @@ Lexical index --> BM25 query engine --> Search API
                              ranking explanation
 ```
 
-## Planned architecture evolution
+## Research architecture evolution
 
 The system will evolve toward:
 

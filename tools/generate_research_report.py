@@ -27,17 +27,24 @@ def number(value, digits=4):
 def build_report(benchmark, ann, graph, manifest, generated_at):
     variants = benchmark["variants"]
     best = max(variants, key=lambda row: row["ndcgAtK"])
+    tied = [row["name"] for row in variants if row["ndcgAtK"] == best["ndcgAtK"]]
+    authority = next((row["ndcgAtK"] for row in variants if row["name"] == "authority_only"), None)
+    freshness = next((row["ndcgAtK"] for row in variants if row["name"] == "freshness_only"), None)
+    tied_text = ", ".join(tied)
+    ablation_text = ""
+    if authority is not None and freshness is not None:
+        ablation_text = f" Authority-only and freshness-only report NDCG@{benchmark['cutoff']} of {authority:.4f} and {freshness:.4f}, respectively."
     return f"""# NEBULA Retrieval Research Report
 
 ## Technical summary
 
-On the fixed synthetic evaluation fixture, the top NDCG@{benchmark['cutoff']} result was tied at {best['ndcgAtK']:.4f} across the BM25, semantic, hybrid, and trust-aware variants. HNSW matched exact cosine retrieval at recall@{ann['cutoff']} of {ann['hnswRecallAtK']:.4f}, while PageRank converged after {graph['iterations']} iterations and conserved score mass ({graph['scoreMass']:.4f}). These are reproducibility and regression results, not evidence of general user or production performance.
+On the fixed synthetic evaluation fixture, the best NDCG@{benchmark['cutoff']} was {best['ndcgAtK']:.4f}, achieved by: {tied_text}. HNSW matched exact cosine retrieval at recall@{ann['cutoff']} of {ann['hnswRecallAtK']:.4f}, while PageRank converged after {graph['iterations']} iterations and conserved score mass ({graph['scoreMass']:.4f}). These are reproducibility and regression results, not evidence of general user or production performance.
 
 ## Key findings from the controlled fixture
 
 ### Lexical, semantic, and hybrid ranking are tied on this fixture
 
-The ranking comparison contains {benchmark['corpusDocuments']} documents and {benchmark['queryCount']} labelled queries at cutoff @{benchmark['cutoff']}. BM25, semantic, hybrid, and trust-aware ranking each report NDCG@{benchmark['cutoff']} of 1.0000; authority-only and freshness-only are lower at {next(row['ndcgAtK'] for row in variants if row['name'] == 'authority_only'):.4f} and {next(row['ndcgAtK'] for row in variants if row['name'] == 'freshness_only'):.4f}. The fixture therefore validates deterministic execution and exposes negative ablations, but it does not distinguish the leading methods.
+The ranking comparison contains {benchmark['corpusDocuments']} documents and {benchmark['queryCount']} labelled queries at cutoff @{benchmark['cutoff']}. The leading variants are {tied_text}.{ablation_text} The fixture therefore validates deterministic execution and exposes ablation behavior, but it does not establish general ranking superiority.
 
 ### HNSW matches exact retrieval while remaining an explicit ANN baseline
 
