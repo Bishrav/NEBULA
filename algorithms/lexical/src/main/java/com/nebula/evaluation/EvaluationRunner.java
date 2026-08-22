@@ -21,12 +21,19 @@ public final class EvaluationRunner {
     private EvaluationRunner() { }
 
     public static void main(String[] args) throws Exception {
-        if (args.length < 2 || args.length > 5) {
-            System.err.println("Usage: EvaluationRunner <corpus-directory> <queries.psv> [trust-metadata.psv] [report.md] [comparison.json]");
+        boolean finalHeldout = false;
+        java.util.List<String> positional = new java.util.ArrayList<>();
+        for (String arg : args) { if ("--final-heldout-evaluation".equals(arg)) finalHeldout = true; else positional.add(arg); }
+        if (positional.size() < 2 || positional.size() > 5) {
+            System.err.println("Usage: EvaluationRunner <corpus-directory> <queries.psv> [trust-metadata.psv] [report.md] [comparison.json] [--final-heldout-evaluation]");
             System.exit(2);
         }
-        Path corpus = Paths.get(args[0]);
-        Path queryFile = Paths.get(args[1]);
+        Path corpus = Paths.get(positional.get(0));
+        Path queryFile = Paths.get(positional.get(1));
+        String queryName = queryFile.getFileName().toString().toLowerCase(java.util.Locale.ROOT);
+        if ((queryName.contains("heldout") || queryName.contains("test")) && !finalHeldout) {
+            throw new IllegalArgumentException("held-out/test evaluation requires explicit --final-heldout-evaluation");
+        }
         SearchCatalog catalog = new SearchCatalog();
         List<DocumentRecord> corpusRecords = new ArrayList<>();
         List<Path> documents;
@@ -41,9 +48,9 @@ public final class EvaluationRunner {
                     new String(Files.readAllBytes(document), StandardCharsets.UTF_8)));
         }
 
-        if (args.length >= 3) {
+        if (positional.size() >= 3) {
             for (com.nebula.search.DocumentTrustMetadata metadata
-                    : new TrustMetadataDatasetLoader().load(Paths.get(args[2]), EVALUATION_NOW)) {
+                    : new TrustMetadataDatasetLoader().load(Paths.get(positional.get(2)), EVALUATION_NOW)) {
                 catalog.registerTrustMetadata(metadata);
             }
         }
@@ -75,7 +82,7 @@ public final class EvaluationRunner {
                         + "|ndcg=" + comparison.ndcgDelta(variant, "bm25"));
             }
         }
-        if (args.length >= 4) {
+        if (positional.size() >= 4) {
             RankingVariantEvaluator variants = new RankingVariantEvaluator();
             RetrievalErrorAnalyzer analyzer = new RetrievalErrorAnalyzer();
             List<QueryErrorAnalysis> errors = new ArrayList<>();
@@ -85,25 +92,25 @@ public final class EvaluationRunner {
                             variants.searchVariant(catalog, query, 5, EVALUATION_NOW, variant)));
                 }
             }
-            new BenchmarkReportWriter().write(Paths.get(args[3]), catalog.documentCount(), queries.size(), comparison, errors);
-            Path embeddingReport = Paths.get(args[3]).resolveSibling("embedding-ablation.md");
+            new BenchmarkReportWriter().write(Paths.get(positional.get(3)), catalog.documentCount(), queries.size(), comparison, errors);
+            Path embeddingReport = Paths.get(positional.get(3)).resolveSibling("embedding-ablation.md");
             EmbeddingAblationReport ablation = new EmbeddingAblationEvaluator()
                     .evaluate(corpusRecords, queries, 5);
             new EmbeddingAblationReportWriter().write(embeddingReport, catalog.documentCount(), queries.size(), ablation);
             AnnBenchmark.Result ann = new AnnBenchmark().evaluate(corpusRecords, queries, 5);
-            Path annReport = Paths.get(args[3]).resolveSibling("ann-benchmark.md");
+            Path annReport = Paths.get(positional.get(3)).resolveSibling("ann-benchmark.md");
             new AnnBenchmarkWriter().writeMarkdown(annReport, ann);
-            if (args.length == 5) new AnnBenchmarkWriter().writeJson(Paths.get(args[4]).resolveSibling("ann-benchmark.json"), ann);
+            if (positional.size() == 5) new AnnBenchmarkWriter().writeJson(Paths.get(positional.get(4)).resolveSibling("ann-benchmark.json"), ann);
             GraphBenchmark.Result graph = new GraphBenchmark().evaluate(corpusRecords);
-            Path graphReport = Paths.get(args[3]).resolveSibling("graph-benchmark.md");
+            Path graphReport = Paths.get(positional.get(3)).resolveSibling("graph-benchmark.md");
             new GraphBenchmarkWriter().writeMarkdown(graphReport, graph);
-            if (args.length == 5) new GraphBenchmarkWriter().writeJson(Paths.get(args[4]).resolveSibling("graph-benchmark.json"), graph);
-            System.out.println("report=" + Paths.get(args[3]).toAbsolutePath());
+            if (positional.size() == 5) new GraphBenchmarkWriter().writeJson(Paths.get(positional.get(4)).resolveSibling("graph-benchmark.json"), graph);
+            System.out.println("report=" + Paths.get(positional.get(3)).toAbsolutePath());
             System.out.println("embedding_report=" + embeddingReport.toAbsolutePath());
             System.out.println("ann_report=" + annReport.toAbsolutePath());
             System.out.println("graph_report=" + graphReport.toAbsolutePath());
-            if (args.length == 5) {
-                Path jsonReport = Paths.get(args[4]);
+            if (positional.size() == 5) {
+                Path jsonReport = Paths.get(positional.get(4));
                 new BenchmarkJsonWriter().write(jsonReport, catalog.documentCount(), queries.size(),
                         EVALUATION_NOW, comparison);
                 System.out.println("comparison_json=" + jsonReport.toAbsolutePath());

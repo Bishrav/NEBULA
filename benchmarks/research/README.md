@@ -50,3 +50,5 @@ python tools/split_query_set.py `
 ```
 
 The generated manifest records every query assignment. Development, validation, and test/held-out queries must be disjoint. Do not use the test split for weight tuning, model selection, query rewriting, or error-driven corpus changes.
+
+The research split cannot be created until candidate review and human qrels release are complete. See [split freeze](../../docs/research/split-freeze.md).
