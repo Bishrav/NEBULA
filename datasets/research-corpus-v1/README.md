@@ -19,6 +19,8 @@ The source-level licenses are recorded in `benchmarks/research/source-registry-v
 
 The snapshot records upstream repository, commit, source URL, retrieval time, raw checksum, normalized checksum, version, transformation notes, and word count for every admitted document. No private, authenticated, paywalled, user-data, or unclear-license source is permitted.
 
+The current candidate query pool is `metadata/candidate-queries.psv` with its review sheet and distribution report. All 400 candidates are `NEEDS_HUMAN_REVIEW`; the pool contains no relevance judgements and no final held-out split.
+
 ## Reproduction
 
 The upstream repositories are not vendored into this repository. Reproduce the snapshot from fixed public checkouts:
