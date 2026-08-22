@@ -85,3 +85,5 @@ Each query should represent a realistic engineering-information need rather than
 For a publication study, freeze a query set before tuning ranking parameters, use at least two independent annotators, measure agreement, adjudicate disagreements, and keep held-out queries for final reporting. The current v1 fixture is a regression dataset and should not be presented as a statistically representative sample.
 
 Annotation records use the protected template `annotations-v1.template.psv`. Validate a completed file before analysis; never commit participant-linked annotations or free-form sensitive evidence notes.
+
+For two or more validated annotators, compute pairwise agreement and Cohen's kappa with `tools/analyze_annotation_agreement.py`. Preserve the pre-adjudication JSON output beside the protected annotation file; do not replace disagreements with adjudicated labels before calculating agreement.

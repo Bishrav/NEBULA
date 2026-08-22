@@ -33,6 +33,8 @@ Recommended records:
 - adjudicated grade and adjudicator;
 - timestamp and code revision.
 
+After validation, calculate pairwise agreement with `python tools/analyze_annotation_agreement.py <annotations.psv> --queries benchmarks/evaluation/queries-v1.psv --corpus-dir benchmarks/evaluation/corpus-v1 --output <agreement.json>`. The output reports overlap, raw agreement, Cohen's kappa, and disagreement counts for each annotator pair. Agreement statistics are descriptive quality checks, not proof that the rubric is valid.
+
 Do not use participant telemetry to silently change offline relevance labels. If a label changes after the pilot, create a new query-set version and rerun the benchmark.
 
 ## Quality checks
