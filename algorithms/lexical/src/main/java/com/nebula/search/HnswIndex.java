@@ -79,6 +79,11 @@ public final class HnswIndex {
     public int maxLevel() { return maxLevel; }
     public synchronized int documentCount() { return nodes.size(); }
 
+    /** Deterministic lower-bound estimate for benchmark reporting, not JVM heap usage. */
+    public synchronized long estimatedIndexBytes() {
+        return (long) nodes.size() * dimension * Double.BYTES + (long) nodes.size() * Math.max(1, m) * Long.BYTES;
+    }
+
     private void connect(Node node, List<ScoredNode> neighbors, int level) {
         Set<String> selected = node.neighbors(level);
         for (ScoredNode neighbor : neighbors) {

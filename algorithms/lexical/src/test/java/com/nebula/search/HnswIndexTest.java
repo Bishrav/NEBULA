@@ -29,6 +29,8 @@ public final class HnswIndexTest {
             }
         }
         check(ann.documentCount() == 20, "all vectors are inserted");
+        check(ann.estimatedIndexBytes() == 20L * model.dimension() * Double.BYTES + 20L * 8L * Long.BYTES,
+                "index-size estimate reflects configured M and dimension");
         check(overlap >= 4, "HNSW maintains high recall on the baseline corpus");
         check(ann.maxLevel() >= 0, "multi-layer entry point is created");
         System.out.println("HnswIndexTest: PASS");
