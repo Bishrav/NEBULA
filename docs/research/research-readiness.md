@@ -19,7 +19,7 @@
 | Trust-signal ablation | PARTIAL | Initial variants exist; full A0–A9 matrix is absent. |
 | Weight sensitivity | NOT STARTED | No grid or robustness study exists. |
 | Per-query and category analysis | PARTIAL | Error analysis exists; signal-level and category summaries are incomplete. |
-| Statistical uncertainty | NOT STARTED | No bootstrap intervals, paired tests, effect sizes, or correction. |
+| Statistical uncertainty | PARTIAL | Paired bootstrap intervals, permutation p-values, effect sizes, and Holm correction tooling now exist; no adequately powered research result exists. |
 | ANN scaling | NOT STARTED | Current benchmark has four documents and mean latency only. |
 | Distributed experiments | PARTIAL | In-process and HTTP failure tests exist; multi-container measurements are absent. |
 | Failure injection | NOT STARTED | No deterministic latency/error injection harness. |

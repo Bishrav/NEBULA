@@ -14,4 +14,3 @@ This ledger prevents engineering features or preliminary fixture results from be
 | NEBULA is robust to shard failures | Repeatable multi-container faults, overlap/NDCG degradation, latency and recovery metrics | NOT YET MEASURED | “Failure paths are covered by integration tests; distributed performance is not yet measured.” |
 | NEBULA estimates trust | Validated target construct and calibration against external judgements | REJECTED CLAIM | “NEBULA is trust-oriented/evidence-aware: it combines observable, configurable signals and does not estimate truth.” |
 | NEBULA introduces a new retrieval algorithm | Verified literature review and demonstrated methodological novelty | REJECTED CLAIM | “The contribution is a controlled empirical investigation of combined signals for engineering knowledge retrieval.” |
-

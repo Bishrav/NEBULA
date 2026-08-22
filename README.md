@@ -230,6 +230,7 @@ docs/research/              Research plan, protocols, annotation and approval ma
 - [Repository research audit](docs/research/repository-audit.md)
 - [Research-readiness dashboard](docs/research/research-readiness.md)
 - [Publication claim ledger](docs/research/claim-ledger.md)
+- [Statistical analysis protocol](docs/research/statistical-analysis.md)
 - [Study registration draft](docs/research/study-registration.md)
 - [Pilot protocol](docs/research/pilot-protocol.md)
 - [Annotation guide](docs/research/annotation-guide.md)

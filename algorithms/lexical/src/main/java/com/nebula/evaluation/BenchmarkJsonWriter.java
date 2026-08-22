@@ -27,7 +27,17 @@ public final class BenchmarkJsonWriter {
                     .append(number(report.getMeanReciprocalRank())).append(",\"ndcgAtK\":")
                     .append(number(report.getMeanNdcgAtK())).append(",\"deltaNdcgVsBm25\":")
                     .append(number("bm25".equals(variant) ? 0.0 : comparison.ndcgDelta(variant, "bm25")))
-                    .append('}');
+                    .append(",\"perQuery\":[");
+            int queryIndex = 0;
+            for (EvaluationMetrics query : report.getPerQuery()) {
+                if (queryIndex++ > 0) json.append(',');
+                json.append("{\"queryId\":\"").append(escape(query.getQueryId()))
+                        .append("\",\"precisionAtK\":").append(number(query.getPrecisionAtK()))
+                        .append(",\"recallAtK\":").append(number(query.getRecallAtK()))
+                        .append(",\"mrr\":").append(number(query.getReciprocalRank()))
+                        .append(",\"ndcgAtK\":").append(number(query.getNdcgAtK())).append('}');
+            }
+            json.append("]}");
         }
         json.append("]}\n");
         Files.write(target, json.toString().getBytes(StandardCharsets.UTF_8));
