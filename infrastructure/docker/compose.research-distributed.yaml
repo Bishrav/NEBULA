@@ -1,0 +1,54 @@
+x-shard-defaults: &shard-defaults
+  build:
+    context: ../..
+    dockerfile: infrastructure/docker/Dockerfile
+  environment:
+    NEBULA_BIND_ADDRESS: 0.0.0.0
+    NEBULA_ALLOWED_ORIGIN: "*"
+  healthcheck:
+    test: ["CMD", "sh", "-c", "java -cp /app/build/classes com.nebula.search.HealthProbe http://127.0.0.1:8082/health/live"]
+    interval: 5s
+    timeout: 3s
+    retries: 10
+
+services:
+  coordinator:
+    build:
+      context: ../..
+      dockerfile: infrastructure/docker/Dockerfile
+    entrypoint: ["java", "-cp", "/app/build/classes", "com.nebula.search.ResearchCoordinatorHttpServer"]
+    ports:
+      - "18082:8082"
+    environment:
+      NEBULA_BIND_ADDRESS: 0.0.0.0
+      NEBULA_COORDINATOR_PORT: 8082
+      NEBULA_SHARDS: "shard-a-primary=http://shard-a-primary:8082,shard-a-replica=http://shard-a-replica:8082,shard-b-primary=http://shard-b-primary:8082,shard-b-replica=http://shard-b-replica:8082,shard-c-primary=http://shard-c-primary:8082,shard-c-replica=http://shard-c-replica:8082"
+      NEBULA_SHARD_TIMEOUT_MS: $${NEBULA_SHARD_TIMEOUT_MS:-500}
+      NEBULA_SHARD_MAX_ATTEMPTS: $${NEBULA_SHARD_MAX_ATTEMPTS:-2}
+      NEBULA_CIRCUIT_FAILURE_THRESHOLD: $${NEBULA_CIRCUIT_FAILURE_THRESHOLD:-3}
+      NEBULA_CIRCUIT_COOLDOWN_MS: $${NEBULA_CIRCUIT_COOLDOWN_MS:-1000}
+    depends_on:
+      shard-a-primary:
+        condition: service_healthy
+      shard-a-replica:
+        condition: service_healthy
+      shard-b-primary:
+        condition: service_healthy
+      shard-b-replica:
+        condition: service_healthy
+      shard-c-primary:
+        condition: service_healthy
+      shard-c-replica:
+        condition: service_healthy
+  shard-a-primary:
+    <<: *shard-defaults
+  shard-a-replica:
+    <<: *shard-defaults
+  shard-b-primary:
+    <<: *shard-defaults
+  shard-b-replica:
+    <<: *shard-defaults
+  shard-c-primary:
+    <<: *shard-defaults
+  shard-c-replica:
+    <<: *shard-defaults

@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "distributed-scenario-matrix-v1",
+  "status": "NOT_YET_MEASURED",
+  "topology": "compose.research-distributed.yaml",
+  "scenarios": [
+    {"id": "D0", "name": "healthy", "control": "all services available"},
+    {"id": "D1", "name": "one-primary-unavailable", "control": "stop one primary container"},
+    {"id": "D2", "name": "primary-failure-replica-serves", "control": "stop one primary; retain replica"},
+    {"id": "D3", "name": "primary-and-replica-unavailable", "control": "stop both endpoints in one group"},
+    {"id": "D4", "name": "slow-shard", "control": "set NEBULA_FAULT_MODE=latency and NEBULA_FAULT_DELAY_MS above timeout"},
+    {"id": "D5", "name": "http-500", "control": "set NEBULA_FAULT_MODE=http500"},
+    {"id": "D6", "name": "intermittent-failure", "control": "set NEBULA_FAULT_MODE=http500 and NEBULA_FAULT_EVERY=2"},
+    {"id": "D7", "name": "circuit-open", "control": "repeat D5 until threshold is reached"},
+    {"id": "D8", "name": "recovery", "control": "clear fault and wait for cooldown probe"}
+  ],
+  "metrics": [
+    "throughput",
+    "p50LatencyMillis",
+    "p95LatencyMillis",
+    "p99LatencyMillis",
+    "retryAttempts",
+    "shardFailures",
+    "openCircuits",
+    "partialResultFrequency",
+    "topKOverlap",
+    "ndcgDegradation"
+  ],
+  "interpretationBoundary": "This is secondary distributed-systems evidence, not production scalability evidence."
+}

@@ -19,11 +19,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /** Local HTTP search service for the lexical retrieval milestone. */
 public final class LexicalSearchHttpServer {
+    private static final AtomicLong FAULT_REQUESTS = new AtomicLong();
     private final HttpServer server;
     private final SearchCatalog catalog;
     private final FeedbackStore feedbackStore;
@@ -62,20 +64,20 @@ public final class LexicalSearchHttpServer {
 
     public static LexicalSearchHttpServer create(int port, SearchCatalog catalog) throws IOException {
         return new LexicalSearchHttpServer(
-                HttpServer.create(new InetSocketAddress("127.0.0.1", port), 0), catalog, null,
+                HttpServer.create(new InetSocketAddress(configuredBindAddress(), port), 0), catalog, null,
                 ResearchStudyMetadata.defaults());
     }
 
     public static LexicalSearchHttpServer create(int port, SearchCatalog catalog, Path telemetryFile) throws IOException {
         return new LexicalSearchHttpServer(
-                HttpServer.create(new InetSocketAddress("127.0.0.1", port), 0), catalog,
+                HttpServer.create(new InetSocketAddress(configuredBindAddress(), port), 0), catalog,
                 PersistentTelemetryStore.open(telemetryFile), ResearchStudyMetadata.defaults());
     }
 
     public static LexicalSearchHttpServer create(int port, SearchCatalog catalog, Path telemetryFile,
                                                  ResearchStudyMetadata studyMetadata) throws IOException {
         return new LexicalSearchHttpServer(
-                HttpServer.create(new InetSocketAddress("127.0.0.1", port), 0), catalog,
+                HttpServer.create(new InetSocketAddress(configuredBindAddress(), port), 0), catalog,
                 PersistentTelemetryStore.open(telemetryFile), studyMetadata);
     }
 
@@ -160,11 +162,12 @@ public final class LexicalSearchHttpServer {
             int limit = 10;
             try {
                 if (parameters.containsKey("limit")) limit = Integer.parseInt(parameters.get("limit"));
-                if (limit < 1 || limit > 100) throw new NumberFormatException();
+            if (limit < 1 || limit > 100) throw new NumberFormatException();
             } catch (NumberFormatException exception) {
                 respond(exchange, 400, "{\"error\":\"limit must be between 1 and 100\"}");
                 return;
             }
+            if (applyResearchFault(exchange)) return;
             List<SearchResult> results;
             long started = System.nanoTime();
             if ("trust".equalsIgnoreCase(parameters.get("mode"))) {
@@ -578,6 +581,41 @@ public final class LexicalSearchHttpServer {
         String value = System.getProperty("nebula.apiToken");
         if (value == null || value.trim().isEmpty()) value = System.getenv("NEBULA_API_TOKEN");
         return value == null || value.trim().isEmpty() ? null : value.trim();
+    }
+
+    private static String configuredBindAddress() {
+        String value = System.getenv("NEBULA_BIND_ADDRESS");
+        return value == null || value.trim().isEmpty() ? "127.0.0.1" : value.trim();
+    }
+
+    /** Research-only deterministic fault hook; inactive unless explicitly configured. */
+    private boolean applyResearchFault(HttpExchange exchange) throws IOException {
+        String mode = System.getenv("NEBULA_FAULT_MODE");
+        if (mode == null || mode.trim().isEmpty() || "none".equalsIgnoreCase(mode)) return false;
+        long request = FAULT_REQUESTS.incrementAndGet();
+        long every = positiveEnv("NEBULA_FAULT_EVERY", 1L);
+        if (request % every != 0) return false;
+        long delay = positiveEnv("NEBULA_FAULT_DELAY_MS", 0L);
+        if ("latency".equalsIgnoreCase(mode) && delay > 0) {
+            try { Thread.sleep(delay); } catch (InterruptedException interrupted) {
+                Thread.currentThread().interrupt();
+                respond(exchange, 503, "{\"error\":\"injected interruption\"}");
+                return true;
+            }
+            return false;
+        }
+        if ("http500".equalsIgnoreCase(mode) || "unavailable".equalsIgnoreCase(mode)) {
+            respond(exchange, 500, "{\"error\":\"deterministic research fault\"}");
+            return true;
+        }
+        throw new IllegalArgumentException("unsupported NEBULA_FAULT_MODE: " + mode);
+    }
+
+    private static long positiveEnv(String name, long fallback) {
+        try {
+            long value = Long.parseLong(System.getenv(name));
+            return value > 0 ? value : fallback;
+        } catch (Exception ignored) { return fallback; }
     }
 
     public static void main(String[] args) throws Exception {
