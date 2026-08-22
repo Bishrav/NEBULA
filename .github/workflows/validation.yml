@@ -84,8 +84,24 @@ jobs:
             benchmarks/evaluation/trust-v1.psv \
             reports/generated/benchmark.md \
             reports/generated/benchmark.json
+          java -cp build/classes com.nebula.evaluation.EvaluationRunner \
+            benchmarks/evaluation/corpus-v1 \
+            benchmarks/evaluation/queries-v1-train.psv \
+            benchmarks/evaluation/trust-v1.psv \
+            reports/generated/benchmark-train.md \
+            reports/generated/benchmark-train.json
+          java -cp build/classes com.nebula.evaluation.EvaluationRunner \
+            benchmarks/evaluation/corpus-v1 \
+            benchmarks/evaluation/queries-v1-heldout.psv \
+            benchmarks/evaluation/trust-v1.psv \
+            reports/generated/benchmark-heldout.md \
+            reports/generated/benchmark-heldout.json
           test -s reports/generated/benchmark.json
           grep -q '"semantic"' reports/generated/benchmark.json
+          grep -q '"queryCount":20' reports/generated/benchmark-train.json
+          grep -q '"queryCount":10' reports/generated/benchmark-heldout.json
+          test -s reports/generated/benchmark-train.md
+          test -s reports/generated/benchmark-heldout.md
           test -s reports/generated/ann-benchmark.json
           grep -q '"hnswRecallAtK"' reports/generated/ann-benchmark.json
           test -s reports/generated/graph-benchmark.json

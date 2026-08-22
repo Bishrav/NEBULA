@@ -14,6 +14,15 @@ Relevance grades are integer values where `0` means not relevant and larger valu
 
 `query-set-v1-metadata.psv` records each query's category, freshness expectation, and whether the current fixture is expected to contain sufficient evidence. The evaluator requires at least one positive judgement, so the `no-valid-answer` row is currently a weak contextual label and must not be treated as evidence that the corpus answers that question.
 
+## Frozen development and held-out split
+
+The 30-query v1 set is partitioned deterministically for research hygiene:
+
+- `queries-v1-train.psv` contains q1–q20 and is the development/tuning split.
+- `queries-v1-heldout.psv` contains q21–q30 and is reserved for the final comparison.
+
+The held-out file must remain untouched while ranking parameters, trust weights, or query processing are changed. Report development and held-out results separately; never combine them into a single score. This split is a reproducibility control for the synthetic fixture, not evidence of statistical generalisation.
+
 Before evaluation, the dataset validator requires unique query IDs, non-empty queries, at least one positive judgement per query, source paths that exist in the corpus, and grades in the closed interval `0..3`. Explicit grade-0 judgements are retained as hard negatives.
 
 ## Run
@@ -28,6 +37,8 @@ java -cp .\algorithms\lexical\out com.nebula.evaluation.EvaluationRunner `
   .\benchmarks\evaluation\reports\latest.md `
   .\benchmarks\evaluation\reports\latest.json
 ```
+
+For a split-aware run, execute the same command once with `queries-v1-train.psv` and once with `queries-v1-heldout.psv`, writing separate Markdown and JSON report paths. Keep the corpus, trust file, cutoff, model, and evaluation timestamp identical between runs.
 
 The runner compares BM25, semantic, hybrid lexical-semantic retrieval, authority-only, freshness-only, and combined trust-aware ranking. It reports each variant's metrics and deltas versus BM25 using a fixed evaluation timestamp, then writes Markdown and machine-readable JSON artifacts containing the same comparison. Embedding experiments should keep the corpus, query set, cutoff, and timestamp fixed while changing only the `EmbeddingModel` supplied to `SearchCatalog`.
 
