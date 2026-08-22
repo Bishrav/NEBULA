@@ -89,3 +89,5 @@ Annotation records use the protected template `annotations-v1.template.psv`. Val
 For two or more validated annotators, compute pairwise agreement and Cohen's kappa with `tools/analyze_annotation_agreement.py`. Preserve the pre-adjudication JSON output beside the protected annotation file; do not replace disagreements with adjudicated labels before calculating agreement.
 
 CI uses `annotations-v1.synthetic.psv` only to exercise the adjudication workflow. It is synthetic fixture data and must not be presented as human annotation evidence. Real adjudication packets belong in protected study storage.
+
+Use `tools/validate_annotation_release.py` as the final pre-publication gate. It refuses incomplete adjudication packets and missing agreement evidence, preventing unresolved labels from entering a research report silently.

@@ -24,11 +24,12 @@ jobs:
       - name: Validate research tooling
         shell: bash
         run: |
-          python -m py_compile tools/validate_research_export.py tools/generate_pmf_report.py tools/capture_research_bundle.py tools/generate_pmf_dashboard.py tools/pilot_preflight.py tools/run_pilot_dry_run.py tools/redact_research_export.py tools/generate_wave_summary.py tools/generate_experiment_manifest.py tools/test_experiment_manifest.py tools/generate_research_report.py tools/validate_annotations.py tools/test_validate_annotations.py tools/analyze_annotation_agreement.py tools/test_analyze_annotation_agreement.py tools/generate_adjudication_packet.py tools/test_generate_adjudication_packet.py
+          python -m py_compile tools/validate_research_export.py tools/generate_pmf_report.py tools/capture_research_bundle.py tools/generate_pmf_dashboard.py tools/pilot_preflight.py tools/run_pilot_dry_run.py tools/redact_research_export.py tools/generate_wave_summary.py tools/generate_experiment_manifest.py tools/test_experiment_manifest.py tools/generate_research_report.py tools/validate_annotations.py tools/test_validate_annotations.py tools/analyze_annotation_agreement.py tools/test_analyze_annotation_agreement.py tools/generate_adjudication_packet.py tools/test_generate_adjudication_packet.py tools/validate_annotation_release.py tools/test_validate_annotation_release.py
           python tools/test_experiment_manifest.py
           python tools/test_validate_annotations.py
           python tools/test_analyze_annotation_agreement.py
           python tools/test_generate_adjudication_packet.py
+          python tools/test_validate_annotation_release.py
           python tools/validate_annotations.py benchmarks/evaluation/annotations-v1.synthetic.psv \
             --queries benchmarks/evaluation/queries-v1.psv \
             --corpus-dir benchmarks/evaluation/corpus-v1

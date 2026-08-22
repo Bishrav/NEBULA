@@ -37,6 +37,8 @@ After validation, calculate pairwise agreement with `python tools/analyze_annota
 
 Generate a non-destructive adjudication packet with `python tools/generate_adjudication_packet.py <annotations.psv> --queries benchmarks/evaluation/queries-v1.psv --corpus-dir benchmarks/evaluation/corpus-v1 --output <packet.json>`. Each disagreement includes all independent labels and blank adjudicator fields. A qualified adjudicator must complete those fields; the tool never selects a label automatically.
 
+Before using labels in a research claim, run `tools/validate_annotation_release.py` with the validated annotations, agreement JSON, and completed adjudication packet. The gate requires two annotators, an agreement pair report, and non-empty adjudicator decisions for every disagreement. It is a release gate, not a substitute for ethics review or methodological judgment.
+
 Do not use participant telemetry to silently change offline relevance labels. If a label changes after the pilot, create a new query-set version and rerun the benchmark.
 
 ## Quality checks
