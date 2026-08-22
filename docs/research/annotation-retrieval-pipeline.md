@@ -53,3 +53,19 @@ grade, uncertainty flag, evidence note, and timestamp without seeing the other
 annotator's labels. After both assignments are returned, run validation,
 agreement analysis, disagreement adjudication, and the guarded final-qrels
 builder. Original annotations must remain immutable.
+
+Validate a returned ZIP or unpacked directory and create the protected
+canonical export used by agreement tooling:
+
+```powershell
+python tools/validate_annotation_submission.py `
+  --submission C:\protected\annotator-A-completed.zip `
+  --packet reports/generated/annotation-packages/blinded-annotation-package-A.zip `
+  --private-key reports/generated/annotation-private/PRIVATE-query-id-key.psv `
+  --annotator A `
+  --output C:\protected\annotation-A.canonical.psv
+```
+
+The private key is used only to normalize anonymous query IDs for protected
+analysis. Keep it and canonical exports in protected study storage; never
+commit them or send them to annotators.
