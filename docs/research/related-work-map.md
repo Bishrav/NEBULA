@@ -12,6 +12,12 @@ This map records established methods that NEBULA uses as baselines or engineerin
 | Explainable retrieval | explanation quality must be evaluated separately from score decomposition | evidence-oriented explanation rubric | score transparency alone is not human-grounded explanation |
 | Distributed information retrieval | coordinator, sharding, replication, retries, and circuit breaking are systems mechanisms | secondary reliability track | no novel distributed protocol is claimed |
 
+## Review protocol
+
+Before a manuscript claim is promoted beyond preliminary wording, record the supporting paper or artifact, the exact comparison, and the limitation it does not resolve. The map is a positioning aid, not a systematic literature review. Citations must be checked against the original publication and expanded for the final university or venue submission.
+
+The primary NEBULA question remains empirical: whether observable freshness, authority, graph, and evidence-related signals change engineering-knowledge retrieval outcomes under a frozen corpus, independently judged queries, and held-out evaluation. The system does not claim novelty for any component listed above.
+
 ## Positioning rule
 
 The paper should compare NEBULA against these established techniques and report controlled effects. It should not describe combining known signals as algorithmic invention unless a literature review and evidence justify a narrower new method.
