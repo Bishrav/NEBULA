@@ -23,6 +23,11 @@ This is a test harness, not production evidence. The dedicated topology is infra
 
 Run observations with tools/run_distributed_experiment.py. The runner records raw JSON, CSV, and Markdown outputs and keeps fault control outside the measurement process. Scenario definitions are versioned in experiments/distributed/scenario-matrix.json.
 
+Before starting the topology, run `python tools/distributed_preflight.py`. A
+`READY` result permits Compose startup. `ENVIRONMENT_LIMITED` means Docker
+Desktop or its daemon is unavailable; it is an environment blocker, not a
+distributed-system result.
+
 ## Metrics
 
 Runs must record throughput, p50/p95/p99 end-to-end latency, server latency, retry attempts, failed-shard count, open circuits, partial-result frequency, and result-quality degradation. The current coordinator exposes aggregate shard health counters; replica failover counts and per-shard latency require an additional instrumented deployment if those measures become primary claims.
