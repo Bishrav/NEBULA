@@ -36,6 +36,26 @@ machine-readable readiness record and exits with status 2 when the optional
 environment is unavailable. This is an explicit environment gate, not a
 fallback to a different model.
 
+An isolated compatible runtime is also defined by
+`tools/modern-embeddings.Dockerfile`. From the repository root, build it with:
+
+```powershell
+docker build -f tools/modern-embeddings.Dockerfile -t nebula-modern-embeddings .
+docker run --rm -v "${PWD}:/workspace" nebula-modern-embeddings `
+  --texts-jsonl /workspace/experiments/retrieval/modern-inputs.jsonl `
+  --output /workspace/reports/generated/bge-base-en-v1.5.cache.tsv `
+  --batch-size 32
+```
+
+The image provides Python 3.11 for the pinned Torch stack. The model download
+is still an explicit networked step; record the generated cache checksum and
+manifest before using it in an experiment.
+
+The Docker recipe and corrected dependency pin are repository-complete, but the
+image was not built in the current Windows session because the large Torch
+download exceeded the available execution window. BGE quality and latency
+metrics therefore remain **NOT YET MEASURED**.
+
 The generator pins the model revision, batches inference, L2-normalizes vectors,
 rejects empty or duplicate input texts, and records metadata in the cache
 header. The cache loader rejects duplicate keys, non-finite values, dimension
