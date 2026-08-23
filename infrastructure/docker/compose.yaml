@@ -6,6 +6,7 @@ services:
     ports:
       - "8082:8082"
     environment:
+      NEBULA_BIND_ADDRESS: ${NEBULA_BIND_ADDRESS:-0.0.0.0}
       NEBULA_STUDY_VERSION: ${NEBULA_STUDY_VERSION:-pilot-v1}
       NEBULA_CORPUS_VERSION: ${NEBULA_CORPUS_VERSION:-corpus-v1}
       NEBULA_STUDY_WAVE: ${NEBULA_STUDY_WAVE:-deployment-check}
