@@ -34,11 +34,24 @@ The result is designed to answer not only **“what matches?”**, but also **�
 | --- | --- |
 | Product | Self-hostable search for engineering knowledge |
 | Research area | Information retrieval, trustworthy AI, distributed systems, empirical systems evaluation |
-| Core question | How do observable trust-related signals affect relevance and verifiability over simpler retrieval baselines? |
-| Current data | Versioned public-safe synthetic engineering corpus and labelled query set |
+| Core question | How do freshness, source-authority, and graph-related signals affect retrieval effectiveness relative to lexical, dense, and conventional hybrid retrieval for engineering knowledge? |
+| Current data | Regression benchmark plus provisional 843-document Kubernetes/PostgreSQL research corpus; 400 candidate information needs and a 379-query blinded annotation set pending human validation |
 | Evaluation | Precision@k, Recall@k, MRR, NDCG, HNSW recall, latency, graph metrics, and failure behaviour |
 | Engineering principle | Build the core from first principles so trade-offs remain inspectable and reproducible |
 | Academic readiness | Research plan, study-registration draft, annotation protocol, held-out split, and release gate |
+
+## Current research status
+
+| Stage | Status |
+| --- | --- |
+| Public corpus | 843 documents — licensing and attribution review pending |
+| Candidate queries | 400 — human review pending |
+| Annotation benchmark | 379 queries / 3,790 blinded query-document pairs |
+| Human qrels | Pending independent annotation and adjudication |
+| BGE baseline | Regression-tested on the synthetic fixture; research-corpus evaluation pending |
+| ANN scale | 10K measured; lower-cost 100K measured with limited recall; 1M hardware-limited |
+| Distributed D0–D8 | Preliminary local measurements complete |
+| Final held-out study | Blocked until approved queries, human qrels, and release evidence exist |
 
 ## What is implemented
 
@@ -272,9 +285,13 @@ docs/research/              Research plan, protocols, annotation and approval ma
 
 Do not commit private company documents, credentials, production indexes, API keys, participant data, or unapproved research exports. Use synthetic, public, or explicitly consented documents. Permission-aware retrieval is a prerequisite before connecting private sources.
 
-## License
+## License and data provenance
 
-License selection will be made before the first public implementation release.
+Source code in this repository is licensed under the [Apache License 2.0](LICENSE).
+Imported or generated datasets, documentation, and third-party corpus material
+are not automatically covered by that license. Each research-corpus document
+must retain its upstream license, attribution, provenance, and redistribution
+status; the provisional corpus remains subject to human licensing review.
 
 ## Project thesis
 
