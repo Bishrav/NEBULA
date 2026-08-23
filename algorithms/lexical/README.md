@@ -129,3 +129,7 @@ Posting positions and document ordinals use delta encoding followed by variable-
 ## Evaluation
 
 The evaluation package supports versioned graded queries and reports macro-averaged Precision@k, Recall@k, MRR, and NDCG. The starter corpus, trust metadata fixture, and ablation runner are documented in [`benchmarks/evaluation`](../../benchmarks/evaluation/README.md).
+
+For a reproducible cached encoder evaluation, pass `--embedding-cache` to
+`com.nebula.evaluation.EvaluationRunner` with a validated modern embedding
+cache. The cache model revision and dimensionality are printed before metrics.

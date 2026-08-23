@@ -1,6 +1,7 @@
 package com.nebula.evaluation;
 
 import com.nebula.search.SearchCatalog;
+import com.nebula.search.CachedEmbeddingModel;
 import com.nebula.ingestion.DocumentRecord;
 
 import java.nio.charset.StandardCharsets;
@@ -22,10 +23,18 @@ public final class EvaluationRunner {
 
     public static void main(String[] args) throws Exception {
         boolean finalHeldout = false;
+        Path embeddingCache = null;
         java.util.List<String> positional = new java.util.ArrayList<>();
-        for (String arg : args) { if ("--final-heldout-evaluation".equals(arg)) finalHeldout = true; else positional.add(arg); }
+        for (int index = 0; index < args.length; index++) {
+            String arg = args[index];
+            if ("--final-heldout-evaluation".equals(arg)) finalHeldout = true;
+            else if ("--embedding-cache".equals(arg)) {
+                if (index + 1 >= args.length) throw new IllegalArgumentException("--embedding-cache requires a path");
+                embeddingCache = Paths.get(args[++index]);
+            } else positional.add(arg);
+        }
         if (positional.size() < 2 || positional.size() > 5) {
-            System.err.println("Usage: EvaluationRunner <corpus-directory> <queries.psv> [trust-metadata.psv] [report.md] [comparison.json] [--final-heldout-evaluation]");
+            System.err.println("Usage: EvaluationRunner <corpus-directory> <queries.psv> [trust-metadata.psv] [report.md] [comparison.json] [--embedding-cache cache.tsv] [--final-heldout-evaluation]");
             System.exit(2);
         }
         Path corpus = Paths.get(positional.get(0));
@@ -34,7 +43,15 @@ public final class EvaluationRunner {
         if ((queryName.contains("heldout") || queryName.contains("test")) && !finalHeldout) {
             throw new IllegalArgumentException("held-out/test evaluation requires explicit --final-heldout-evaluation");
         }
-        SearchCatalog catalog = new SearchCatalog();
+        SearchCatalog catalog = embeddingCache == null
+                ? new SearchCatalog()
+                : new SearchCatalog(new com.nebula.ingestion.DocumentIngestor(), new com.nebula.search.InvertedIndex(), new CachedEmbeddingModel(embeddingCache));
+        if (embeddingCache != null) {
+            CachedEmbeddingModel cached = new CachedEmbeddingModel(embeddingCache);
+            System.out.println("embedding_model=" + cached.modelId());
+            System.out.println("embedding_dimension=" + cached.dimension());
+            System.out.println("embedding_cached_vectors=" + cached.cachedVectors());
+        }
         List<DocumentRecord> corpusRecords = new ArrayList<>();
         List<Path> documents;
         try (java.util.stream.Stream<Path> stream = Files.walk(corpus)) {

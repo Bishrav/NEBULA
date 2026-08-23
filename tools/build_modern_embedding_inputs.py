@@ -4,6 +4,7 @@
 import argparse
 import hashlib
 import json
+import re
 from pathlib import Path
 
 
@@ -11,10 +12,23 @@ def sha256(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def normalize_markdown(raw):
+    """Mirror DocumentIngestor.normalizeMarkdown for cache-key compatibility."""
+    text = raw.replace("\r\n", "\n").replace("\r", "\n")
+    text = re.sub(r"\[([^]]+)]\([^)]*\)", r"\1", text)
+    text = re.sub(r"<[^>]+>", " ", text)
+    text = re.sub(r"^\s*[-*+]\s+", "", text, flags=re.MULTILINE)
+    text = re.sub(r"^\s*\d+[.)]\s+", "", text, flags=re.MULTILINE)
+    text = re.sub(r"^#{1,6}\s*", "", text, flags=re.MULTILINE)
+    text = re.sub(r"[*_~`]", "", text)
+    text = text.replace("|", " ")
+    return re.sub(r"\s+", " ", text).strip()
+
+
 def build(corpus, queries):
     rows, seen = [], set()
     for path in sorted(corpus.rglob("*.md")):
-        text = path.read_text(encoding="utf-8")
+        text = normalize_markdown(path.read_text(encoding="utf-8"))
         if text not in seen:
             seen.add(text); rows.append({"kind": "document", "id": path.relative_to(corpus).as_posix(), "text": text})
     lines = queries.read_text(encoding="utf-8").splitlines()

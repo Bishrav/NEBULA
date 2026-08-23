@@ -2,10 +2,13 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from build_modern_embedding_inputs import build
+from build_modern_embedding_inputs import build, normalize_markdown
 
 
 class ModernEmbeddingInputsTest(unittest.TestCase):
+    def test_normalization_matches_ingestion_contract(self):
+        self.assertEqual("Title linked item", normalize_markdown("# Title\n\n- [linked item](doc.md)"))
+
     def test_builds_unique_deterministic_rows(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory); corpus = root / "corpus"; corpus.mkdir()

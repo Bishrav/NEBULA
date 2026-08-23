@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "ann-scale-run-status-v1",
+  "status": "HARDWARE-LIMITED",
+  "vectors": 100000,
+  "dimension": 128,
+  "queries": 20,
+  "cutoff": 10,
+  "M": 16,
+  "efConstruction": 200,
+  "efSearch": 64,
+  "repeats": 1,
+  "seed": 20260822,
+  "timeoutSeconds": 360,
+  "artifactProduced": false,
+  "metrics": "NOT_MEASURED",
+  "interpretationBoundary": "Synthetic-vector ANN systems evidence only; no result is inferred from the timeout."
+}

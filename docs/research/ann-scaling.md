@@ -54,7 +54,8 @@ repeated trials. It recorded HNSW Recall@10 values of `0.365`, `0.435`, and
 are descriptive synthetic-vector systems results only; the raw artifact and
 manifest are local generated outputs.
 
-A bounded 100K attempt with one query and one trial exceeded 180 seconds before
+A bounded 100K attempt with 20 queries and one trial exceeded 360 seconds before
 producing an artifact and is classified `HARDWARE-LIMITED` for this custom
-implementation/environment. The 1M target remains `NOT_YET_MEASURED`. No
-result is inferred for either size.
+implementation/environment. The exact attempt parameters are frozen in
+`experiments/ann/100k-local-run-status.json`. The 1M target remains
+`NOT_YET_MEASURED`. No result is inferred for either size.

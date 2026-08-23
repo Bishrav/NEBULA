@@ -1,0 +1,34 @@
+{"id": "architecture.md", "kind": "document", "text": "Distributed Search Architecture The query coordinator sends a search request to multiple shards. Each shard returns local top-k results, and the coordinator merges them into one globally ranked response. Related operational sources: incident response, retrieval design, and the deployment runbook."}
+{"id": "operations.md", "kind": "document", "text": "Incident Response When a shard fails, the query coordinator applies a timeout, uses a replica when available, and reports whether the result is partial. See the distributed architecture and deployment runbook for recovery context."}
+{"id": "retrieval.md", "kind": "document", "text": "Hybrid Retrieval Hybrid retrieval combines BM25 lexical matching with semantic vector similarity. Score normalization is required before combining heterogeneous signals. The retrieval service is part of the distributed architecture."}
+{"id": "runbook.md", "kind": "document", "text": "Deployment Runbook The deployment runbook explains blue-green deployment, health checks, traffic shifting, and rollback when a release is unhealthy. For incidents, follow the incident response procedure and consult the distributed architecture."}
+{"id": "q1", "kind": "query", "text": "query coordinator"}
+{"id": "q2", "kind": "query", "text": "deployment rollback"}
+{"id": "q3", "kind": "query", "text": "hybrid retrieval"}
+{"id": "q4", "kind": "query", "text": "shard failure"}
+{"id": "q5", "kind": "query", "text": "\"query coordinator\""}
+{"id": "q6", "kind": "query", "text": "vector retrieval"}
+{"id": "q7", "kind": "query", "text": "distributed search"}
+{"id": "q8", "kind": "query", "text": "consistent hashing"}
+{"id": "q9", "kind": "query", "text": "query coordinator merges results"}
+{"id": "q10", "kind": "query", "text": "blue-green deployment"}
+{"id": "q11", "kind": "query", "text": "traffic shifting rollback"}
+{"id": "q12", "kind": "query", "text": "health checks release unhealthy"}
+{"id": "q13", "kind": "query", "text": "incident response procedure"}
+{"id": "q14", "kind": "query", "text": "replica after shard failure"}
+{"id": "q15", "kind": "query", "text": "partial result"}
+{"id": "q16", "kind": "query", "text": "fresh deployment source"}
+{"id": "q17", "kind": "query", "text": "stale operational documentation"}
+{"id": "q18", "kind": "query", "text": "semantic retrieval meaning"}
+{"id": "q19", "kind": "query", "text": "score normalization"}
+{"id": "q20", "kind": "query", "text": "lexical semantic combination"}
+{"id": "q21", "kind": "query", "text": "exact phrase \"query coordinator\""}
+{"id": "q22", "kind": "query", "text": "coordinator timeout"}
+{"id": "q23", "kind": "query", "text": "distributed architecture design"}
+{"id": "q24", "kind": "query", "text": "deployment health verification"}
+{"id": "q25", "kind": "query", "text": "retrieval ranking signals"}
+{"id": "q26", "kind": "query", "text": "which document explains replicas"}
+{"id": "q27", "kind": "query", "text": "how does a shard respond to failure"}
+{"id": "q28", "kind": "query", "text": "document graph authority"}
+{"id": "q29", "kind": "query", "text": "vector index configuration"}
+{"id": "q30", "kind": "query", "text": "unseen database migration procedure"}

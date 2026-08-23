@@ -26,10 +26,10 @@ python tools/build_modern_embedding_inputs.py `
   --manifest .\reports\generated\modern-inputs-manifest.json
 ```
 
-The current environment does not have the pinned optional inference packages,
-so BGE generation is **ENVIRONMENT-LIMITED / NOT YET MEASURED** here. Install
-the pinned requirements and run the command only when the model revision and
-cache checksum can be recorded.
+The host Python environment does not have the pinned optional inference
+packages. The compatible Docker runtime below was used for the bounded
+regression generation, so the cache can be reproduced without changing the
+host environment.
 
 Run `python tools/modern_embedding_preflight.py` before generation. It emits a
 machine-readable readiness record and exits with status 2 when the optional
@@ -47,14 +47,13 @@ docker run --rm -v "${PWD}:/workspace" nebula-modern-embeddings `
   --batch-size 32
 ```
 
-The image provides Python 3.11 for the pinned Torch stack. The model download
+The image provides Python 3.11 and the CPU-only wheel for the pinned Torch stack. The model download
 is still an explicit networked step; record the generated cache checksum and
 manifest before using it in an experiment.
 
-The Docker recipe and corrected dependency pin are repository-complete, but the
-image was not built in the current Windows session because the large Torch
-download exceeded the available execution window. BGE quality and latency
-metrics therefore remain **NOT YET MEASURED**.
+The Docker image built successfully and generated a 34-vector cache with 768
+dimensions, L2 normalization, MIT metadata, and the pinned model revision.
+This is a synthetic regression-fixture result, not research-corpus evidence.
 
 The generator pins the model revision, batches inference, L2-normalizes vectors,
 rejects empty or duplicate input texts, and records metadata in the cache
@@ -74,3 +73,13 @@ Once human-reviewed queries and frozen qrels exist, compare:
 - full NEBULA with the frozen dense baseline.
 
 Record model revision, license, dimension, normalization, batch size, cache checksum, indexing time, embedding generation time, query latency, NDCG@k, MRR, and Recall@k. Current quality and latency results are **NOT YET MEASURED**; no improvement claim is permitted.
+
+## Bounded regression run
+
+The cache was connected to the Java evaluation runner using
+`--embedding-cache reports/generated/bge-base-en-v1.5.cache.tsv`. On the
+30-query, 4-document regression fixture, BGE produced NDCG@5 `0.979475`, MRR
+`0.983333`, and Recall@5 `1.000000` for semantic-only retrieval. The hybrid
+configuration produced NDCG@5 `0.940832`, MRR `0.950000`, and Recall@5
+`1.000000`. These values are descriptive fixture metrics only and do not
+support a superiority claim.
