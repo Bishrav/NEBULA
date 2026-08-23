@@ -32,6 +32,7 @@ public final class HnswIndexTest {
         check(ann.estimatedIndexBytes() == 20L * model.dimension() * Double.BYTES + 20L * 8L * Long.BYTES,
                 "index-size estimate reflects configured M and dimension");
         check(overlap >= 4, "HNSW maintains high recall on the baseline corpus");
+        check(annTop.size() == 5, "multi-entry HNSW search returns the requested top-k");
         check(ann.maxLevel() >= 0, "multi-layer entry point is created");
         System.out.println("HnswIndexTest: PASS");
     }

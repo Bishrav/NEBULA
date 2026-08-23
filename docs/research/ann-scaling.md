@@ -56,10 +56,13 @@ manifest are local generated outputs.
 
 A 100K run completed under a lower-cost configuration (`M=8`,
 `efConstruction=100`, `efSearch=20`, five queries, one trial) in 187.7 seconds.
-It measured Recall@10 `0.0`, exact p50 `49.8264 ms`, and HNSW p50 `0.3632 ms`.
-The zero-recall result is a measured quality failure for that configuration; it
-must not be presented as an acceptable recall/latency trade-off. The summary is
-frozen in `experiments/ann/100k-m8-measured-summary.json`.
+The corrected implementation uses a bounded multi-entry search with 256
+deterministic entry samples. It measured Recall@10 `0.52`, exact p50 `53.1269
+ms`, and HNSW p50 `35.3977 ms`. The corrected summary is frozen in
+`experiments/ann/100k-multistart-corrected-summary.json`. This is an improvement
+over the original zero-recall result, but `0.52` Recall@10 remains below a
+publication-grade quality target and must not be presented as solved ANN
+quality.
 
 A separate bounded 100K run with the target `M=16`, `efConstruction=200`, and
 20 queries exceeded 360 seconds. A 1M run with the lower-cost configuration

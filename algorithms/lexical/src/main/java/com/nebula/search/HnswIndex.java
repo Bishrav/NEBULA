@@ -16,6 +16,7 @@ import java.util.Set;
 
 /** Simplified deterministic multi-layer HNSW index for ANN experiments. */
 public final class HnswIndex {
+    private static final int MAX_MULTI_START_ENTRIES = 256;
     private final int dimension;
     private final int m;
     private final int efConstruction;
@@ -69,7 +70,28 @@ public final class HnswIndex {
             List<ScoredNode> nearest = searchLayer(queryVector, current, 1, level);
             if (!nearest.isEmpty()) current = nearest.get(0).node;
         }
-        List<ScoredNode> nearest = searchLayer(queryVector, current, Math.max(efSearch, limit), 0);
+        int beam = Math.max(efSearch, limit);
+        Map<String, ScoredNode> merged = new LinkedHashMap<>();
+        addCandidates(merged, searchLayer(queryVector, current, beam, 0));
+        // A bounded deterministic multi-entry pass protects large sparse graphs
+        // from a single poorly navigable top-level entry point. It remains ANN:
+        // no exact scan is performed and the number of entry points is bounded.
+        int entryCount = Math.min(MAX_MULTI_START_ENTRIES, nodes.size());
+        int stride = Math.max(1, nodes.size() / entryCount);
+        int position = 0;
+        for (Node candidate : nodes.values()) {
+            if (position % stride == 0 && candidate != current) {
+                addCandidates(merged, searchLayer(queryVector, candidate, beam, 0));
+            }
+            position++;
+            if (merged.size() > Math.max(beam * (entryCount + 1), limit * 4)) {
+                // Keep memory bounded while retaining enough candidates for a
+                // stable top-k merge after all entry passes.
+                trimCandidates(merged, beam * (entryCount + 1));
+            }
+        }
+        List<ScoredNode> nearest = new ArrayList<>(merged.values());
+        nearest.sort(Comparator.comparingDouble((ScoredNode value) -> value.score).reversed());
         List<HnswMatch> matches = new ArrayList<>();
         for (ScoredNode scored : nearest) matches.add(new HnswMatch(scored.node.document, scored.score));
         return Collections.unmodifiableList(new ArrayList<>(matches.subList(0, Math.min(limit, matches.size()))));
@@ -82,6 +104,24 @@ public final class HnswIndex {
     /** Deterministic lower-bound estimate for benchmark reporting, not JVM heap usage. */
     public synchronized long estimatedIndexBytes() {
         return (long) nodes.size() * dimension * Double.BYTES + (long) nodes.size() * Math.max(1, m) * Long.BYTES;
+    }
+
+    private void addCandidates(Map<String, ScoredNode> merged, List<ScoredNode> candidates) {
+        for (ScoredNode candidate : candidates) {
+            String id = candidate.node.document.getDocument().getDocumentId();
+            ScoredNode previous = merged.get(id);
+            if (previous == null || candidate.score > previous.score) merged.put(id, candidate);
+        }
+    }
+
+    private void trimCandidates(Map<String, ScoredNode> candidates, int keep) {
+        List<ScoredNode> ordered = new ArrayList<>(candidates.values());
+        ordered.sort(Comparator.comparingDouble((ScoredNode value) -> value.score).reversed());
+        candidates.clear();
+        for (int index = 0; index < Math.min(keep, ordered.size()); index++) {
+            ScoredNode candidate = ordered.get(index);
+            candidates.put(candidate.node.document.getDocument().getDocumentId(), candidate);
+        }
     }
 
     private void connect(Node node, List<ScoredNode> neighbors, int level) {

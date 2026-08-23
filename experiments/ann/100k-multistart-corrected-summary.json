@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "ann-scale-summary-v1",
+  "status": "MEASURED",
+  "algorithmChange": "bounded multi-entry HNSW search, 256 deterministic entry samples",
+  "vectors": 100000,
+  "dimension": 128,
+  "queries": 5,
+  "cutoff": 10,
+  "M": 8,
+  "efConstruction": 100,
+  "efSearch": 20,
+  "repeats": 1,
+  "seed": 20260822,
+  "buildMillis": 183351,
+  "recallAt1": 0.6,
+  "recallAt5": 0.64,
+  "recallAt10": 0.52,
+  "exactP50Millis": 53.1269,
+  "hnswP50Millis": 35.3977,
+  "interpretationBoundary": "Synthetic-vector systems evidence only. Multi-entry search improves reachability but 0.52 Recall@10 is not acceptable publication-grade ANN quality."
+}
