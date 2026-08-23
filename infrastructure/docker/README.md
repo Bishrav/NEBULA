@@ -23,7 +23,7 @@ The container currently ships the public synthetic evaluation corpus. Private do
 
 The production-like developer Compose file intentionally remains a single API service. For the secondary distributed experiment, use compose.research-distributed.yaml; it starts one research coordinator and three primary/replica shard pairs. The topology is for repeatable experiments, not a production capacity claim.
 
-The coordinator is ResearchCoordinatorHttpServer. It exposes /v1/search, returning explicit partial, failedShards, latency, result IDs, and aggregate shard-health counters. tools/run_distributed_experiment.py converts repeated observations into JSON, CSV, and Markdown artifacts.
+The coordinator is ResearchCoordinatorHttpServer. It exposes /v1/search, returning explicit partial, failedShards, latency, result IDs, and aggregate shard-health counters. `tools/run_distributed_experiment.py` converts repeated observations into JSON, CSV, and Markdown artifacts. When supplied with a healthy baseline and qrels, it reports healthy NDCG, degraded NDCG, and `ndcgDegradation = healthy - degraded`; without those inputs it reports the metric as not measured.
 
 Shard fault controls are inactive unless explicitly set:
 

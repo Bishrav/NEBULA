@@ -67,7 +67,8 @@ def run(args):
 
     healthy_ids = []
     if args.baseline:
-        healthy_ids = json.loads(args.baseline.read_text(encoding="utf-8")).get("resultIds", [])
+        baseline_payload = json.loads(args.baseline.read_text(encoding="utf-8"))
+        healthy_ids = baseline_payload.get("resultIds", [])
     elif args.scenario == "D0":
         healthy_ids = observations[0]["resultIds"]
     for observation in observations:
@@ -87,14 +88,18 @@ def run(args):
         "p99LatencyMillis": percentile(latency, 0.99),
         "partialResultFrequency": sum(item["partial"] for item in observations) / float(args.repeats),
         "topKOverlap": statistics.mean([item["topKOverlap"] for item in observations if item["topKOverlap"] is not None]) if healthy_ids else None,
-        "ndcgDegradation": "NOT_MEASURED" if not args.qrels else None,
+        "ndcgDegradation": "NOT_MEASURED",
         "observations": observations,
     }
-    if args.qrels:
+    if args.qrels and args.baseline:
         relevance = json.loads(args.qrels.read_text(encoding="utf-8"))
+        healthy_ndcg = ndcg(healthy_ids, relevance, args.limit)
         degraded = statistics.mean(ndcg(item["resultIds"], relevance, args.limit) for item in observations)
+        summary["healthyNdcg"] = healthy_ndcg
         summary["degradedNdcg"] = degraded
-        summary["ndcgDegradation"] = "requires healthy qrels baseline"
+        summary["ndcgDegradation"] = healthy_ndcg - degraded
+    elif args.qrels and not args.baseline:
+        summary["ndcgDegradation"] = "BASELINE_REQUIRED"
     return summary
 
 
