@@ -5,7 +5,7 @@
 
 | Requirement | Status | Evidence |
 | --- | --- | --- |
-| Research question | PARTIAL | [Research plan](research-plan.md); needs narrower primary contribution and formal constructs. |
+| Research question | COMPLETE | [Research plan](research-plan.md) and the README use the same narrow primary question: how freshness, source-authority, and graph-related signals affect retrieval effectiveness relative to lexical, dense, and conventional hybrid retrieval for engineering knowledge. Human-evidence requirements remain incomplete, so the research result itself is not yet validated. |
 | Engineering/research contribution boundary | COMPLETE | [Contribution boundaries](contribution-boundaries.md). |
 | Ranking formula and configuration | COMPLETE | [Ranking model](ranking-model.md) and versioned JSON configuration. |
 | Defensible trust definition | COMPLETE | [Ranking model](ranking-model.md) separates relevance, reliability signals, freshness, authority, graph importance, and evidence quality. |

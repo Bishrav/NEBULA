@@ -161,7 +161,7 @@ PostgreSQL for metadata and job state, object storage for raw documents and inde
 
 ### Research question
 
-**Does adding freshness, source-authority, graph, and evidence signals to hybrid lexical-semantic retrieval improve retrieval quality and user verifiability compared with lexical-only, semantic-only, and conventional hybrid baselines?**
+**How do freshness, source-authority, and graph-related signals affect retrieval effectiveness relative to lexical, dense, and conventional hybrid retrieval for engineering knowledge?**
 
 ### Baselines and comparisons
 
@@ -287,7 +287,7 @@ Do not commit private company documents, credentials, production indexes, API ke
 
 ## License and data provenance
 
-Source code in this repository is licensed under the [Apache License 2.0](LICENSE).
+Source code in this repository is licensed under the [MIT License](LICENSE). Imported corpus content and documentation retain their upstream licensing and attribution requirements; see the corpus provenance reports before redistribution.
 Imported or generated datasets, documentation, and third-party corpus material
 are not automatically covered by that license. Each research-corpus document
 must retain its upstream license, attribution, provenance, and redistribution
