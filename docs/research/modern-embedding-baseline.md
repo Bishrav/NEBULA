@@ -31,6 +31,11 @@ so BGE generation is **ENVIRONMENT-LIMITED / NOT YET MEASURED** here. Install
 the pinned requirements and run the command only when the model revision and
 cache checksum can be recorded.
 
+Run `python tools/modern_embedding_preflight.py` before generation. It emits a
+machine-readable readiness record and exits with status 2 when the optional
+environment is unavailable. This is an explicit environment gate, not a
+fallback to a different model.
+
 The generator pins the model revision, batches inference, L2-normalizes vectors,
 rejects empty or duplicate input texts, and records metadata in the cache
 header. The cache loader rejects duplicate keys, non-finite values, dimension
