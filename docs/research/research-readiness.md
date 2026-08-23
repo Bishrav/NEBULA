@@ -17,7 +17,7 @@
 | Development/validation/test split | PARTIAL | Stratified 60/20/20 freeze tool, immutable manifest, held-out CLI guard, and final-evaluation gate exist; final split is blocked until approved queries and human qrels exist. |
 | Strong baselines | PARTIAL | BM25, hashing, character n-gram, hybrid, RRF, authority, freshness, and trust variants exist; BGE modern-cache adapter is configured but not yet evaluated on human qrels. |
 | Trust-signal ablation | PARTIAL | Legacy variants and explicit A3–A9 hybrid signal combinations now run; real research results and A0–A2 labels still require the expanded benchmark. |
-| Weight sensitivity | NOT STARTED | Requires development-set grid execution; no results are claimed. |
+| Weight sensitivity | PARTIAL | Deterministic one-factor 16-row evaluator and regression-fixture artifact are implemented; research-corpus sensitivity remains blocked by human qrels and frozen splits. |
 | Per-query and category analysis | PARTIAL | Error analysis exists; signal-level and category summaries are incomplete. |
 | Statistical uncertainty | PARTIAL | Paired bootstrap intervals, permutation p-values, effect sizes, and Holm correction tooling now exist; no adequately powered research result exists. |
 | ANN scaling | PARTIAL | Configurable repeated-trial harness records M/efConstruction/efSearch, Recall@1/5/10/k, p50/p95/p99 latency, build time, index-size estimate, and heap delta; matrix, report converter, and hardware-manifest tooling exist, but large runs are not yet measured. |

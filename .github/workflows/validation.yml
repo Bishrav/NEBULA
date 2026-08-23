@@ -98,6 +98,7 @@ jobs:
           java -cp build/classes com.nebula.search.CachedEmbeddingModelTest
           java -cp build/classes com.nebula.evaluation.AnnScaleBenchmarkTest
           java -cp build/classes com.nebula.search.TrustRobustnessFixtureTest
+          java -cp build/classes com.nebula.evaluation.WeightSensitivityEvaluatorTest
           java -cp build/classes com.nebula.evaluation.EvaluationRunner \
             benchmarks/evaluation/corpus-v1 \
             benchmarks/evaluation/queries-v1.psv \
