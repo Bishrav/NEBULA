@@ -9,6 +9,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 /** Offline embedding adapter backed by a reproducible text-hash/vector cache. */
 public final class CachedEmbeddingModel implements EmbeddingModel {
@@ -31,11 +33,21 @@ public final class CachedEmbeddingModel implements EmbeddingModel {
             String[] values = parts[1].split(",");
             double[] vector = new double[values.length];
             for (int i = 0; i < values.length; i++) vector[i] = Double.parseDouble(values[i]);
-            loaded.put(parts[0], vector);
+            if (loaded.put(parts[0], vector) != null) throw new IOException("duplicate embedding cache key");
         }
         int dimension = Integer.parseInt(required(properties, "dimension"));
         metadata = new EmbeddingModelMetadata(required(properties, "modelId"), required(properties, "revision"), required(properties, "license"), dimension, Boolean.parseBoolean(required(properties, "normalized")));
-        for (double[] vector : loaded.values()) if (vector.length != dimension) throw new IOException("embedding dimension mismatch");
+        Set<String> keys = new HashSet<>(loaded.keySet());
+        if (keys.size() != loaded.size()) throw new IOException("duplicate embedding cache key");
+        for (double[] vector : loaded.values()) {
+            if (vector.length != dimension) throw new IOException("embedding dimension mismatch");
+            double norm = 0.0;
+            for (double value : vector) {
+                if (!Double.isFinite(value)) throw new IOException("embedding cache contains non-finite value");
+                norm += value * value;
+            }
+            if (metadata.isNormalized() && Math.abs(Math.sqrt(norm) - 1.0) > 0.001) throw new IOException("normalized embedding cache contains non-unit vector");
+        }
         vectors = Map.copyOf(loaded);
     }
 

@@ -16,7 +16,12 @@ python tools/generate_modern_embeddings.py `
   --batch-size 32
 ```
 
-The generator pins the model revision, batches inference, L2-normalizes vectors, and records metadata in the cache header. `CachedEmbeddingModel` loads the cache offline and fails explicitly if requested text is absent rather than silently substituting another embedding.
+The generator pins the model revision, batches inference, L2-normalizes vectors,
+rejects empty or duplicate input texts, and records metadata in the cache
+header. The cache loader rejects duplicate keys, non-finite values, dimension
+mismatches, and non-unit vectors when normalization is declared. It fails
+explicitly if requested text is absent rather than silently substituting another
+embedding.
 
 ## Evaluation protocol
 
