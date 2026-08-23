@@ -12,7 +12,7 @@ services:
       NEBULA_STUDY_WAVE: ${NEBULA_STUDY_WAVE:-deployment-check}
       NEBULA_QUERY_SET_VERSION: ${NEBULA_QUERY_SET_VERSION:-query-set-v1}
       NEBULA_CODE_VERSION: ${NEBULA_CODE_VERSION:-container}
-      NEBULA_ALLOWED_ORIGIN: ${NEBULA_ALLOWED_ORIGIN:-http://localhost:5173}
+      NEBULA_ALLOWED_ORIGIN: ${NEBULA_ALLOWED_ORIGIN:-http://127.0.0.1:5174}
     volumes:
       - nebula-telemetry:/data
 
