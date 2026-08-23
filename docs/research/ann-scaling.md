@@ -22,6 +22,10 @@ java -Xms2g -Xmx8g -cp build/classes com.nebula.evaluation.AnnScaleBenchmark `
 
 The positional parameters after `cutoff` are `M`, `efConstruction`, `efSearch`, `repeats`, and `seed`. The benchmark records vector count, dimension, parameters, per-trial build time, a deterministic index-size estimate, JVM heap delta, Recall@1/5/10/k, and exact/HNSW p50, p95, and p99 query latency. Heap delta is a noisy JVM diagnostic; `estimatedIndexBytes` is a deterministic lower-bound estimate and must not be presented as resident memory.
 
+Each positional parameter is independent: supplying `M` does not require
+supplying the later parameters. The small regression run in
+`AnnScaleBenchmarkTest` protects this command-line contract.
+
 ## Parameter study
 
 The version-controlled matrix is `experiments/ann/parameter-matrix.json`. It covers 10K, 100K, and 1M vectors; 128 and 384 dimensions; M in 8/16/32; efConstruction in 100/200/400; efSearch in 20/50/100/200; and three repeated trials. Use `tools/report_ann_scale.py` to produce flat CSV and Markdown tables from each JSON run.

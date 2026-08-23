@@ -35,11 +35,11 @@ public final class AnnScaleBenchmark {
         int dimension = args.length > 2 ? Integer.parseInt(args[2]) : 128;
         int queries = args.length > 3 ? Integer.parseInt(args[3]) : 50;
         int cutoff = args.length > 4 ? Integer.parseInt(args[4]) : 10;
-        int m = args.length > 7 ? Integer.parseInt(args[5]) : 16;
-        int efConstruction = args.length > 7 ? Integer.parseInt(args[6]) : 200;
-        int efSearch = args.length > 7 ? Integer.parseInt(args[7]) : (args.length > 5 ? Integer.parseInt(args[5]) : 64);
+        int m = args.length > 5 ? Integer.parseInt(args[5]) : 16;
+        int efConstruction = args.length > 6 ? Integer.parseInt(args[6]) : 200;
+        int efSearch = args.length > 7 ? Integer.parseInt(args[7]) : 64;
         int repeats = args.length > 8 ? Integer.parseInt(args[8]) : 1;
-        long seed = args.length > 9 ? Long.parseLong(args[9]) : (args.length > 6 ? Long.parseLong(args[6]) : 20260822L);
+        long seed = args.length > 9 ? Long.parseLong(args[9]) : 20260822L;
         if (dimension <= 0 || queries <= 0 || cutoff <= 0 || m <= 0 || efConstruction <= 0 || efSearch <= 0 || repeats <= 0) throw new IllegalArgumentException("benchmark parameters must be positive");
 
         StringBuilder json = new StringBuilder("{\"schemaVersion\":\"ann-scale-v1\",\"syntheticVectors\":true,\"dimension\":")
@@ -130,7 +130,13 @@ public final class AnnScaleBenchmark {
 
     private static List<Integer> parseSizes(String value) {
         List<Integer> sizes = new ArrayList<>();
-        for (String part : value.split(",")) sizes.add(Integer.parseInt(part.trim()));
+        Set<Integer> unique = new HashSet<>();
+        for (String part : value.split(",")) {
+            int size = Integer.parseInt(part.trim());
+            if (size <= 0 || !unique.add(size)) throw new IllegalArgumentException("sizes must be positive and unique");
+            sizes.add(size);
+        }
+        if (sizes.isEmpty()) throw new IllegalArgumentException("at least one size is required");
         return sizes;
     }
 
