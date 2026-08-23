@@ -46,4 +46,15 @@ The benchmark measures ANN recall/latency/resource trade-offs on synthetic vecto
 
 ## Current status
 
-The configurable, repeated-trial harness and report converter are implemented. The publication-scale matrix is **NOT YET MEASURED** in this repository. If 1M vectors cannot complete on the available machine, record `HARDWARE-LIMITED` in the manifest rather than inferring a result.
+The configurable, repeated-trial harness and report converter are implemented.
+One local 10K-vector run was measured on Windows 11, Java 17, 128 dimensions,
+`M=16`, `efConstruction=200`, `efSearch=64`, 20 random queries, and three
+repeated trials. It recorded HNSW Recall@10 values of `0.365`, `0.435`, and
+`0.480`, with HNSW p50 latency below exact-search p50 in those trials. These
+are descriptive synthetic-vector systems results only; the raw artifact and
+manifest are local generated outputs.
+
+A bounded 100K attempt with one query and one trial exceeded 180 seconds before
+producing an artifact and is classified `HARDWARE-LIMITED` for this custom
+implementation/environment. The 1M target remains `NOT_YET_MEASURED`. No
+result is inferred for either size.
