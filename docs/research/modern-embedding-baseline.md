@@ -16,6 +16,21 @@ python tools/generate_modern_embeddings.py `
   --batch-size 32
 ```
 
+Build unique, deterministic inputs first:
+
+```powershell
+python tools/build_modern_embedding_inputs.py `
+  --corpus .\benchmarks\evaluation\corpus-v1 `
+  --queries .\benchmarks\evaluation\queries-v1.psv `
+  --output .\reports\generated\modern-inputs.jsonl `
+  --manifest .\reports\generated\modern-inputs-manifest.json
+```
+
+The current environment does not have the pinned optional inference packages,
+so BGE generation is **ENVIRONMENT-LIMITED / NOT YET MEASURED** here. Install
+the pinned requirements and run the command only when the model revision and
+cache checksum can be recorded.
+
 The generator pins the model revision, batches inference, L2-normalizes vectors,
 rejects empty or duplicate input texts, and records metadata in the cache
 header. The cache loader rejects duplicate keys, non-finite values, dimension
