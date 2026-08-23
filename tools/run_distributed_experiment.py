@@ -29,6 +29,14 @@ def top_k_overlap(healthy_ids, degraded_ids, k):
     return len(left & right) / float(k) if k else 0.0
 
 
+def baseline_result_ids(path):
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if payload.get("resultIds"):
+        return payload["resultIds"]
+    observations = payload.get("observations", [])
+    return observations[0].get("resultIds", []) if observations else []
+
+
 def ndcg(ids, relevance, k):
     ranked = ids[:k]
     ideal = sorted(relevance.values(), reverse=True)[:k]
@@ -51,10 +59,24 @@ def request(base_url, query, limit):
     return payload
 
 
+def request_metrics(base_url):
+    target = base_url.rstrip("/") + "/v1/metrics"
+    with urllib.request.urlopen(target, timeout=30) as response:
+        return json.loads(response.read().decode("utf-8"))
+
+
+def counter_deltas(current, previous):
+    previous = previous or {}
+    counters = ("requestAdmissions", "retryAttempts", "successfulShardRequests", "shardFailures")
+    return {name: max(0, current.get(name, 0) - previous.get(name, 0)) for name in counters}
+
+
 def run(args):
     observations = []
+    previous_metrics = request_metrics(args.base_url)
     for repeat in range(args.repeats):
         payload = request(args.base_url, args.query, args.limit)
+        metrics = payload.get("metrics", {})
         observations.append({
             "repeat": repeat,
             "partial": payload.get("partial", True),
@@ -62,13 +84,14 @@ def run(args):
             "resultIds": [item["documentId"] for item in payload.get("results", [])],
             "latencyMillis": payload["_clientLatencyNanos"] / 1_000_000.0,
             "serverLatencyMillis": payload.get("latencyNanos", 0) / 1_000_000.0,
-            "metrics": payload.get("metrics", {}),
+            "metrics": metrics,
+            "metricsDelta": counter_deltas(metrics, previous_metrics),
         })
+        previous_metrics = metrics
 
     healthy_ids = []
     if args.baseline:
-        baseline_payload = json.loads(args.baseline.read_text(encoding="utf-8"))
-        healthy_ids = baseline_payload.get("resultIds", [])
+        healthy_ids = baseline_result_ids(args.baseline)
     elif args.scenario == "D0":
         healthy_ids = observations[0]["resultIds"]
     for observation in observations:
@@ -87,6 +110,9 @@ def run(args):
         "p95LatencyMillis": percentile(latency, 0.95),
         "p99LatencyMillis": percentile(latency, 0.99),
         "partialResultFrequency": sum(item["partial"] for item in observations) / float(args.repeats),
+        "retryAttempts": sum(item["metricsDelta"].get("retryAttempts", 0) for item in observations),
+        "shardFailures": sum(item["metricsDelta"].get("shardFailures", 0) for item in observations),
+        "openCircuitObservations": sum(item["metrics"].get("openCircuits", 0) > 0 for item in observations),
         "topKOverlap": statistics.mean([item["topKOverlap"] for item in observations if item["topKOverlap"] is not None]) if healthy_ids else None,
         "ndcgDegradation": "NOT_MEASURED",
         "observations": observations,
@@ -112,13 +138,13 @@ def write_outputs(summary, output):
         writer = csv.DictWriter(handle, fieldnames=fields)
         writer.writeheader()
         for item in summary["observations"]:
-            metrics = item["metrics"]
+            metrics = item["metricsDelta"]
             writer.writerow({
                 "scenario": summary["scenario"], "repeat": item["repeat"], "partial": item["partial"],
                 "failedShards": "|".join(item["failedShards"]), "latencyMillis": item["latencyMillis"],
                 "serverLatencyMillis": item["serverLatencyMillis"], "topKOverlap": item["topKOverlap"],
                 "retryAttempts": metrics.get("retryAttempts", 0), "shardFailures": metrics.get("shardFailures", 0),
-                "openCircuits": metrics.get("openCircuits", 0),
+                "openCircuits": item["metrics"].get("openCircuits", 0),
             })
     markdown_path = output.with_suffix(".md")
     markdown_path.write_text(

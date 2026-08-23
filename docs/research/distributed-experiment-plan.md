@@ -42,4 +42,18 @@ Also report NDCG degradation against the same frozen qrels. Every run must inclu
 
 ## Interpretation boundary
 
-A successful retry test supports only the claim that the tested state transition works under the fixture. It does not demonstrate availability, tail-latency targets, scalability, or correctness under arbitrary network partitions. Multi-container measurements are **NOT YET MEASURED** until the topology is run on documented hardware.
+A successful retry test supports only the claim that the tested state transition works under the fixture. It does not demonstrate availability, tail-latency targets, scalability, or correctness under arbitrary network partitions.
+
+## Local measurement snapshot
+
+The first local Docker run used the six-node topology, Java 17 containers, the
+default 500 ms shard timeout, two attempts, and a `shard failure` query. D0
+healthy completed 10 repetitions with no partial responses or retries. D1, with
+one primary stopped, completed three repetitions with partial-result frequency
+`1.0`, two scenario-local retries, and top-k overlap `0.4`. D3, with one full
+primary/replica pair stopped, completed three repetitions with partial-result
+frequency `1.0`, 18 scenario-local retries, and open circuits observed.
+
+These measurements are local topology evidence only. NDCG degradation was not
+measured because released human qrels are unavailable, and no production
+availability or scalability claim follows from this snapshot.
