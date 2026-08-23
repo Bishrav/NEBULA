@@ -156,7 +156,6 @@ jobs:
           python tools/generate_publication_package.py \
             --benchmark reports/generated/benchmark.json \
             --ann reports/generated/ann-benchmark.json \
-            --distributed reports/generated/distributed-D0.json \
             --output-dir reports/generated/publication-package
           test -s reports/generated/publication-package/ranking-ndcg.svg
           grep -q 'REGRESSION_FIXTURE_ONLY' reports/generated/publication-package/README.md
