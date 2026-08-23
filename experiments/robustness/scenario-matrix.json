@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "robustness-scenario-matrix-v1",
+  "status": "NOT_YET_MEASURED",
+  "baselineConfiguration": "experiments/retrieval/default-ranking.json",
+  "scenarios": [
+    {"id": "R1", "name": "authoritative-stale", "signals": ["authority", "freshness"], "question": "Does high authority incorrectly overcome temporal staleness?"},
+    {"id": "R2", "name": "fresh-low-authority", "signals": ["freshness", "authority"], "question": "Does freshness incorrectly overcome weak provenance?"},
+    {"id": "R3", "name": "popular-outdated", "signals": ["graph", "freshness"], "question": "Does graph importance preserve an outdated result?"},
+    {"id": "R4", "name": "semantic-weak-source", "signals": ["semantic", "authority"], "question": "Does semantic similarity over-promote a weak source?"},
+    {"id": "R5", "name": "lexical-semantic-disagreement", "signals": ["lexical", "semantic"], "question": "Which channel dominates when exact identifiers and paraphrase disagree?"},
+    {"id": "R6", "name": "new-low-graph-authority", "signals": ["freshness", "graph"], "question": "Does a new correct document remain discoverable before links accumulate?"},
+    {"id": "R7", "name": "metadata-manipulation", "signals": ["authority", "freshness", "graph"], "question": "How much can manipulated observable metadata change ranking?"}
+  ],
+  "requiredOutputs": ["ranking-order", "score-contributions", "rank-delta", "configuration", "manifest"],
+  "interpretationBoundary": "Fixtures measure sensitivity and failure modes; they do not establish prevalence, truth, or real-world bias rates."
+}
