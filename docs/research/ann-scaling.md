@@ -54,8 +54,16 @@ repeated trials. It recorded HNSW Recall@10 values of `0.365`, `0.435`, and
 are descriptive synthetic-vector systems results only; the raw artifact and
 manifest are local generated outputs.
 
-A bounded 100K attempt with 20 queries and one trial exceeded 360 seconds before
-producing an artifact and is classified `HARDWARE-LIMITED` for this custom
-implementation/environment. The exact attempt parameters are frozen in
-`experiments/ann/100k-local-run-status.json`. The 1M target remains
-`NOT_YET_MEASURED`. No result is inferred for either size.
+A 100K run completed under a lower-cost configuration (`M=8`,
+`efConstruction=100`, `efSearch=20`, five queries, one trial) in 187.7 seconds.
+It measured Recall@10 `0.0`, exact p50 `49.8264 ms`, and HNSW p50 `0.3632 ms`.
+The zero-recall result is a measured quality failure for that configuration; it
+must not be presented as an acceptable recall/latency trade-off. The summary is
+frozen in `experiments/ann/100k-m8-measured-summary.json`.
+
+A separate bounded 100K run with the target `M=16`, `efConstruction=200`, and
+20 queries exceeded 360 seconds. A 1M run with the lower-cost configuration
+also exceeded 360 seconds without producing an artifact. Both are classified
+`HARDWARE-LIMITED`; the exact 1M attempt is frozen in
+`experiments/ann/1m-local-run-status.json`. No metrics are inferred from either
+timeout.
