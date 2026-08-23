@@ -9,13 +9,18 @@ The gate checks:
 - admitted, non-provisional research corpus;
 - human-approved query set;
 - released qrels backed by independent annotation, agreement, and adjudication;
-- immutable development/validation/test split;
+- immutable, complete, and disjoint development/validation/test split;
 - final ranking configuration;
 - final embedding model;
 - frozen statistical analysis protocol;
 - clean Git working tree.
 
 The evaluation runner separately requires the explicit --final-heldout-evaluation option for test/held-out query files. That option is necessary but not sufficient: it does not override missing labels, corpus licensing, split, or model-freeze requirements.
+
+The qrels file must have a sibling `<qrels-file>.release.json` sidecar declaring
+`status=release-ready`, at least two annotators, computed agreement, and completed
+adjudication. This keeps a copied or manually edited qrels file from being treated
+as independently validated human evidence.
 
 ## Current gate status
 

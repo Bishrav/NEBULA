@@ -25,6 +25,12 @@ def approved_queries(path):
         rows = list(csv.DictReader(line for line in handle if not line.startswith("#")))
     if not rows:
         return False, "approved query file is empty"
+    required = {"query_id", "query_text", "review_status"}
+    if not required.issubset(rows[0]):
+        return False, "approved query file is missing required columns"
+    ids = [row.get("query_id", "") for row in rows]
+    if any(not value for value in ids) or len(ids) != len(set(ids)):
+        return False, "approved query IDs must be present and unique"
     statuses = {row.get("review_status", "") for row in rows}
     if statuses != {"APPROVED"}:
         return False, f"query statuses are {sorted(statuses)}; every query must be APPROVED"
@@ -40,7 +46,50 @@ def qrels_ready(path):
         return False, "qrels file is empty"
     if set(rows[0]) != {"query_id", "document_id", "relevance_grade"}:
         return False, "qrels schema is incomplete"
-    return True, f"{len(rows)} relevance judgements present"
+    pairs = set()
+    for row in rows:
+        pair = (row.get("query_id", ""), row.get("document_id", ""))
+        if not pair[0] or not pair[1] or pair in pairs:
+            return False, "qrels query/document pairs must be present and unique"
+        try:
+            grade = int(row.get("relevance_grade", ""))
+        except ValueError:
+            return False, "qrels relevance grades must be integers from 0 to 3"
+        if grade not in range(4):
+            return False, "qrels relevance grades must be integers from 0 to 3"
+        pairs.add(pair)
+    release_path = path.with_suffix(path.suffix + ".release.json")
+    if not release_path.is_file():
+        return False, "qrels release sidecar is absent"
+    try:
+        release = json.loads(release_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return False, "qrels release sidecar is invalid JSON"
+    required_release = release.get("status") == "release-ready" and release.get("annotatorCount", 0) >= 2 and release.get("agreementComputed") is True and release.get("adjudicationComplete") is True
+    if not required_release:
+        return False, "qrels release requires two annotators, agreement, and completed adjudication"
+    return True, f"{len(rows)} relevance judgements; release sidecar verified"
+
+
+def split_ready(path):
+    if not path.is_file():
+        return False, "split manifest absent"
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return False, "split manifest is invalid JSON"
+    required = {"development", "validation", "test"}
+    if data.get("frozen") is not True or data.get("heldoutFlagRequired") != "--final-heldout-evaluation" or not required.issubset(data):
+        return False, "split must be frozen, contain development/validation/test, and require the held-out flag"
+    sets = []
+    for name in sorted(required):
+        ids = data[name].get("queryIds", []) if isinstance(data[name], dict) else []
+        if not ids or len(ids) != len(set(ids)):
+            return False, f"{name} query IDs must be present and unique"
+        sets.append(set(ids))
+    if set.union(*sets) and any(left & right for index, left in enumerate(sets) for right in sets[index + 1:]):
+        return False, "development, validation, and test query IDs must be disjoint"
+    return True, "frozen disjoint development/validation/test query sets"
 
 
 def evaluate(root, corpus, queries, qrels, split, ranking, embedding, statistics):
@@ -63,14 +112,9 @@ def evaluate(root, corpus, queries, qrels, split, ranking, embedding, statistics
     results.append(check("human qrels and agreement release", qrels_ok, qrels_evidence,
                          "independent annotations, agreement, adjudication, and qrels release are required"))
 
-    if split.is_file():
-        data = json.loads(split.read_text(encoding="utf-8"))
-        split_ok = data.get("frozen") is True and data.get("heldoutFlagRequired") == "--final-heldout-evaluation"
-        results.append(check("frozen development/validation/test split", split_ok, str(data),
-                             "split manifest must be immutable and require the explicit held-out flag"))
-    else:
-        results.append(check("frozen development/validation/test split", False, "split manifest absent",
-                             "create the split only after approved queries and released qrels exist"))
+    split_ok, split_evidence = split_ready(split)
+    results.append(check("frozen development/validation/test split", split_ok, split_evidence,
+                         "split manifest must be immutable, complete, and disjoint"))
 
     if ranking.is_file():
         data = json.loads(ranking.read_text(encoding="utf-8"))
