@@ -23,7 +23,7 @@
 | ANN scaling | PARTIAL | Configurable repeated-trial harness records M/efConstruction/efSearch, Recall@1/5/10/k, p50/p95/p99 latency, build time, index-size estimate, and heap delta; matrix, report converter, and hardware-manifest tooling exist, but large runs are not yet measured. |
 | Distributed experiments | PARTIAL | Dedicated coordinator plus three primary/replica pairs, scenario matrix, raw/CSV/Markdown runner, and top-k overlap instrumentation exist; multi-container measurements are not yet run. See [distributed plan](distributed-experiment-plan.md). |
 | Failure injection | PARTIAL | Deterministic latency/HTTP-500 controls are available through explicit environment variables, with stop-container controls documented for unavailable endpoints; load and multi-container measurements are absent. |
-| Reproducible manifests | PARTIAL | Corpus checksums, Git revision, runtime, platform, CPU count, dirty-tree status, and benchmark checksum are supported by the ANN manifest tool; full research-run integration remains. |
+| Reproducible manifests | PARTIAL | [Reproducibility package](reproducibility-package.md) and checksum-backed manifest tooling record inputs, Git revision, dirty-tree status, runtime, platform, architecture, processor, and CPU count; full research-run integration remains. |
 | Publication tables and plots | PARTIAL | CSV/Markdown tables exist; plotting and uncertainty outputs are missing. |
 | Literature positioning | PARTIAL | [Related-work map](related-work-map.md) covers established methods; broader literature review remains. |
 | Claim ledger | COMPLETE | [Claim ledger](claim-ledger.md) constrains wording and prohibits unsupported claims. |

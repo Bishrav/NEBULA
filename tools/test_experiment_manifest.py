@@ -14,7 +14,10 @@ def main():
         source = root / "corpus.txt"
         source.write_text("stable corpus\n", encoding="utf-8")
         manifest_path = root / "manifest.json"
-        manifest_path.write_text(json.dumps(build_manifest(root, {"corpus": source}, "2026-08-21T00:00:00+00:00")), encoding="utf-8")
+        manifest = build_manifest(root, {"corpus": source}, "2026-08-21T00:00:00+00:00")
+        assert "gitDirtyTree" in manifest
+        assert set(("python", "java", "os", "architecture", "processor", "cpuCount")).issubset(manifest["runtime"])
+        manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
         assert verify(manifest_path, root)["status"] == "verified"
         source.write_text("changed corpus\n", encoding="utf-8")
         try:

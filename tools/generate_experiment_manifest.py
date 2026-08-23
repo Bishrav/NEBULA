@@ -4,6 +4,8 @@
 import argparse
 import hashlib
 import json
+import os
+import platform
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -25,6 +27,29 @@ def git_revision(root):
         return "unknown"
 
 
+def git_dirty(root):
+    try:
+        result = subprocess.check_output(["git", "-C", str(root), "status", "--porcelain"], text=True)
+        return bool(result.strip())
+    except (OSError, subprocess.CalledProcessError):
+        return None
+
+
+def runtime_metadata():
+    try:
+        java = subprocess.check_output(["java", "-version"], text=True, stderr=subprocess.STDOUT).strip()
+    except (OSError, subprocess.CalledProcessError):
+        java = "UNAVAILABLE"
+    return {
+        "python": sys.version,
+        "java": java,
+        "os": platform.platform(),
+        "architecture": platform.machine(),
+        "processor": platform.processor() or "UNAVAILABLE",
+        "cpuCount": os.cpu_count(),
+    }
+
+
 def build_manifest(root, files, generated_at):
     entries = {}
     for label, path in files.items():
@@ -44,6 +69,8 @@ def build_manifest(root, files, generated_at):
         "schemaVersion": "experiment-manifest-v1",
         "generatedAt": generated_at or datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
         "gitRevision": git_revision(root),
+        "gitDirtyTree": git_dirty(root),
+        "runtime": runtime_metadata(),
         "inputs": entries,
     }
 
