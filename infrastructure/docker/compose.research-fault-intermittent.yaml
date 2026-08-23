@@ -1,0 +1,5 @@
+services:
+  shard-c-primary:
+    environment:
+      NEBULA_FAULT_MODE: http500
+      NEBULA_FAULT_EVERY: "2"

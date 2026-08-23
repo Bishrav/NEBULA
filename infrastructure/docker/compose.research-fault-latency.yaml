@@ -1,0 +1,6 @@
+services:
+  shard-c-primary:
+    environment:
+      NEBULA_FAULT_MODE: latency
+      NEBULA_FAULT_DELAY_MS: "1000"
+      NEBULA_FAULT_EVERY: "1"

@@ -28,6 +28,11 @@ Before starting the topology, run `python tools/distributed_preflight.py`. A
 Desktop or its daemon is unavailable; it is an environment blocker, not a
 distributed-system result.
 
+Targeted fault overrides are versioned under `infrastructure/docker/` for the
+latency, HTTP-500, and intermittent scenarios. Apply one with the base Compose
+file, run the observation, then restore the base service configuration before
+the next scenario.
+
 ## Metrics
 
 Runs must record throughput, p50/p95/p99 end-to-end latency, server latency, retry attempts, failed-shard count, open circuits, partial-result frequency, and result-quality degradation. The current coordinator exposes aggregate shard health counters; replica failover counts and per-shard latency require an additional instrumented deployment if those measures become primary claims.
@@ -54,6 +59,11 @@ one primary stopped, completed three repetitions with partial-result frequency
 primary/replica pair stopped, completed three repetitions with partial-result
 frequency `1.0`, 18 scenario-local retries, and open circuits observed.
 
-These measurements are local topology evidence only. NDCG degradation was not
-measured because released human qrels are unavailable, and no production
-availability or scalability claim follows from this snapshot.
+These measurements are local topology evidence only. The remaining scenarios
+were also completed: D2 reported partial responses during primary failure with
+the replica still serving; D4 reported bounded timeout behavior under 1000 ms
+injected latency; D5 reported HTTP-500 partial responses; D6 recovered from
+intermittent failures within the retry budget; D7 opened circuits after
+repeated failures; and D8 returned to complete responses after recovery.
+NDCG degradation was not measured because released human qrels are unavailable,
+and no production availability or scalability claim follows from this snapshot.
