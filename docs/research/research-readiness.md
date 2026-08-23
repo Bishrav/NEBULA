@@ -24,7 +24,7 @@
 | Distributed experiments | PARTIAL | Dedicated coordinator plus three primary/replica pairs, corrected counter-delta runner, and local D0–D8 measurements exist; qrels-based NDCG degradation and broader topology replication remain. See [distributed plan](distributed-experiment-plan.md). |
 | Failure injection | PARTIAL | Deterministic latency/HTTP-500 controls are available through explicit environment variables, with stop-container controls documented for unavailable endpoints; load and multi-container measurements are absent. |
 | Reproducible manifests | PARTIAL | [Reproducibility package](reproducibility-package.md) and checksum-backed manifest tooling record inputs, Git revision, dirty-tree status, runtime, platform, architecture, processor, and CPU count; full research-run integration remains. |
-| Publication tables and plots | PARTIAL | CSV/Markdown tables exist; plotting and uncertainty outputs are missing. |
+| Publication tables and plots | PARTIAL | Dependency-free CSV, LaTeX, plot-data, SVG, and distributed-summary generation now exists; research-corpus figures and uncertainty outputs remain blocked by human qrels. |
 | Literature positioning | PARTIAL | [Related-work map](related-work-map.md) covers established methods; broader literature review remains. |
 | Claim ledger | COMPLETE | [Claim ledger](claim-ledger.md) constrains wording and prohibits unsupported claims. |
 | Human study | BLOCKED | Draft submission package now exists in docs/research/human-study with protocol, participant materials, consent, risk, data-management, task, questionnaire, debriefing, analysis, and checklist documents; supervisor/institutional review, recruitment, consent, and real data remain outstanding. |
