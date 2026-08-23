@@ -179,6 +179,22 @@ PostgreSQL for metadata and job state, object storage for raw documents and inde
 
 ## Quick start
 
+### Run the browser UI locally
+
+NEBULA includes a dependency-free search workspace in `apps/search-ui`. Run
+the API first, then serve the UI on an unused local port. The examples below
+use port `5174` so they do not conflict with other projects commonly using
+`5173`:
+
+```powershell
+docker compose -f infrastructure/docker/compose.yaml up --build -d
+python -m http.server 5174 --directory .\apps\search-ui
+```
+
+Open [http://127.0.0.1:5174](http://127.0.0.1:5174). The API runs at
+`http://127.0.0.1:8082`, and the Compose configuration allows the UI origin by
+default. Try `shard failure`, `deployment rollback`, or `hybrid retrieval`.
+
 ### Run the search API with Docker
 
 ```powershell
@@ -191,7 +207,10 @@ Verify readiness:
 Invoke-WebRequest http://127.0.0.1:8082/health/ready
 ```
 
-The container uses the versioned synthetic evaluation corpus. Before any wider deployment, configure an exact allowed browser origin, secrets through a secret manager, authentication, TLS, backups, and operational alerting.
+The container uses the versioned synthetic evaluation corpus. For a different UI
+port, set `NEBULA_ALLOWED_ORIGIN` to the exact browser origin before starting
+Compose. Before any wider deployment, configure secrets through a secret
+manager, authentication, TLS, backups, and operational alerting.
 
 ### Run the evaluation suite
 
@@ -243,7 +262,7 @@ docs/research/              Research plan, protocols, annotation and approval ma
 
 | Status | Workstream |
 | --- | --- |
-| Complete | Retrieval baselines, trust-related signals, graph ranking, HNSW baseline, distributed coordinator, replication, health and circuit monitoring |
+| Complete | Retrieval baselines, trust-related signals, graph ranking, distributed coordinator, replication, health, circuit monitoring, and the local search UI |
 | Complete | Synthetic evaluation set, annotation workflow, agreement analysis, adjudication, release gate, manifests and research report generation |
 | In progress | Public corpus acquisition, research query construction, research scope refinement, and product-market-fit interviews |
 | External | Ethics determination, recruitment, informed consent, human annotation, user study, and publication decision |
