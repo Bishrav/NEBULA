@@ -43,6 +43,7 @@ jobs:
           python tools/test_distributed_preflight.py
           python tools/test_run_distributed_experiment.py
           python tools/test_validate_robustness_scenarios.py
+          python tools/test_reproduce_benchmark.py
           python tools/test_blinded_agreement.py
           python tools/test_freeze_research_split.py
           python tools/validate_annotations.py benchmarks/evaluation/annotations-v1.synthetic.psv \

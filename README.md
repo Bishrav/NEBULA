@@ -227,7 +227,19 @@ manager, authentication, TLS, backups, and operational alerting.
 
 ### Run the evaluation suite
 
-After compiling the Java sources into `build/classes`:
+The frozen synthetic regression benchmark can be compiled and evaluated in one command:
+
+```powershell
+python tools/reproduce_benchmark.py
+```
+
+It verifies `experiments/retrieval/regression-v1.lock.json`, evaluates BM25, dense/semantic,
+hybrid, RRF, and trust-oriented variants, and writes separate all/train/held-out reports under
+`reports/generated/regression-v1`. The labels are synthetic and the metrics are regression
+signals only. The 843-document corpus and 379-query annotation package are provisional and are
+not used for valid relevance metrics until human labels and licensing review exist.
+
+For the underlying Java evaluator, after compiling the sources into `build/classes`:
 
 ```powershell
 java -cp build/classes com.nebula.evaluation.EvaluationRunner `

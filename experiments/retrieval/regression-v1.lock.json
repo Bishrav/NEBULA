@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "nebula-benchmark-lock-v1",
+  "benchmarkVersion": "regression-v1",
+  "purpose": "synthetic regression comparison; not human relevance evidence",
+  "gitRevision": "2fd74a0e48df7afab99ab88ca20b7150c6dabc30",
+  "corpus": {
+    "documents": 4,
+    "files": {
+      "benchmarks/evaluation/corpus-v1/architecture.md": "08ca0d87cd3afd8f4f5b694f1132ee359e036ab4edcf1fd9736c8649ae29b6c1",
+      "benchmarks/evaluation/corpus-v1/operations.md": "93bbfba610a778bd54b474890e775e4721c19e8687e914537c3f332e668f102a",
+      "benchmarks/evaluation/corpus-v1/retrieval.md": "e8b1484bf2cb9ba08842ed1fa8ec7a5faf485abd2c99aaaa3a6385253a78c86b",
+      "benchmarks/evaluation/corpus-v1/runbook.md": "94205524c3bbfb9c4b6f54265a99b9f6c9e825ac768a40242a071f34745a128e"
+    }
+  },
+  "queries": {
+    "all": {"path": "benchmarks/evaluation/queries-v1.psv", "count": 30, "sha256": "356d1609f22363a0fff1fc07a862f6bab8c33872225afd45dad28fc729d53ed7"},
+    "train": {"path": "benchmarks/evaluation/queries-v1-train.psv", "count": 20, "sha256": "2e632198da27795d7acf488667e96d594833c1619bedeb174c6e23e37bba27d1"},
+    "heldout": {"path": "benchmarks/evaluation/queries-v1-heldout.psv", "count": 10, "sha256": "8a61d6888123013a5ceb14aabcce402e087dc9318286bd86c51da02c52a841ba"}
+  },
+  "trust": {"path": "benchmarks/evaluation/trust-v1.psv", "sha256": "d86562c0b8b6f2b3f33916b27dd54fd172cab38df62baf1f7968f10416681e1f"},
+  "labels": {"status": "synthetic", "humanValidated": false}
+}
