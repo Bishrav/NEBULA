@@ -5,7 +5,7 @@ wording before any labels are collected.
 
 ## Frozen inputs
 
-- Query source: `annotation-query-source.psv`, containing 379 rewritten queries.
+- Query source: a protected `annotation-query-source.psv` containing 379 rewritten queries. That file is not included in this checkout.
 - Corpus: `datasets/research-corpus-v1`, admitted through its versioned manifest.
 - Fixed development retrieval configuration: hybrid lexical `0.50` plus semantic
   `0.50`, with the retrieval timestamp and seed recorded in a private manifest.
@@ -43,8 +43,10 @@ python tools/generate_blinded_annotation_packages.py `
 ```
 
 The generated ZIP files are local research artifacts and are intentionally not
-committed to the repository. Human annotation remains required; no labels,
-agreement values, or qrels are claimed by this pipeline.
+committed to the repository. The generator cannot run from this checkout until
+the protected 379-query source and retrieval-candidate artifact are supplied.
+Human annotation remains required; no labels, agreement values, or qrels are
+claimed by this pipeline.
 
 ## Required annotation process
 

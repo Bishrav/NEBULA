@@ -35,7 +35,7 @@ The result is designed to answer not only **“what matches?”**, but also **�
 | Product | Self-hostable search for engineering knowledge |
 | Research area | Information retrieval, trustworthy AI, distributed systems, empirical systems evaluation |
 | Core question | How do freshness, source-authority, and graph-related signals affect retrieval effectiveness relative to lexical, dense, and conventional hybrid retrieval for engineering knowledge? |
-| Current data | Regression benchmark plus provisional 843-document Kubernetes/PostgreSQL research corpus; 400 candidate information needs and a 379-query blinded annotation set pending human validation |
+| Current data | Regression benchmark plus provisional 843-document Kubernetes/PostgreSQL research corpus; 400 candidate information needs pending human review |
 | Evaluation | Precision@k, Recall@k, MRR, NDCG, HNSW recall, latency, graph metrics, and failure behaviour |
 | Engineering principle | Build the core from first principles so trade-offs remain inspectable and reproducible |
 | Academic readiness | Research plan, study-registration draft, annotation protocol, held-out split, and release gate |
@@ -46,7 +46,7 @@ The result is designed to answer not only **“what matches?”**, but also **�
 | --- | --- |
 | Public corpus | 843 documents — licensing and attribution review pending |
 | Candidate queries | 400 — human review pending |
-| Annotation benchmark | 379 queries / 3,790 blinded query-document pairs |
+| Annotation benchmark | No reproducible human qrels in this checkout; the 379-query / 3,790-pair artifact is a pending protected research input |
 | Human qrels | Pending independent annotation and adjudication |
 | BGE baseline | Regression-tested on the synthetic fixture; research-corpus evaluation pending |
 | ANN scale | 10K measured; lower-cost 100K measured with limited recall; 1M hardware-limited |
@@ -236,8 +236,9 @@ python tools/reproduce_benchmark.py
 It verifies `experiments/retrieval/regression-v1.lock.json`, evaluates BM25, dense/semantic,
 hybrid, RRF, and trust-oriented variants, and writes separate all/train/held-out reports under
 `reports/generated/regression-v1`. The labels are synthetic and the metrics are regression
-signals only. The 843-document corpus and 379-query annotation package are provisional and are
-not used for valid relevance metrics until human labels and licensing review exist.
+signals only. The 843-document corpus is provisional, and the 379-query annotation package is
+not present as a reproducible checkout input. Neither supports valid research-corpus relevance
+metrics until licensing review and human labels exist.
 
 For the underlying Java evaluator, after compiling the sources into `build/classes`:
 

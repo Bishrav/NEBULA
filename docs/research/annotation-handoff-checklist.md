@@ -2,8 +2,10 @@
 
 Status: `HUMAN ANNOTATION REQUIRED`
 
-NEBULA has two sanitized packages containing the same 3,790 query-document
-pairs from the frozen 379-query source and frozen research corpus. Human labels
+The intended handoff contains two sanitized packages with the same 3,790
+query-document pairs from a protected 379-query source and frozen research
+corpus. Those packages are not present in this checkout and must not be
+described as generated until the protected inputs are supplied. Human labels
 must be collected independently before agreement analysis or qrels creation.
 
 ## Before sending
