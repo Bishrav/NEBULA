@@ -4,7 +4,7 @@ This directory is the first public engineering corpus snapshot for NEBULA. It is
 
 ## Status
 
-**PROVISIONAL — NEEDS HUMAN LICENSING REVIEW**
+**PROVISIONAL - NEEDS HUMAN LICENSING REVIEW**
 
 The source-level licenses are recorded in `benchmarks/research/source-registry-v1.psv`, but repository-level licensing does not automatically resolve third-party excerpts, generated content, attribution requirements, or redistribution obligations for every document. Do not describe this snapshot as legally cleared until a human review is recorded.
 
@@ -20,6 +20,8 @@ The source-level licenses are recorded in `benchmarks/research/source-registry-v
 The snapshot records upstream repository, commit, source URL, retrieval time, raw checksum, normalized checksum, version, transformation notes, and word count for every admitted document. No private, authenticated, paywalled, user-data, or unclear-license source is permitted.
 
 The current candidate query pool is `metadata/candidate-queries.psv` with its review sheet and distribution report. All 400 candidates are `NEEDS_HUMAN_REVIEW`; the pool contains no relevance judgements and no final held-out split.
+
+Normalized-text checksums are defined over canonical LF bytes, so validation is stable across Windows and Unix checkouts; raw-source checksums remain byte-exact.
 
 ## Reproduction
 

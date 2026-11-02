@@ -14,8 +14,11 @@ REQUIRED = {"document_id", "project", "title", "source_url", "upstream_repositor
             "normalized_checksum", "transformation_notes", "text_path", "raw_path"}
 
 
-def sha256(path):
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+def sha256(path, normalize_text=False):
+    data = path.read_bytes()
+    if normalize_text:
+        data = data.replace(bytes([13, 10]), bytes([10]))
+    return hashlib.sha256(data).hexdigest()
 
 
 def validate(manifest_path, corpus_root):
@@ -47,7 +50,7 @@ def validate(manifest_path, corpus_root):
             if corpus_root.resolve() not in path.parents: errors.append(f"{document_id}: {field} escapes corpus")
             elif not path.is_file(): errors.append(f"{document_id}: missing {field}")
             elif field == "raw_path" and sha256(path) != doc["content_checksum"]: errors.append(f"{document_id}: raw checksum mismatch")
-            elif field == "text_path" and sha256(path) != doc["normalized_checksum"]: errors.append(f"{document_id}: normalized checksum mismatch")
+            elif field == "text_path" and sha256(path, normalize_text=True) != doc["normalized_checksum"]: errors.append(f"{document_id}: normalized checksum mismatch")
         if doc["content_checksum"] in raw_hashes: errors.append(f"duplicate content checksum: {document_id}")
         if doc["normalized_checksum"] in normalized_hashes: errors.append(f"duplicate normalized checksum: {document_id}")
         raw_hashes.add(doc["content_checksum"]); normalized_hashes.add(doc["normalized_checksum"])

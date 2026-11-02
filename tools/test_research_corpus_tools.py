@@ -15,14 +15,14 @@ class ResearchCorpusValidationTest(unittest.TestCase):
         (self.root / "raw").mkdir()
         (self.root / "normalized").mkdir()
         (self.root / "raw/a.txt").write_text("source\n", encoding="utf-8")
-        (self.root / "normalized/a.md").write_text("# Source\n", encoding="utf-8")
+        (self.root / "normalized/a.md").write_bytes(b"# Source\n")
 
     def tearDown(self):
         self.tmp.cleanup()
 
     def manifest(self, **overrides):
         raw = (self.root / "raw/a.txt").read_bytes()
-        normalized = (self.root / "normalized/a.md").read_bytes()
+        normalized = (self.root / "normalized/a.md").read_bytes().replace(bytes([13, 10]), bytes([10]))
         doc = {"document_id": "kubernetes-a", "project": "Kubernetes", "title": "A",
                "source_url": "https://github.com/kubernetes/website/blob/" + "a" * 40 + "/a.md",
                "upstream_repository": "https://github.com/kubernetes/website", "upstream_commit": "a" * 40,
@@ -44,6 +44,12 @@ class ResearchCorpusValidationTest(unittest.TestCase):
         manifest = self.manifest()
         self.assertEqual(validate(self.write(manifest), self.root)["documents"], 1)
         self.assertEqual(manifest["documents"][0]["normalized_checksum"], manifest["documents"][0]["normalized_checksum"])
+
+    def test_normalized_checksum_accepts_windows_line_endings(self):
+        manifest = self.manifest()
+        path = self.root / "normalized/a.md"
+        path.write_bytes(path.read_bytes().replace(bytes([10]), bytes([13, 10])))
+        self.assertEqual(validate(self.write(manifest), self.root)["documents"], 1)
 
     def test_duplicate_ids_and_hashes_rejected(self):
         manifest = self.manifest()
