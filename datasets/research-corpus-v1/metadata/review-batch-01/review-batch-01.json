@@ -1,0 +1,9 @@
+{
+  "approved_queries": 0,
+  "batch_id": "review-batch-01",
+  "candidate_count": 400,
+  "qrels_created": false,
+  "schema_version": "query-review-batch-v1",
+  "selected_count": 60,
+  "selection_rule": "two stable-hash selections per project/category stratum plus four advanced-first diversity selections per project"
+}

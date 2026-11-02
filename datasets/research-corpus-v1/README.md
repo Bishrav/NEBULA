@@ -23,6 +23,8 @@ The current candidate query pool is `metadata/candidate-queries.psv` with its re
 
 The automated query-quality audit is written to reports/generated/query-quality-audit.json, query-quality-audit.csv, and query-quality-audit.md; it flags mechanical templates for human inspection and never approves queries or creates qrels.
 
+Review batch 01 is versioned under metadata/review-batch-01/. Reviewers should fill reviewer_decision and reviewer_notes in the CSV; this is query approval only, not relevance labelling.
+
 Normalized-text checksums are defined over canonical LF bytes, so validation is stable across Windows and Unix checkouts; raw-source checksums remain byte-exact.
 
 ## Reproduction
