@@ -125,6 +125,18 @@ python tools/run_distributed_experiment.py --help
 
 Use the experiment documentation to record topology, timeout, retry, circuit, and fault settings. A degraded response must be described as a systems observation, not as evidence of better relevance.
 
+## Screenshot gallery
+
+These captures are generated from the local demo workflow and show the intended reviewer path:
+
+| View | Preview |
+| --- | --- |
+| Landing workspace | ![NEBULA search workspace](screenshots/01-search-workspace.png) |
+| BM25 results | ![BM25 results](screenshots/02-bm25-results.png) |
+| Trust-aware signals | ![Trust-aware signals](screenshots/03-trust-signals.png) |
+| Source evidence | ![Source evidence](screenshots/04-source-evidence.png) |
+| Explicit offline boundary | ![Offline boundary](screenshots/05-explicit-boundary.png) |
+
 ## Suggested screenshot set
 
 For an academic review, capture these five views at the same browser size:
