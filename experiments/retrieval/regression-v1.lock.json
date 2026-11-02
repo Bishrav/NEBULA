@@ -7,9 +7,9 @@
     "documents": 4,
     "files": {
       "benchmarks/evaluation/corpus-v1/architecture.md": "f44d64988312ce447c10d439f9812c3b61ab2cd8817efa58103a65df8ab4665e",
-      "benchmarks/evaluation/corpus-v1/operations.md": "93bbfba610a778bd54b474890e775e4721c19e8687e914537c3f332e668f102a",
-      "benchmarks/evaluation/corpus-v1/retrieval.md": "e8b1484bf2cb9ba08842ed1fa8ec7a5faf485abd2c99aaaa3a6385253a78c86",
-      "benchmarks/evaluation/corpus-v1/runbook.md": "94205524c3bbfb9c4b6f54265a99b9f6c9e825ac768a40242a071f34745a128e"
+      "benchmarks/evaluation/corpus-v1/operations.md": "7248e8814c3b9cc7cc158696600f8286ca166f1cd8523d9fb73de91dafe00ec3",
+      "benchmarks/evaluation/corpus-v1/retrieval.md": "28e848471861fcaa1ac4f3195d0feacbf5a1ac17fffea5499fa1db028bf2b4ff",
+      "benchmarks/evaluation/corpus-v1/runbook.md": "3fe9c2168770cf70451e1eda1a3ff54761ae98f867b25ad0ea116a8f049361a8"
     }
   },
   "queries": {
