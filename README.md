@@ -12,7 +12,7 @@ NEBULA is a research prototype for retrieving engineering documentation with sig
 [![Java 17](https://img.shields.io/badge/Java-17-orange?logo=openjdk)](https://openjdk.org/)
 [![Python 3](https://img.shields.io/badge/Python-3.x-3776ab?logo=python)](https://www.python.org/)
 
-**[Architecture](docs/architecture/overview.md) · [Research plan](docs/research/research-plan.md) · [Academic brief](docs/research/academic-research-brief.md) · [Evaluation](benchmarks/evaluation/README.md)**
+**[Architecture](docs/architecture/overview.md) · [Research plan](docs/research/research-plan.md) · [Academic brief](docs/research/academic-research-brief.md) · [Demo workflow](docs/demo-workflow.md) · [Evaluation](benchmarks/evaluation/README.md)**
 
 </div>
 
@@ -263,6 +263,7 @@ docs/research/              Research plan, protocols, audit, claim controls
 ## Documentation
 
 - [System architecture](docs/architecture/overview.md)
+- [Reproducible demo workflow](docs/demo-workflow.md)
 - [Research plan](docs/research/research-plan.md)
 - [Academic research brief](docs/research/academic-research-brief.md)
 - [Ranking model and signal definitions](docs/research/ranking-model.md)
