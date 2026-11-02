@@ -27,21 +27,33 @@ def verify_lock(lock: dict[str, object]) -> None:
     assert isinstance(corpus_files, dict)
     for relative, expected in corpus_files.items():
         path = ROOT / relative
-        if not path.is_file() or sha256(path) != expected:
-            raise RuntimeError(f"frozen benchmark input changed: {relative}")
+        actual = sha256(path) if path.is_file() else None
+        if actual != expected:
+            raise RuntimeError(
+                f"frozen benchmark input changed: {relative} "
+                f"(expected {expected}, actual {actual or 'missing'})"
+            )
     for section in ("all", "train", "heldout"):
         queries = lock["queries"]
         assert isinstance(queries, dict)
         entry = queries[section]
         assert isinstance(entry, dict)
         path = ROOT / entry["path"]
-        if not path.is_file() or sha256(path) != entry["sha256"]:
-            raise RuntimeError(f"frozen benchmark input changed: {entry['path']}")
+        actual = sha256(path) if path.is_file() else None
+        if actual != entry["sha256"]:
+            raise RuntimeError(
+                f"frozen benchmark input changed: {entry['path']} "
+                f"(expected {entry['sha256']}, actual {actual or 'missing'})"
+            )
     trust = lock["trust"]
     assert isinstance(trust, dict)
     path = ROOT / trust["path"]
-    if not path.is_file() or sha256(path) != trust["sha256"]:
-        raise RuntimeError(f"frozen benchmark input changed: {trust['path']}")
+    actual = sha256(path) if path.is_file() else None
+    if actual != trust["sha256"]:
+        raise RuntimeError(
+            f"frozen benchmark input changed: {trust['path']} "
+            f"(expected {trust['sha256']}, actual {actual or 'missing'})"
+        )
 
 
 def run(args: list[str]) -> None:
