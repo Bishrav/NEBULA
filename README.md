@@ -12,7 +12,7 @@ NEBULA is a research prototype for retrieving engineering documentation with sig
 [![Java 17](https://img.shields.io/badge/Java-17-orange?logo=openjdk)](https://openjdk.org/)
 [![Python 3](https://img.shields.io/badge/Python-3.x-3776ab?logo=python)](https://www.python.org/)
 
-**[Architecture](docs/architecture/overview.md) · [Research plan](docs/research/research-plan.md) · [Academic brief](docs/research/academic-research-brief.md) · [Demo workflow](docs/demo-workflow.md) · [Evaluation](benchmarks/evaluation/README.md)**
+**[Architecture](docs/architecture/overview.md) · [Research plan](docs/research/research-plan.md) · [Academic brief](docs/research/academic-research-brief.md) | [University review brief](docs/research/tu-darmstadt-submission-brief.md) · [Demo workflow](docs/demo-workflow.md) · [Evaluation](benchmarks/evaluation/README.md)**
 
 </div>
 
@@ -255,9 +255,9 @@ docs/research/              Research plan, protocols, audit, claim controls
 | --- | --- | --- |
 | 1 | Research corpus | Licensed, attributed corpus with provenance and redistribution records |
 | 2 | Human qrels | Frozen query protocol, independent annotations, agreement, adjudication |
-| 3 | Statistical evaluation | Per-query results, paired uncertainty intervals, effect sizes, and sensitivity analysis |
-| 4 | Systems evidence | Repeatable ANN and distributed experiments with latency, memory, recall, and failure metrics |
-| 5 | Academic package | Research brief, architecture figure, reproducibility bundle, and clearly bounded claims |
+| 3 | Statistical evaluation | COMPLETE FOR SYNTHETIC FIXTURE: per-query results, paired uncertainty intervals, effect sizes, and sensitivity analysis |
+| 4 | Systems evidence | PARTIAL: local ANN and distributed measurements exist; broader scale and topology evidence remain |
+| 5 | Academic package | COMPLETE FOR PROTOTYPE: research brief, review brief, demo workflow, reproducibility bundle, and bounded claims |
 | 6 | Product hardening | Authenticated connectors, durable storage, observability, backups, and deployment automation |
 
 ## Documentation
@@ -266,6 +266,7 @@ docs/research/              Research plan, protocols, audit, claim controls
 - [Reproducible demo workflow](docs/demo-workflow.md)
 - [Research plan](docs/research/research-plan.md)
 - [Academic research brief](docs/research/academic-research-brief.md)
+- [University review brief](docs/research/tu-darmstadt-submission-brief.md)
 - [Ranking model and signal definitions](docs/research/ranking-model.md)
 - [Repository research audit](docs/research/repository-audit.md)
 - [Research-readiness dashboard](docs/research/research-readiness.md)
