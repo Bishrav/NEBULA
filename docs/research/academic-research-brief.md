@@ -135,6 +135,28 @@ The repository currently demonstrates:
 - research-corpus acquisition and validation tooling;
 - CI that compiles Java sources, runs tests, validates Python tooling, and builds the container.
 
+## Current synthetic-fixture analysis
+
+The current reproducible fixture contains 30 queries, 14 ranking variants, and 8 query
+categories. On this fixture, conventional hybrid retrieval has mean NDCG@5 of
+0.9325 versus 0.8033 for BM25; the paired mean difference is 0.1292 with a
+bootstrap 95% interval of [0.0438, 0.2299]. The full NEBULA variant has a mean
+difference of 0.1186 with an interval of [0.0301, 0.2241]. These are descriptive
+fixture results only: they are not evidence of general superiority, statistical
+significance, or user benefit.
+
+The category analysis also shows why aggregate scores are insufficient. Some
+variants improve on phrase-search queries while authority-only and
+freshness-only variants lose against BM25 in several exact-terminology,
+semantic-concept, and failure-response rows. The analysis records 69
+variant/query failure or regression cases. These patterns motivate the planned
+human-judged corpus study and should be treated as hypotheses to test, not
+conclusions.
+
+Generated artifacts are produced by tools/reproduce_benchmark.py under
+reports/generated/regression-v1/, including paired statistics,
+category-error-analysis.md, and category-summary.csv.
+
 It does not yet demonstrate:
 
 - human-perceived trust or user benefit;

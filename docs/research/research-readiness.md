@@ -18,7 +18,7 @@
 | Strong baselines | PARTIAL | BM25, hashing, character n-gram, hybrid, RRF, authority, freshness, trust variants, and the pinned BGE cache path exist; BGE is evaluated on the regression fixture but not yet on human qrels. |
 | Trust-signal ablation | PARTIAL | Legacy variants and explicit A3–A9 hybrid signal combinations now run; real research results and A0–A2 labels still require the expanded benchmark. |
 | Weight sensitivity | PARTIAL | Deterministic one-factor 16-row evaluator and regression-fixture artifact are implemented; research-corpus sensitivity remains blocked by human qrels and frozen splits. |
-| Per-query and category analysis | PARTIAL | Error analysis exists; signal-level and category summaries are incomplete. |
+| Per-query and category analysis | PARTIAL | Per-query failures and category summaries are generated for the synthetic fixture; signal-level analysis and human-judged research-corpus results remain incomplete. |
 | Statistical uncertainty | PARTIAL | Paired bootstrap intervals, permutation p-values, effect sizes, and Holm correction tooling now exist; no adequately powered research result exists. |
 | ANN scaling | PARTIAL | Configurable repeated-trial harness and manifest tooling exist; 10K and a lower-cost 100K run are measured, with the 100K configuration showing zero recall; target-parameter 100K and 1M runs are HARDWARE-LIMITED. Results are synthetic-vector systems evidence only. |
 | Distributed experiments | PARTIAL | Dedicated coordinator plus three primary/replica pairs, corrected counter-delta runner, and local D0–D8 measurements exist; qrels-based NDCG degradation and broader topology replication remain. See [distributed plan](distributed-experiment-plan.md). |

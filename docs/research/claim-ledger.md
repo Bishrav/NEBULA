@@ -4,6 +4,7 @@ This ledger prevents engineering features or preliminary fixture results from be
 
 | Claim | Evidence required | Status | Safe wording now |
 | --- | --- | --- | --- |
+| Category-specific ranking effects on the fixture | Frozen query metadata, per-category metrics, per-query failure analysis, and human-judged held-out data | DESCRIPTIVE FIXTURE ONLY | "The synthetic fixture shows category-dependent differences that require validation on independently judged research data." |
 | NEBULA improves NDCG over BM25 | Held-out relevance benchmark, per-query paired analysis, uncertainty, and effect size | NOT YET MEASURED | “On the current synthetic regression fixture, the variants produce the reported descriptive metrics.” |
 | Trust signals improve retrieval quality | Trust construct, labelled signal-relevant queries, full ablation, held-out analysis | NOT YET MEASURED | “NEBULA exposes configurable freshness, authority, and graph-related signals.” |
 | Freshness reduces stale results | Valid stale-result definition and freshness-sensitive queries | NOT YET MEASURED | “Freshness is an observable ranking signal implemented with a configurable decay.” |
