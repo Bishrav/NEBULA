@@ -51,19 +51,22 @@ A successful retry test supports only the claim that the tested state transition
 
 ## Local measurement snapshot
 
-The first local Docker run used the six-node topology, Java 17 containers, the
-default 500 ms shard timeout, two attempts, and a `shard failure` query. D0
-healthy completed 10 repetitions with no partial responses or retries. D1, with
-one primary stopped, completed three repetitions with partial-result frequency
-`1.0`, two scenario-local retries, and top-k overlap `0.4`. D3, with one full
-primary/replica pair stopped, completed three repetitions with partial-result
-frequency `1.0`, 18 scenario-local retries, and open circuits observed.
+A fresh local Docker run on 2026-11-02 used the six-node topology, Java 17
+containers, the default 500 ms shard timeout, two attempts, a limit of five,
+and the query "shard failure". D0 healthy completed five repetitions with no
+partial responses, retries, or shard failures; p50 latency was 53.7 ms and p95
+latency was 68.2 ms.
 
-These measurements are local topology evidence only. The remaining scenarios
-were also completed: D2 reported partial responses during primary failure with
-the replica still serving; D4 reported bounded timeout behavior under 1000 ms
-injected latency; D5 reported HTTP-500 partial responses; D6 recovered from
-intermittent failures within the retry budget; D7 opened circuits after
-repeated failures; and D8 returned to complete responses after recovery.
-NDCG degradation was not measured because released human qrels are unavailable,
-and no production availability or scalability claim follows from this snapshot.
+D1 stopped one primary for three repetitions. It produced partial-result
+frequency 1.0, p50 latency 1014.5 ms, p95 latency 1027.3 ms, and top-k overlap
+0.4 against the healthy baseline. D3 stopped both endpoints in one pair and
+produced partial-result frequency 1.0, eight retries, two open-circuit
+observations, p95 latency 8013.0 ms, and top-k overlap 0.4. After services were
+restored, D8 completed three repetitions with no partial responses; p50 latency
+was 52.2 ms and p95 latency was 67.5 ms.
+
+These are local topology and hardware observations, not production availability
+or scalability evidence. NDCG degradation was not measured because released
+human qrels are unavailable. The remaining D2, D4, D5, D6, and D7 scenarios
+remain part of the versioned experiment matrix and should be run before making
+broader resilience statements.
