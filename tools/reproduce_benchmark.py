@@ -57,6 +57,23 @@ def run(args: list[str]) -> None:
     subprocess.run(args, cwd=ROOT, check=True)
 
 
+def run_paired_analysis(comparison: Path, output: Path) -> None:
+    run(
+        [
+            sys.executable,
+            str(ROOT / "tools" / "analyze_paired_metrics.py"),
+            "--comparison",
+            str(comparison),
+            "--output",
+            str(output),
+            "--metric",
+            "ndcgAtK",
+            "--seed",
+            "20260822",
+        ]
+    )
+
+
 def main() -> int:
     lock = json.loads(LOCK.read_text(encoding="utf-8"))
     verify_lock(lock)
@@ -94,6 +111,10 @@ def main() -> int:
                 str(output / f"{name}.json"),
             ]
             + extra[1:]
+        )
+        run_paired_analysis(
+            output / f"{name}.json",
+            output / f"{name}-paired.json",
         )
     print(f"Reproduced frozen benchmark: {output}")
     return 0

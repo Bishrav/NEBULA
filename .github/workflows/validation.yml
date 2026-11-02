@@ -123,6 +123,13 @@ jobs:
             --final-heldout-evaluation
           test -s reports/generated/benchmark.json
           grep -q '"semantic"' reports/generated/benchmark.json
+          python tools/analyze_paired_metrics.py \
+            --comparison reports/generated/benchmark.json \
+            --output reports/generated/benchmark-paired.json \
+            --bootstrap-resamples 2000 \
+            --permutations 2000
+          test -s reports/generated/benchmark-paired.json
+          grep -q '"schemaVersion": "paired-statistics-v1"' reports/generated/benchmark-paired.json
           grep -q '"queryCount":20' reports/generated/benchmark-train.json
           grep -q '"queryCount":10' reports/generated/benchmark-heldout.json
           test -s reports/generated/benchmark-train.md
