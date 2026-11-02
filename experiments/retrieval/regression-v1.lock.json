@@ -6,7 +6,7 @@
   "corpus": {
     "documents": 4,
     "files": {
-      "benchmarks/evaluation/corpus-v1/architecture.md": "f05c72807abff8f3e75854a24bc7915fb137a0d426dfb82a1730548403a15075",
+      "benchmarks/evaluation/corpus-v1/architecture.md": "f44d64988312ce447c10d439f9812c3b61ab2cd8817efa58103a65df8ab4665e",
       "benchmarks/evaluation/corpus-v1/operations.md": "93bbfba610a778bd54b474890e775e4721c19e8687e914537c3f332e668f102a",
       "benchmarks/evaluation/corpus-v1/retrieval.md": "e8b1484bf2cb9ba08842ed1fa8ec7a5faf485abd2c99aaaa3a6385253a78c86",
       "benchmarks/evaluation/corpus-v1/runbook.md": "94205524c3bbfb9c4b6f54265a99b9f6c9e825ac768a40242a071f34745a128e"
