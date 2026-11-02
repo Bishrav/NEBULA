@@ -149,13 +149,13 @@ def build_document(output):
         set_run_font(value_run, size=9.5, color=MUTED)
     document.add_paragraph().paragraph_format.space_after = Pt(2)
 
-    add_body(document, "To: [Professor’s full name]  |  [Professor’s title and department]  |  [University name]")
+    add_body(document, "To: [Professor's full name]  |  [Professor's title and department]  |  [University name]")
     subject = document.add_paragraph()
     subject.paragraph_format.space_after = Pt(10)
     run = subject.add_run("Subject: Request for approval and supervision of the NEBULA research-based software project")
     set_run_font(run, size=11, color=NAVY, bold=True)
     add_body(document, "Dear Professor [Surname],")
-    add_body(document, "I am writing to request your academic review, approval, and—if you consider it suitable—supervision of my research-based software project, NEBULA. The project is an open-source, reproducible search system designed for engineering knowledge bases, where a useful result should be not only relevant but also current, authoritative, explainable, and resilient to distributed-system failures.")
+    add_body(document, "I am writing to request your academic review, approval, and - if you consider it suitable - supervision of my research-based software project, NEBULA. The project is an open-source, reproducible search system designed for engineering knowledge bases, where a useful result should be not only relevant but also current, authoritative, explainable, and resilient to distributed-system failures.")
 
     document.add_heading("Project overview", level=1)
     add_body(document, "Conventional search systems commonly optimise lexical or semantic relevance in isolation. In engineering environments, this can produce results that are technically related but stale, weakly sourced, difficult to verify, or unavailable during a shard or service failure. NEBULA investigates whether hybrid retrieval combined with explicit trust signals can improve the quality and verifiability of engineering knowledge search.")
@@ -192,10 +192,10 @@ def build_document(output):
         "Analyse failure cases, annotator agreement, limitations, and threats to validity before preparing a dissertation chapter or publication manuscript.",
     ]:
         add_number(document, item)
-    add_body(document, "The principal hypotheses are that hybrid retrieval will improve ranking quality over BM25 alone, trust signals will reduce stale or weakly sourced results, and explicit evidence will improve users’ ability to verify a result. These hypotheses will remain open until the relevant experiments are completed.")
+    add_body(document, "The principal hypotheses are that hybrid retrieval will improve ranking quality over BM25 alone, trust signals will reduce stale or weakly sourced results, and explicit evidence will improve users' ability to verify a result. These hypotheses will remain open until the relevant experiments are completed.")
 
     document.add_heading("Ethics, privacy, and scope", level=1)
-    add_body(document, "No human-subject study, participant recruitment, personal data collection, or publication submission will begin without the university’s required approval and guidance. The current repository uses public-safe synthetic data only. Any future human evaluation will use the university’s prescribed consent, storage, anonymisation, withdrawal, and data-retention procedures. I will also seek guidance on whether the proposed user evaluation requires ethics review or an exemption determination.")
+    add_body(document, "No human-subject study, participant recruitment, personal data collection, or publication submission will begin without the university's required approval and guidance. The current repository uses public-safe synthetic data only. Any future human evaluation will use the university's prescribed consent, storage, anonymisation, withdrawal, and data-retention procedures. I will also seek guidance on whether the proposed user evaluation requires ethics review or an exemption determination.")
 
     document.add_heading("Request for your review", level=1)
     for item in [
@@ -224,7 +224,7 @@ def build_document(output):
         add_bullet(document, item)
 
     properties = document.core_properties
-    properties.title = "NEBULA — Request for Academic Approval and Supervision"
+    properties.title = "NEBULA  -  Request for Academic Approval and Supervision"
     properties.subject = "Research project approval and supervision request"
     properties.author = "NEBULA Research Team"
     properties.keywords = "NEBULA, information retrieval, research proposal, academic supervision"

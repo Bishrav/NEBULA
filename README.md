@@ -267,6 +267,7 @@ docs/research/              Research plan, protocols, audit, claim controls
 - [Research plan](docs/research/research-plan.md)
 - [Academic research brief](docs/research/academic-research-brief.md)
 - [University review brief](docs/research/tu-darmstadt-submission-brief.md)
+- [University submission package](docs/research/submission/README.md)
 - [Ranking model and signal definitions](docs/research/ranking-model.md)
 - [Repository research audit](docs/research/repository-audit.md)
 - [Research-readiness dashboard](docs/research/research-readiness.md)
