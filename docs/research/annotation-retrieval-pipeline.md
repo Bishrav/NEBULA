@@ -5,11 +5,11 @@ wording before any labels are collected.
 
 ## Frozen inputs
 
-- Query source: a protected `annotation-query-source.psv` containing 379 rewritten queries. That file is not included in this checkout.
+- Query source: the versioned query source `datasets/research-corpus-v1/metadata/review-batch-01/reviewed-query-draft/reviewed-query-draft.psv` containing 47 finalized reviewed queries in this checkout.
 - Corpus: `datasets/research-corpus-v1`, admitted through its versioned manifest.
 - Fixed development retrieval configuration: hybrid lexical `0.50` plus semantic
   `0.50`, with the retrieval timestamp and seed recorded in a private manifest.
-- Candidate depth: top 10 per query for the current annotation snapshot.
+- Candidate pool: one grounded corpus document plus three deterministic same-project distractors per query for this review batch.
 
 The retriever reads only corpus-manifest documents. It does not inject the
 original grounding document and does not manually add documents that appear
@@ -36,7 +36,7 @@ Run the generator with:
 ```powershell
 python tools/generate_blinded_annotation_packages.py `
   --candidates reports/generated/annotation-retrieval-private/retrieval-candidates.psv `
-  --queries C:\path\to\annotation-query-source.psv `
+  --queries C:\path\to\datasets/research-corpus-v1/metadata/review-batch-01/reviewed-query-draft/reviewed-query-draft.psv `
   --private-dir reports/generated/annotation-private `
   --output-dir reports/generated/annotation-packages `
   --seed 20260822 --packet-size 25
@@ -44,7 +44,7 @@ python tools/generate_blinded_annotation_packages.py `
 
 The generated ZIP files are local research artifacts and are intentionally not
 committed to the repository. The generator cannot run from this checkout until
-the protected 379-query source and retrieval-candidate artifact are supplied.
+the private candidate pool and anonymous-ID mapping are supplied locally.
 Human annotation remains required; no labels, agreement values, or qrels are
 claimed by this pipeline.
 

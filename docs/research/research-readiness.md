@@ -1,6 +1,6 @@
 # NEBULA research-readiness dashboard
 
-**Revision assessed:** `0c33b08`
+**Revision assessed:** `c50634c`
 **Interpretation:** COMPLETE means supported by repository evidence; PARTIAL means infrastructure exists but the study evidence is incomplete; BLOCKED means external or missing data is required; NOT STARTED means no credible implementation exists.
 
 | Requirement | Status | Evidence |
@@ -11,9 +11,9 @@
 | Defensible trust definition | COMPLETE | [Ranking model](ranking-model.md) separates relevance, reliability signals, freshness, authority, graph importance, and evidence quality. |
 | Regression benchmark | COMPLETE | `benchmarks/evaluation/corpus-v1`, `queries-v1.psv`, CI runner. |
 | Realistic public corpus | PARTIAL | Provisional `datasets/research-corpus-v1` contains 843 documents from fixed Kubernetes/PostgreSQL commits with raw/normalized checksums and reports; human licensing review remains required. |
-| Sufficient research query set | PARTIAL | 400 corpus-grounded candidate information needs exist across 13 categories; all require human review and no qrels/final split exist. |
-| Multi-annotator relevance judgements | BLOCKED | The checkout contains a 400-candidate query pool, but no reproducible 379-query/3,790-pair retrieval artifact or human qrels. The blinded pipeline is prepared for a protected retrieval artifact; human labels, agreement, adjudication, and qrels remain absent. |
-| Weighted agreement | PARTIAL | Agreement tool now reports nominal, linear weighted, and quadratic weighted kappa; real independently labelled qrels are absent. |
+| Sufficient research query set | PARTIAL | 400 corpus-grounded candidates exist across 13 categories; review batch 01 produced 47 finalized queries (2 approved and 45 rewritten) and rejected 13. No qrels or final split exist. |
+| Multi-annotator relevance judgements | BLOCKED | Two blinded packages are versioned for review batch 01, covering 47 queries and 188 candidate pairs per annotator. Human labels, agreement, adjudication, and qrels remain absent. |
+| Weighted agreement | PARTIAL | The canonical agreement analyzer reports nominal, linear weighted, and quadratic weighted kappa; real independently labelled qrels are absent. |
 | Development/validation/test split | PARTIAL | Stratified 60/20/20 freeze tool, immutable manifest, held-out CLI guard, and final-evaluation gate exist; final split is blocked until approved queries and human qrels exist. |
 | Strong baselines | PARTIAL | BM25, hashing, character n-gram, hybrid, RRF, authority, freshness, trust variants, and the pinned BGE cache path exist; BGE is evaluated on the regression fixture but not yet on human qrels. |
 | Trust-signal ablation | PARTIAL | Legacy variants and explicit A3–A9 hybrid signal combinations now run; real research results and A0–A2 labels still require the expanded benchmark. |
