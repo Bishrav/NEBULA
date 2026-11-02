@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+message: If you use NEBULA in research or software, please cite this repository.
+title: NEBULA Trust-oriented Explainable Hybrid Search for Engineering Knowledge
+type: software
+authors:
+  - name: Bishrav
+repository-code: https://github.com/Bishrav/NEBULA
+license: MIT
+keywords:
+  - information retrieval
+  - trustworthy AI
+  - hybrid search
+  - engineering knowledge
+  - distributed systems
+  - reproducible research
+abstract: NEBULA is a research prototype for trust-oriented and explainable hybrid retrieval over engineering knowledge, combining lexical, semantic, freshness, source-authority, graph, evidence, and reliability signals.
