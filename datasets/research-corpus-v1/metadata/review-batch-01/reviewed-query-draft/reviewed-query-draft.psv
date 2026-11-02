@@ -1,0 +1,48 @@
+query_id|query_text
+candidate-01595e14cb59|How should an engineer define topologySpreadConstraints in a Pod spec to spread Pods evenly across nodes and zones in Kubernetes?
+candidate-097e7cd9df8e|How can an engineer configure PriorityClass for Pods and predict which Pods will be preempted in Kubernetes?
+candidate-042a662fdce0|What good practices should an engineer follow when designing and operating admission webhooks in Kubernetes?
+candidate-0021e737222c|What does the DisableAllocatorDualWrite feature gate do for Service ClusterIP allocation in Kubernetes, and how does it relate to MultiCIDRServiceAllocator?
+candidate-0e6ca5e95551|What does the KMSv1 feature gate control for encryption at rest in Kubernetes, and what should an engineer consider before enabling it?
+candidate-0b82b8f1296f|How can an engineer check whether a Kubernetes node uses cgroup v2, and which kernel, OS and Kubernetes version requirements apply?
+candidate-00cd82d78a0c|In which Kubernetes versions and at what stage (alpha/beta/GA) is the DisableAllocatorDualWrite feature gate available?
+candidate-0dfcc5c5b282|In which Kubernetes versions is the DRADeviceBindingConditions feature gate available, and which related DRA feature gates does it depend on?
+candidate-102c3a433277|In which Kubernetes versions is the KubeletTracing feature gate available, and what is needed to enable distributed tracing in the kubelet?
+candidate-03471d24bd41|How does Kubernetes allocate Service ClusterIPs, and how can an engineer avoid conflicts when assigning a static ClusterIP?
+candidate-0f663c8a322c|How should an engineer configure the topology-aware scheduling (TAS) plugins in the Kubernetes scheduling framework?
+candidate-0d96c1354f56|Which fields do Kubernetes field selectors support, and how can an engineer use them with kubectl get?
+candidate-0160064d2740|How should an engineer deploy and verify sidecar containers (restartable init containers) in a Kubernetes Pod?
+candidate-034ceda2e694|What is the PodReadyToStartContainers condition in Kubernetes, and how can an engineer enable it and verify it on Pods?
+candidate-04a1aa283f26|How can an engineer use .status.terminatingReplicas on Deployments and ReplicaSets to track terminating Pods during rollouts?
+candidate-11456ce1e274|How does Kubernetes self-healing recover from container, Pod and node failures, and what should an engineer check when recovery does not happen?
+candidate-07aeabed93e2|What kernel, container runtime, filesystem and Kubernetes version requirements should an engineer check before enabling user namespaces for Pods?
+candidate-2fe6c3e1cd33|How do node declared features work in Kubernetes, and what should an engineer verify when upgrading nodes with differing feature sets?
+candidate-0d8019b2a64e|How should an engineer configure kubelet authentication and authorization (webhook mode) and troubleshoot denied access to the kubelet API?
+candidate-08ebcb73878b|How does an engineer configure or diagnose networking for Loopback CNI in Kubernetes?
+candidate-0603acaf82f9|How can an engineer let the API server skip kubelet TLS verification for Pod log requests, and what are the security risks?
+candidate-19daa549e2fa|What happens when a Pod references a PodGroup that does not exist, and how can an engineer detect and resolve it?
+candidate-20b6a2f20f57|How can an engineer configure and verify topology-aware scheduling constraints through the Workload API in Kubernetes?
+candidate-050bfe8a6c1c|How can an engineer investigate performance issues involving Topology manager in Kubernetes?
+candidate-0c67afa59265|How can an engineer use the AnyVolumeDataSource feature to populate a PVC from a custom resource data source?
+candidate-0ac67f5d18c9|How can an engineer mount a Secret as a volume with dotfiles, and what security controls (RBAC, encryption at rest, file permissions) should apply?
+candidate-038a1c5c234d|How should a PostgreSQL developer declare a new system catalog using the BKI declaration macros?
+candidate-082f19892fd4|"How can an engineer use PostgreSQL array operators such as @>, <@, && and || to query array columns?"
+candidate-0d5de8f46725|How can an engineer use the intagg module's int_array_aggregate and int_array_enum, and is it still needed in current PostgreSQL versions?
+candidate-0a9b666c9b5a|How can an engineer use the insert_username trigger function (contrib spi) to record which user last changed a row?
+candidate-0a2598038cdb|What requirements (strategies, support functions, ordering semantics) must a custom B-tree operator class satisfy in PostgreSQL?
+candidate-0cdde94714ce|How should an engineer configure file_fdw to read server-side data files, including required privileges and options?
+candidate-01c02fb10ab0|How should an engineer define and query range and multirange types (e.g., tstzrange), including indexing and exclusion constraints?
+candidate-052aae5689a8|How can an engineer use pg_surgery (heap_force_kill / heap_force_freeze) to repair a corrupted heap page, and what risks apply?
+candidate-02a0d25c15ba|How can an engineer configure PG_COLOR and PG_COLORS to control colored diagnostic output of PostgreSQL command-line tools?
+candidate-057a0cd70270|How can an engineer use ltree operators and functions to query hierarchical label-tree data?
+candidate-0a3ee62c7302|How should an engineer register and deploy a custom background worker in PostgreSQL (shared_preload_libraries, restart behavior)?
+candidate-4992987acf0c|How can an engineer recover when restoring a PostgreSQL dump with psql or pg_restore fails partway through?
+candidate-3dd757d21e04|How should an engineer recover from transaction ID wraparound problems in PostgreSQL using VACUUM?
+candidate-10aad4091420|What should an engineer consider when migrating a text column to citext (collation, uniqueness, index and comparison behavior)?
+candidate-0a713038c707|How do PostgreSQL high-availability, load-balancing and replication solutions compare, and how should an engineer choose between them?
+candidate-292b5849bfb7|How should an engineer configure postgres_fdw connection options (host, port, dbname, user mapping, SSL) for a foreign server?
+candidate-079a35f58509|How can an engineer use auto_explain to log execution plans of slow queries and verify its configuration?
+candidate-1223e8dd055b|How can an engineer use pg_buffercache to inspect shared-buffer contents and investigate caching or performance problems?
+candidate-07c3f37dee69|How should array values be written and quoted in PostgreSQL array literals and ARRAY constructors?
+candidate-09246adde8cc|Which privileges are required to run pg_walinspect functions, and how should access to them be restricted?
+candidate-0bbe4aff324a|How can an engineer expose PostgreSQL CSV logs through file_fdw and restrict who can read them?

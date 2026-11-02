@@ -25,6 +25,7 @@ The automated query-quality audit is written to reports/generated/query-quality-
 
 Review batch 01 is versioned under metadata/review-batch-01/. Reviewers should fill reviewer_decision and reviewer_notes in the CSV; this is query approval only, not relevance labelling.
 The reviewed-query draft is derived from the completed review sheet under metadata/review-batch-01/reviewed-query-draft/. It contains 47 proposed queries (2 approvals and 45 rewrites); 13 rejected candidates are excluded. Primary and secondary categories are recorded for the interdisciplinary cases. The draft is not benchmark-ready and does not contain qrels.
+A blinded annotation package for review batch 01 is generated under metadata/annotation/review-batch-01/. It contains 47 queries and 188 empty query-document annotation rows across two independently shuffled annotator packages. The private candidate pool and query-ID mapping remain outside the repository; the packages are HUMAN_ANNOTATION_REQUIRED and contain no pre-filled labels.
 
 Normalized-text checksums are defined over canonical LF bytes, so validation is stable across Windows and Unix checkouts; raw-source checksums remain byte-exact.
 

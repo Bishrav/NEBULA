@@ -112,6 +112,13 @@ def write_csv(path, report):
         writer.writerows(report["queries"])
 
 
+def write_query_psv(path, report):
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=["query_id", "query_text"], delimiter="|", lineterminator="\n")
+        writer.writeheader()
+        writer.writerows({"query_id": row["query_id"], "query_text": row["query_text"]} for row in report["queries"])
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--original", type=Path, required=True)
@@ -122,6 +129,7 @@ def main():
     args.output_dir.mkdir(parents=True, exist_ok=True)
     (args.output_dir / "reviewed-query-draft.json").write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     write_csv(args.output_dir / "reviewed-query-draft.csv", report)
+    write_query_psv(args.output_dir / "reviewed-query-draft.psv", report)
     print(json.dumps({key: value for key, value in report.items() if key != "queries"}, sort_keys=True))
     return 0
 
