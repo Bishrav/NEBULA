@@ -24,7 +24,7 @@ jobs:
       - name: Validate research tooling
         shell: bash
         run: |
-          python -m py_compile tools/validate_research_export.py tools/generate_pmf_report.py tools/capture_research_bundle.py tools/generate_pmf_dashboard.py tools/pilot_preflight.py tools/run_pilot_dry_run.py tools/redact_research_export.py tools/generate_wave_summary.py tools/generate_experiment_manifest.py tools/test_experiment_manifest.py tools/generate_research_report.py tools/generate_publication_package.py tools/test_generate_publication_package.py tools/validate_claim_ledger.py tools/test_validate_claim_ledger.py tools/modern_embedding_preflight.py tools/test_modern_embedding_preflight.py tools/validate_annotations.py tools/test_validate_annotations.py tools/analyze_annotation_agreement.py tools/test_analyze_annotation_agreement.py tools/generate_adjudication_packet.py tools/test_generate_adjudication_packet.py tools/validate_annotation_release.py tools/test_validate_annotation_release.py tools/validate_corpus_manifest.py tools/split_query_set.py tools/test_dataset_tools.py tools/analyze_paired_metrics.py tools/test_analyze_paired_metrics.py tools/acquire_research_corpus.py tools/validate_research_corpus.py tools/report_research_corpus.py tools/test_research_corpus_tools.py tools/generate_candidate_queries.py tools/validate_candidate_queries.py tools/report_candidate_queries.py tools/test_candidate_queries.py tools/generate_blinded_annotation_packets.py tools/generate_blinded_annotation_packages.py tools/test_generate_blinded_annotation_packages.py tools/validate_annotation_submission.py tools/test_validate_annotation_submission.py tools/validate_blinded_annotations.py tools/analyze_blinded_agreement.py tools/build_final_qrels.py tools/test_annotation_workflow.py tools/test_blinded_agreement.py tools/generate_modern_embeddings.py tools/test_generate_modern_embeddings.py tools/build_modern_embedding_inputs.py tools/test_build_modern_embedding_inputs.py tools/run_distributed_experiment.py tools/test_run_distributed_experiment.py tools/validate_robustness_scenarios.py tools/test_validate_robustness_scenarios.py tools/distributed_preflight.py tools/test_distributed_preflight.py tools/freeze_research_split.py tools/test_freeze_research_split.py
+          python -m py_compile tools/validate_research_export.py tools/generate_pmf_report.py tools/capture_research_bundle.py tools/generate_pmf_dashboard.py tools/pilot_preflight.py tools/run_pilot_dry_run.py tools/redact_research_export.py tools/generate_wave_summary.py tools/generate_experiment_manifest.py tools/test_experiment_manifest.py tools/generate_research_report.py tools/generate_publication_package.py tools/test_generate_publication_package.py tools/validate_claim_ledger.py tools/test_validate_claim_ledger.py tools/modern_embedding_preflight.py tools/test_modern_embedding_preflight.py tools/validate_annotations.py tools/test_validate_annotations.py tools/analyze_annotation_agreement.py tools/test_analyze_annotation_agreement.py tools/generate_adjudication_packet.py tools/test_generate_adjudication_packet.py tools/validate_annotation_release.py tools/test_validate_annotation_release.py tools/validate_corpus_manifest.py tools/split_query_set.py tools/test_dataset_tools.py tools/analyze_paired_metrics.py tools/test_analyze_paired_metrics.py tools/analyze_category_errors.py tools/test_analyze_category_errors.py tools/acquire_research_corpus.py tools/validate_research_corpus.py tools/report_research_corpus.py tools/test_research_corpus_tools.py tools/generate_candidate_queries.py tools/validate_candidate_queries.py tools/report_candidate_queries.py tools/test_candidate_queries.py tools/generate_blinded_annotation_packets.py tools/generate_blinded_annotation_packages.py tools/test_generate_blinded_annotation_packages.py tools/validate_annotation_submission.py tools/test_validate_annotation_submission.py tools/validate_blinded_annotations.py tools/analyze_blinded_agreement.py tools/build_final_qrels.py tools/test_annotation_workflow.py tools/test_blinded_agreement.py tools/generate_modern_embeddings.py tools/test_generate_modern_embeddings.py tools/build_modern_embedding_inputs.py tools/test_build_modern_embedding_inputs.py tools/run_distributed_experiment.py tools/test_run_distributed_experiment.py tools/validate_robustness_scenarios.py tools/test_validate_robustness_scenarios.py tools/distributed_preflight.py tools/test_distributed_preflight.py tools/freeze_research_split.py tools/test_freeze_research_split.py
           python tools/test_experiment_manifest.py
           python tools/test_validate_annotations.py
           python tools/test_analyze_annotation_agreement.py
@@ -32,6 +32,7 @@ jobs:
           python tools/test_validate_annotation_release.py
           python tools/test_dataset_tools.py
           python tools/test_analyze_paired_metrics.py
+          python tools/test_analyze_category_errors.py
           python tools/test_run_experiment.py
           python tools/test_research_corpus_tools.py
           python tools/test_candidate_queries.py
@@ -140,6 +141,16 @@ jobs:
             --permutations 2000
           test -s reports/generated/benchmark-paired.json
           grep -q '"schemaVersion": "paired-statistics-v1"' reports/generated/benchmark-paired.json
+          python tools/analyze_category_errors.py \
+            --benchmark reports/generated/benchmark.json \
+            --metadata benchmarks/evaluation/query-set-v1-metadata.psv \
+            --output-json reports/generated/category-error-analysis.json \
+            --output-csv reports/generated/category-summary.csv \
+            --output-md reports/generated/category-error-analysis.md
+          test -s reports/generated/category-error-analysis.json
+          test -s reports/generated/category-summary.csv
+          test -s reports/generated/category-error-analysis.md
+          python -c "import json; p=json.load(open('reports/generated/category-error-analysis.json')); assert p['categoryCount'] == 8 and len(p['categorySummaries']) == 112"
           grep -q '"queryCount":20' reports/generated/benchmark-train.json
           grep -q '"queryCount":10' reports/generated/benchmark-heldout.json
           test -s reports/generated/benchmark-train.md

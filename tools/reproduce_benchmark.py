@@ -57,6 +57,25 @@ def run(args: list[str]) -> None:
     subprocess.run(args, cwd=ROOT, check=True)
 
 
+def run_category_analysis(comparison: Path, output_dir: Path) -> None:
+    run(
+        [
+            sys.executable,
+            str(ROOT / "tools" / "analyze_category_errors.py"),
+            "--benchmark",
+            str(comparison),
+            "--metadata",
+            str(ROOT / "benchmarks" / "evaluation" / "query-set-v1-metadata.psv"),
+            "--output-json",
+            str(output_dir / "category-error-analysis.json"),
+            "--output-csv",
+            str(output_dir / "category-summary.csv"),
+            "--output-md",
+            str(output_dir / "category-error-analysis.md"),
+        ]
+    )
+
+
 def run_weight_sensitivity(classes: Path, output: Path) -> None:
     run(
         [
@@ -134,6 +153,7 @@ def main() -> int:
             output / f"{name}.json",
             output / f"{name}-paired.json",
         )
+    run_category_analysis(output / "all.json", output)
     print(f"Reproduced frozen benchmark: {output}")
     return 0
 
