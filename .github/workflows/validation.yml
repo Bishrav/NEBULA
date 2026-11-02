@@ -164,8 +164,11 @@ jobs:
           python tools/generate_publication_package.py \
             --benchmark reports/generated/benchmark.json \
             --ann reports/generated/ann-benchmark.json \
+            --paired reports/generated/benchmark-paired.json \
             --output-dir reports/generated/publication-package
           test -s reports/generated/publication-package/ranking-ndcg.svg
+          test -s reports/generated/publication-package/paired-ndcg-differences.svg
+          test -s reports/generated/publication-package/paired-ndcg-comparison.csv
           grep -q 'REGRESSION_FIXTURE_ONLY' reports/generated/publication-package/README.md
           python tools/validate_claim_ledger.py docs/research/claim-ledger.md
           python tools/modern_embedding_preflight.py || test $? -eq 2
