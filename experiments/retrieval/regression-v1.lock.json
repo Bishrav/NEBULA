@@ -13,10 +13,10 @@
     }
   },
   "queries": {
-    "all": {"path": "benchmarks/evaluation/queries-v1.psv", "count": 30, "sha256": "2ff269d1d2f8acf70af1712986e157ccddc0ec05c0265ccc5cfec59d9bf46ab5"},
-    "train": {"path": "benchmarks/evaluation/queries-v1-train.psv", "count": 20, "sha256": "6aa387bd7e2251aa2ae413f56cebd96c25e13469057ea5e58b3a56ed591fbddb"},
-    "heldout": {"path": "benchmarks/evaluation/queries-v1-heldout.psv", "count": 10, "sha256": "9dcd18facc08e0cf435b01595353cce2bd6b248a872b3fe017de3b0d70ba368a"}
+    "all": {"path": "benchmarks/evaluation/queries-v1.psv", "count": 30, "sha256": "0e3b2e5571c7309ac9def17ee454a5158faa8fce8f6c8244f2ce13f071907895"},
+    "train": {"path": "benchmarks/evaluation/queries-v1-train.psv", "count": 20, "sha256": "6cfd4c46ea9d82067d1855341fa886ec3744d923f795ecf77c8d6458ecf2d5f0"},
+    "heldout": {"path": "benchmarks/evaluation/queries-v1-heldout.psv", "count": 10, "sha256": "62387dfc56f083892180d7d8f78d6c0325accf8109c6eb670304eb241c2eb7ac"}
   },
-  "trust": {"path": "benchmarks/evaluation/trust-v1.psv", "sha256": "609edcc031a9b9607adcac7a790cd7c7a95fac5e83bb542890a8551348155c4f"},
+  "trust": {"path": "benchmarks/evaluation/trust-v1.psv", "sha256": "ffdfcd207068bd22fee3b0334208088f99b2f468af119d86767abeae659b7737"},
   "labels": {"status": "synthetic", "humanValidated": false}
 }
