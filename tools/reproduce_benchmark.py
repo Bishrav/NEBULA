@@ -21,39 +21,36 @@ def sha256(path: Path) -> str:
 
 
 def verify_lock(lock: dict[str, object]) -> None:
+    mismatches: list[str] = []
+
+    def verify(path: Path, expected: str) -> None:
+        actual = sha256(path) if path.is_file() else None
+        if actual != expected:
+            mismatches.append(
+                f"{path.relative_to(ROOT)} (expected {expected}, actual {actual or 'missing'})"
+            )
+
     corpus = lock["corpus"]
     assert isinstance(corpus, dict)
     corpus_files = corpus["files"]
     assert isinstance(corpus_files, dict)
     for relative, expected in corpus_files.items():
-        path = ROOT / relative
-        actual = sha256(path) if path.is_file() else None
-        if actual != expected:
-            raise RuntimeError(
-                f"frozen benchmark input changed: {relative} "
-                f"(expected {expected}, actual {actual or 'missing'})"
-            )
+        assert isinstance(expected, str)
+        verify(ROOT / relative, expected)
+
+    queries = lock["queries"]
+    assert isinstance(queries, dict)
     for section in ("all", "train", "heldout"):
-        queries = lock["queries"]
-        assert isinstance(queries, dict)
         entry = queries[section]
         assert isinstance(entry, dict)
-        path = ROOT / entry["path"]
-        actual = sha256(path) if path.is_file() else None
-        if actual != entry["sha256"]:
-            raise RuntimeError(
-                f"frozen benchmark input changed: {entry['path']} "
-                f"(expected {entry['sha256']}, actual {actual or 'missing'})"
-            )
+        verify(ROOT / entry["path"], entry["sha256"])
+
     trust = lock["trust"]
     assert isinstance(trust, dict)
-    path = ROOT / trust["path"]
-    actual = sha256(path) if path.is_file() else None
-    if actual != trust["sha256"]:
-        raise RuntimeError(
-            f"frozen benchmark input changed: {trust['path']} "
-            f"(expected {trust['sha256']}, actual {actual or 'missing'})"
-        )
+    verify(ROOT / trust["path"], trust["sha256"])
+
+    if mismatches:
+        raise RuntimeError("frozen benchmark inputs changed: " + "; ".join(mismatches))
 
 
 def run(args: list[str]) -> None:
