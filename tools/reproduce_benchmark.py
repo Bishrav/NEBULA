@@ -57,6 +57,23 @@ def run(args: list[str]) -> None:
     subprocess.run(args, cwd=ROOT, check=True)
 
 
+def run_weight_sensitivity(classes: Path, output: Path) -> None:
+    run(
+        [
+            "java",
+            "-cp",
+            str(classes),
+            "com.nebula.evaluation.WeightSensitivityEvaluator",
+            "benchmarks/evaluation/corpus-v1",
+            "benchmarks/evaluation/queries-v1-train.psv",
+            "benchmarks/evaluation/trust-v1.psv",
+            str(output),
+            "5",
+            "1700000000000",
+        ]
+    )
+
+
 def run_paired_analysis(comparison: Path, output: Path) -> None:
     run(
         [
@@ -90,6 +107,7 @@ def main() -> int:
     run(["javac", "-encoding", "UTF-8", "-d", str(classes), *(str(path) for path in sources)])
     output = ROOT / "reports" / "generated" / "regression-v1"
     output.mkdir(parents=True, exist_ok=True)
+    run_weight_sensitivity(classes, output / "weight-sensitivity.json")
     base = [
         "java",
         "-cp",

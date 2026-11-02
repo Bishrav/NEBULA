@@ -102,6 +102,16 @@ jobs:
           java -cp build/classes com.nebula.evaluation.AnnScaleBenchmarkTest
           java -cp build/classes com.nebula.search.TrustRobustnessFixtureTest
           java -cp build/classes com.nebula.evaluation.WeightSensitivityEvaluatorTest
+          java -cp build/classes com.nebula.evaluation.WeightSensitivityEvaluator \
+            benchmarks/evaluation/corpus-v1 \
+            benchmarks/evaluation/queries-v1-train.psv \
+            benchmarks/evaluation/trust-v1.psv \
+            reports/generated/weight-sensitivity.json \
+            5 \
+            1700000000000
+          test -s reports/generated/weight-sensitivity.json
+          grep -q "\"schemaVersion\":\"weight-sensitivity-v1\"" reports/generated/weight-sensitivity.json
+          python -c "import json; p=json.load(open('reports/generated/weight-sensitivity.json')); assert p['queryCount'] == 20 and len(p['results']) == 16"
           java -cp build/classes com.nebula.evaluation.EvaluationRunner \
             benchmarks/evaluation/corpus-v1 \
             benchmarks/evaluation/queries-v1.psv \
