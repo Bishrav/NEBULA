@@ -43,6 +43,18 @@ def proposed_category(note, original):
     return original, "CATEGORY_REVIEW_REQUIRED"
 
 
+def reviewed_categories(review, original):
+    primary = (review.get("reviewed_primary_category") or "").strip()
+    secondary = (review.get("secondary_categories") or "").strip()
+    if primary:
+        key = primary.lower()
+        if key not in CANONICAL_CATEGORIES:
+            raise ValueError(f"invalid reviewed primary category for {review['query_id']}: {primary}")
+        return CANONICAL_CATEGORIES[key], secondary, "REVIEWED_OVERRIDE"
+    category, status = proposed_category(review["reviewer_notes"], original)
+    return category, secondary, status
+
+
 def build(original_path, completed_path):
     with original_path.open(encoding="utf-8", newline="") as handle:
         original = {row["query_id"]: row for row in csv.DictReader(handle, delimiter="|")}
@@ -64,12 +76,13 @@ def build(original_path, completed_path):
         text = source["query_text"] if decision == "APPROVE" else proposed_text(review["reviewer_notes"], source["query_text"])
         if decision == "REWRITE" and text == source["query_text"]:
             raise ValueError(f"rewrite has no proposed query text: {review['query_id']}")
-        category, category_status = proposed_category(review["reviewer_notes"], source["category"])
+        category, secondary, category_status = reviewed_categories(review, source["category"])
         draft.append({
             "query_id": source["query_id"],
             "query_text": text,
             "original_query_text": source["query_text"],
             "category": category,
+            "secondary_categories": secondary,
             "category_status": category_status,
             "project": source["project"],
             "difficulty": source["difficulty"],
@@ -78,7 +91,7 @@ def build(original_path, completed_path):
             "reviewer_notes": review["reviewer_notes"],
         })
     return {
-        "schema_version": "reviewed-query-draft-v1",
+        "schema_version": "reviewed-query-draft-v2",
         "source_batch": "review-batch-01",
         "draft_count": len(draft),
         "approved_count": decisions["APPROVE"],

@@ -21,16 +21,18 @@ class ReviewedQueryDraftTest(unittest.TestCase):
             )
             completed = root / "completed.csv"
             completed.write_text(
-                "query_id,reviewer_decision,reviewer_notes\n"
-                "q1,APPROVE,Clear and realistic.\n"
-                "q2,REWRITE,Rewrite as: How can an engineer measure query latency in PostgreSQL?\n"
-                "q3,REJECT,Too vague.\n",
+                "query_id,reviewer_decision,reviewer_notes,reviewed_primary_category,secondary_categories\n"
+                "q1,APPROVE,Clear and realistic.,security,configuration\n"
+                "q2,REWRITE,Rewrite as: How can an engineer measure query latency in PostgreSQL?,,\n"
+                "q3,REJECT,Too vague.,,\n",
                 encoding="utf-8",
             )
             report = build(original, completed)
             self.assertEqual(report["draft_count"], 2)
             self.assertEqual(report["rejected_count"], 1)
             self.assertEqual(report["queries"][1]["query_text"], "How can an engineer measure query latency in PostgreSQL?")
+            self.assertEqual(report["queries"][0]["category"], "security")
+            self.assertEqual(report["queries"][0]["secondary_categories"], "configuration")
             self.assertFalse(report["benchmark_ready"])
 
     def test_rewrite_without_proposed_text_fails(self):
@@ -43,7 +45,7 @@ class ReviewedQueryDraftTest(unittest.TestCase):
             )
             completed = root / "completed.csv"
             completed.write_text(
-                "query_id,reviewer_decision,reviewer_notes\nq1,REWRITE,Needs improvement.\n",
+                "query_id,reviewer_decision,reviewer_notes,reviewed_primary_category,secondary_categories\nq1,REWRITE,Needs improvement.\n",
                 encoding="utf-8",
             )
             with self.assertRaises(ValueError):
