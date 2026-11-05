@@ -17,13 +17,17 @@ public final class EvaluationDatasetLoader {
         for (String line : Files.readAllLines(source, StandardCharsets.UTF_8)) {
             String trimmed = line.trim();
             if (trimmed.isEmpty() || trimmed.startsWith("#") || trimmed.startsWith("query_id|")) continue;
-            String[] columns = trimmed.split("\\|", 3);
-            if (columns.length != 3) throw new IOException("invalid evaluation row: " + line);
-            if (columns[0].trim().isEmpty() || columns[1].trim().isEmpty()) {
+            int firstSeparator = trimmed.indexOf('|');
+            int lastSeparator = trimmed.lastIndexOf('|');
+            if (firstSeparator <= 0 || lastSeparator <= firstSeparator) throw new IOException("invalid evaluation row: " + line);
+            String queryId = trimmed.substring(0, firstSeparator);
+            String queryText = trimmed.substring(firstSeparator + 1, lastSeparator);
+            String encodedJudgments = trimmed.substring(lastSeparator + 1);
+            if (queryId.trim().isEmpty() || queryText.trim().isEmpty()) {
                 throw new IOException("query id and query text must not be blank: " + line);
             }
-            if (!queryIds.add(columns[0].trim())) throw new IOException("duplicate query id: " + columns[0]);
-            queries.add(new EvaluationQuery(columns[0], columns[1], parseJudgments(columns[2])));
+            if (!queryIds.add(queryId.trim())) throw new IOException("duplicate query id: " + queryId);
+            queries.add(new EvaluationQuery(queryId, queryText, parseJudgments(encodedJudgments)));
         }
         return queries;
     }
