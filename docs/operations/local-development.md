@@ -77,6 +77,20 @@ For a traceable study wave, append metadata arguments in this order: study versi
 
 The same values can be supplied through `NEBULA_STUDY_VERSION`, `NEBULA_CORPUS_VERSION`, `NEBULA_STUDY_WAVE`, `NEBULA_QUERY_SET_VERSION`, and `NEBULA_CODE_VERSION` when using the shorter startup command. The manifest exposes these values without exposing the local corpus path.
 
+## One-command research demo
+
+On Windows, the checked-in launcher compiles the dependency-free Java modules,
+starts the API with the private pinned BGE cache when available, serves the
+search workspace, and waits for the readiness check:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\start_local_demo.ps1
+```
+
+Open `http://127.0.0.1:5174` after the command reports `API ready`. If either
+port is already in use, the launcher reuses the existing service instead of
+starting a duplicate process.
+
 The search workspace creates one anonymous session ID per browser profile and sends it as `X-Session-Id`. The API records that ID, an epoch timestamp, and the query with each persisted event. No account or personal identity is required for session-level analysis.
 
 The running build describes its research event schema and privacy boundary at `GET http://127.0.0.1:8082/v1/research/manifest`.

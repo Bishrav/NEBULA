@@ -25,6 +25,38 @@ python -m http.server 5174 --directory .\apps\search-ui
 
 Open [http://127.0.0.1:5174](http://127.0.0.1:5174).
 
+## Validated BGE smoke path
+
+The repository also includes an opt-in BGE hybrid configuration selected from
+the validation sweep. It is intentionally demonstrated with a frozen query
+whose embedding is present in the private offline cache; this keeps the demo
+reproducible without downloading a model or contacting an external service.
+
+After running the one-command launcher, select **BGE hybrid · validated
+candidate** in the workspace and search for:
+
+```text
+In which Kubernetes versions and at what stage (alpha/beta/GA) is the DisableAllocatorDualWrite feature gate available?
+```
+
+The expected first source is the Kubernetes feature-gates reference document.
+The result card should expose separate lexical, semantic, and hybrid scores.
+This is a smoke test of the configured retrieval path, not a claim that BGE is
+superior on a general workload.
+
+The equivalent API check is:
+
+```powershell
+$query = 'In which Kubernetes versions and at what stage (alpha/beta/GA) is the DisableAllocatorDualWrite feature gate available?'
+$encoded = [uri]::EscapeDataString($query)
+Invoke-WebRequest "http://127.0.0.1:8082/v1/search?q=$encoded&mode=bge-hybrid&limit=5"
+```
+
+If the private cache is unavailable, the API reports an explicit error rather
+than silently falling back to a different embedding model. Arbitrary live
+queries are also outside this cached smoke path until a live query-embedding
+provider is configured.
+
 If the API is unavailable, the UI should show an explicit offline message. Stop the demo with:
 
 ```powershell

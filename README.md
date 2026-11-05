@@ -158,6 +158,16 @@ Check readiness:
 Invoke-WebRequest http://127.0.0.1:8082/health/ready
 ```
 
+On Windows, the complete local research demo can be started with one command:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\start_local_demo.ps1
+```
+
+The launcher compiles the backend, starts or reuses the API and search UI, and
+waits until the API reports ready. Open `http://127.0.0.1:5174` when it
+finishes.
+
 ### 2. Open the browser workspace
 
 ```powershell
