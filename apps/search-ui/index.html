@@ -34,6 +34,7 @@
             <select id="mode">
               <option value="">BM25 lexical</option>
               <option value="hybrid">Hybrid lexical + semantic</option>
+              <option value="bge-hybrid">BGE hybrid · validated candidate</option>
               <option value="semantic">Semantic exact</option>
               <option value="hnsw">Semantic HNSW</option>
               <option value="trust">Trust-aware</option>
@@ -41,6 +42,7 @@
           </label>
           <label>Results <input id="limit" type="number" min="1" max="20" value="5"></label>
         </div>
+        <p id="mode-note" class="mode-note" role="status">BM25 lexical matching is the default reproducible baseline.</p>
       </form>
       <div class="examples" aria-label="Example queries">
         <span>Try:</span>

@@ -12,6 +12,11 @@ python -m http.server 5174 --directory .\apps\search-ui
 
 Open `http://127.0.0.1:5174`. The API endpoint can be changed in the interface when the service runs elsewhere. The Docker API Compose configuration allows this origin by default; set `NEBULA_ALLOWED_ORIGIN` when using another UI origin.
 
+The ranking selector includes an opt-in **BGE hybrid · validated candidate**
+mode. The API must be started with the private pinned cache through
+`NEBULA_EMBEDDING_CACHE`; the UI describes the selected configuration and
+surfaces a clear error when that cache is unavailable.
+
 For a guided five-minute walkthrough, use the [reproducible demo workflow](../../docs/demo-workflow.md).
 
 ## Product hypothesis

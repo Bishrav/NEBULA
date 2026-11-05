@@ -3,6 +3,7 @@
   var form = document.getElementById('search-form');
   var query = document.getElementById('query');
   var mode = document.getElementById('mode');
+  var modeNote = document.getElementById('mode-note');
   var limit = document.getElementById('limit');
   var apiBase = document.getElementById('api-base');
   var results = document.getElementById('results');
@@ -25,7 +26,17 @@
   var suggestionTimer;
   var suggestionIndex = -1;
 
+  var modeDescriptions = {
+    '': 'BM25 lexical matching is the default reproducible baseline.',
+    hybrid: 'Equal-weight hybrid: 0.50 lexical + 0.50 semantic.',
+    'bge-hybrid': 'Validated BGE candidate: 0.40 lexical + 0.60 semantic, 5× candidate depth. Requires the pinned offline cache.',
+    semantic: 'Exact semantic retrieval using the configured embedding model.',
+    hnsw: 'Approximate semantic retrieval using the HNSW index.',
+    trust: 'Trust-oriented reranking using observable authority, freshness, and graph signals.'
+  };
+
   form.addEventListener('submit', function (event) { event.preventDefault(); search(); });
+  mode.addEventListener('change', updateModeNote);
   query.addEventListener('input', function () {
     clearTimeout(suggestionTimer);
     suggestionTimer = setTimeout(loadSuggestions, 120);
@@ -106,6 +117,7 @@
   });
   if (consented) { studyButton.textContent = 'Study active'; document.getElementById('task-status').textContent = 'Ready'; }
   metricsRefresh.addEventListener('click', loadMetrics);
+  updateModeNote();
   loadMetrics();
 
   function loadSuggestions() {
@@ -143,7 +155,12 @@
     if (!query.value.trim()) return;
     setStatus('Searching', true);
     fetch(apiBase.value.replace(/\/$/, '') + '/v1/search?' + params.toString(), { headers: researchHeaders() })
-      .then(function (response) { if (!response.ok) throw new Error('API returned ' + response.status); return response.json(); })
+      .then(function (response) {
+        return response.json().catch(function () { return {}; }).then(function (payload) {
+          if (!response.ok) throw new Error(payload.error || ('API returned ' + response.status));
+          return payload;
+        });
+      })
       .then(function (payload) {
         document.getElementById('result-count').textContent = payload.results.length;
         document.getElementById('elapsed').textContent = Math.round(performance.now() - started) + ' ms';
@@ -163,6 +180,7 @@
   }
 
   function setStatus(text, active) { statusText.textContent = text; statusDot.style.background = active ? '#f8c76b' : (text === 'Offline' ? '#ff788b' : 'var(--green)'); }
+  function updateModeNote() { modeNote.textContent = modeDescriptions[mode.value] || modeDescriptions['']; }
   function getSessionId() {
     var key = 'nebula-pilot-session-id';
     var existing = window.localStorage.getItem(key);
