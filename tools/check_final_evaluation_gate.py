@@ -88,8 +88,12 @@ def split_ready(path):
     if data.get("frozen") is not True or data.get("heldoutFlagRequired") != "--final-heldout-evaluation" or not required.issubset(data):
         return False, "split must be frozen, contain development/validation/test, and require the held-out flag"
     sets = []
+    assignments = data.get("assignments")
     for name in sorted(required):
-        ids = data[name].get("queryIds", []) if isinstance(data[name], dict) else []
+        if isinstance(assignments, dict):
+            ids = [query_id for query_id, split_name in assignments.items() if split_name == name]
+        else:
+            ids = data[name].get("queryIds", []) if isinstance(data[name], dict) else []
         if not ids or len(ids) != len(set(ids)):
             return False, f"{name} query IDs must be present and unique"
         sets.append(set(ids))
