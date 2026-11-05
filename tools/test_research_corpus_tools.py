@@ -51,6 +51,12 @@ class ResearchCorpusValidationTest(unittest.TestCase):
         path.write_bytes(path.read_bytes().replace(bytes([10]), bytes([13, 10])))
         self.assertEqual(validate(self.write(manifest), self.root)["documents"], 1)
 
+    def test_raw_checksum_is_byte_exact(self):
+        manifest = self.manifest(content_checksum=hashlib.sha256(b"source\n").hexdigest())
+        (self.root / "raw/a.txt").write_bytes(b"source\r\n")
+        with self.assertRaises(ValueError):
+            validate(self.write(manifest), self.root)
+
     def test_duplicate_ids_and_hashes_rejected(self):
         manifest = self.manifest()
         duplicate = dict(manifest["documents"][0])

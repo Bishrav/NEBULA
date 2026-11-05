@@ -137,13 +137,12 @@ Allowed decisions: APPROVED, APPROVED_WITH_ATTRIBUTION, BLOCKED, or PENDING.
   carrying creator attribution, copyright notice, license references, the
   modification statement and the no-endorsement/trademark note. It must ship with
   every export (publication package, mirrors, subsets).
-- **R2 — Fix the checksum mismatch (blocking for final release).** Raw checksums
-  were calculated before Git line-ending normalization, so all 843 manifest
-  `content_checksum` values fail against the committed raw bytes. The validator
-  must be fixed so it actually checks them. Add `.gitattributes` with
-  `datasets/research-corpus-v1/raw/** -text`, regenerate `content_checksum` from the
-  committed bytes, record the `metrics-reference.md` line-ending difference, and fix
-  the validator's raw-checksum branch.
+- **R2 — Checksum integrity (COMPLETED).** The committed corpus now has
+  datasets/research-corpus-v1/raw/** -text in .gitattributes, the validator
+  checks raw bytes without line-ending normalization, and a regression test guards
+  this behavior. The manifest currently validates all 843 raw and normalized
+  checksums. The known metrics-reference.md upstream line-ending difference is
+  recorded in this review.
 - **R3 — Update status fields together.** After R1 and R2 are merged, update the
   registry rows (currently `ACCEPTED`, with notes that still say review is
   pending), `licensing_status` / `provisional` in the manifest, `status` in
