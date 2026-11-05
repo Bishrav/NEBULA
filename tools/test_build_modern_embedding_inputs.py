@@ -3,10 +3,13 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from build_modern_embedding_inputs import build
+from build_modern_embedding_inputs import build, normalize_markdown
 
 
 class ModernEmbeddingInputBuilderTest(unittest.TestCase):
+    def test_matches_java_whitespace_behavior(self):
+        self.assertEqual("step\u00a02", normalize_markdown("step\u00a02"))
+
     def test_preserves_pipe_characters_in_query_text(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

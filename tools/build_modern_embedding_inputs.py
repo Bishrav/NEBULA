@@ -17,12 +17,13 @@ def normalize_markdown(raw):
     text = raw.replace("\r\n", "\n").replace("\r", "\n")
     text = re.sub(r"\[([^]]+)]\([^)]*\)", r"\1", text)
     text = re.sub(r"<[^>]+>", " ", text)
-    text = re.sub(r"^\s*[-*+]\s+", "", text, flags=re.MULTILINE)
-    text = re.sub(r"^\s*\d+[.)]\s+", "", text, flags=re.MULTILINE)
-    text = re.sub(r"^#{1,6}\s*", "", text, flags=re.MULTILINE)
+    text = re.sub(r"^\s*[-*+]\s+", "", text)
+    text = re.sub(r"^\s*\d+[.)]\s+", "", text)
+    text = re.sub(r"^#{1,6}\s*", "", text)
     text = re.sub(r"[*_~`]", "", text)
     text = text.replace("|", " ")
-    return re.sub(r"\s+", " ", text).strip()
+    # Match Java's default Pattern \s behavior; do not fold Unicode NBSP into ASCII space.
+    return re.sub(r"[ \t\n\x0b\f\r]+", " ", text).strip()
 
 
 def build(corpus, queries):
