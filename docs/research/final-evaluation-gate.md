@@ -26,6 +26,11 @@ as independently validated human evidence.
 
 **BLOCKED — NOT READY FOR FINAL HELD-OUT EVALUATION**
 
-The current repository has a provisional corpus, candidate queries marked NEEDS_HUMAN_REVIEW, no released human qrels, no frozen research split, and no final ranking/embedding configuration. No final held-out metrics may be generated from this state.
+The protected review batch now has approved queries, independent annotations,
+agreement, consensus adjudication, frozen splits, and released qrels. Those
+artifacts remain outside the public repository. The gate is still blocked until
+the final ranking/embedding configuration is explicitly promoted and the
+evaluation is run from a clean, versioned revision. No final held-out claim may
+be made from the current validation-selected candidate alone.
 
 Synthetic regression evaluation remains permitted for software regression only. It must not be reported as final research evidence.

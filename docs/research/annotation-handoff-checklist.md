@@ -1,6 +1,6 @@
 # Human annotation handoff checklist
 
-Status: `HUMAN ANNOTATION REQUIRED`
+Status: `RELEASE VALIDATED IN PROTECTED STORAGE`
 
 The intended handoff contains two sanitized packages with the same 3,790
 query-document pairs from a protected 379-query source and frozen research
@@ -53,6 +53,9 @@ submitted files unchanged.
 
 ## Current evidence boundary
 
-No human labels, agreement statistic, adjudication result, qrels, or retrieval
-quality claim exists yet. Until two valid submissions are received and
-reviewed, the research status remains `PARTIAL` and `HUMAN ANNOTATION REQUIRED`.
+The protected review batch has two validated canonical exports, zero
+disagreements, completed consensus adjudication, and a release-ready qrels
+file. The protected labels and qrels must remain outside the public repository.
+This does not by itself authorize a final held-out claim or a human-study
+claim; final configuration freezing and institutional review remain separate
+gates.

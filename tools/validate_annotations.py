@@ -4,6 +4,7 @@
 import argparse
 import json
 import sys
+from datetime import datetime
 from pathlib import Path
 
 
@@ -22,19 +23,49 @@ def query_ids(path):
 
 def validate(annotation_path, query_path, corpus_dir):
     allowed_queries = query_ids(query_path)
-    allowed_sources = {p.relative_to(corpus_dir).as_posix() for p in corpus_dir.rglob("*") if p.is_file()}
+    allowed_sources = set()
+    for path in corpus_dir.rglob("*"):
+        if not path.is_file():
+            continue
+        relative = path.relative_to(corpus_dir).as_posix()
+        allowed_sources.add(relative)
+        if path.suffix == ".md":
+            allowed_sources.add(relative[:-3])
     seen = set()
     annotators = set()
     rows = 0
     grades = []
-    for line_number, line in enumerate(annotation_path.read_text(encoding="utf-8").splitlines(), 1):
+    lines = annotation_path.read_text(encoding="utf-8").splitlines()
+    canonical_header = [
+        "annotator_code", "query_id", "document_id", "grade",
+        "uncertainty", "evidence_note", "annotated_at",
+    ]
+    canonical = False
+    for candidate in lines:
+        if candidate.strip() and not candidate.startswith("#"):
+            canonical = candidate.split("|") == canonical_header
+            break
+
+    for line_number, line in enumerate(lines, 1):
         row = line.strip()
-        if not row or row.startswith("#") or row.startswith("query_id|"):
+        if not row or row.startswith("#") or row.startswith("query_id|") or (canonical and row.split("|") == canonical_header):
             continue
-        parts = row.split("|", 4)
-        if len(parts) != 5:
-            raise ValueError(f"line {line_number}: expected query_id|source_path|annotator_id|grade|evidence_note")
-        query_id, source, annotator, grade_text, note = (part.strip() for part in parts)
+        if canonical:
+            parts = row.split("|", 6)
+            if len(parts) != 7:
+                raise ValueError(f"line {line_number}: expected canonical annotation schema")
+            annotator, query_id, source, grade_text, uncertainty, note, annotated_at = (part.strip() for part in parts)
+            if uncertainty.lower() not in {"true", "false"}:
+                raise ValueError(f"line {line_number}: uncertainty must be true or false")
+            try:
+                datetime.fromisoformat(annotated_at.replace("Z", "+00:00"))
+            except ValueError as exc:
+                raise ValueError(f"line {line_number}: annotated_at must be ISO-8601") from exc
+        else:
+            parts = row.split("|", 4)
+            if len(parts) != 5:
+                raise ValueError(f"line {line_number}: expected query_id|source_path|annotator_id|grade|evidence_note")
+            query_id, source, annotator, grade_text, note = (part.strip() for part in parts)
         if query_id not in allowed_queries:
             raise ValueError(f"line {line_number}: unknown query: {query_id}")
         if source not in allowed_sources:

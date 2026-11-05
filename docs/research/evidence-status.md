@@ -1,6 +1,6 @@
 # NEBULA evidence status
 
-Assessed against commit `0c33b08`.
+Assessed against commit `398d2f1`.
 
 ## Reproducible now
 
@@ -10,29 +10,36 @@ Assessed against commit `0c33b08`.
   `tools/validate_research_corpus.py`.
 - The generated corpus report records the source-level licenses as CC-BY-4.0
   and PostgreSQL License, with attribution to The Kubernetes Authors and the
-  PostgreSQL Global Development Group.
-- The licensing status remains `NEEDS_HUMAN_LICENSING_REVIEW`; source-level
-  declarations are not legal clearance.
-- The committed candidate pool contains 400 queries, all marked
-  `NEEDS_HUMAN_REVIEW`.
+  PostgreSQL Global Development Group. The recorded review decision is
+  `APPROVED_WITH_ATTRIBUTION`; this is not legal advice or a substitute for
+  institutional review.
+- The protected review batch contains 47 approved queries and a frozen
+  development/validation/test split (30/9/8).
+- Two independent protected canonical annotation exports validate against the
+  approved query source and the 843-document corpus. They contain 188 rows
+  each, have zero disagreements, and report Cohen's, linear weighted, and
+  quadratic weighted kappa of 1.0.
+- The protected consensus release and final qrels regenerate byte-identically
+  to the recorded qrels checksum. These artifacts remain outside Git because
+  they contain protected research data.
 - The synthetic regression benchmark is reproducible with
   `python tools/reproduce_benchmark.py` and has a checksum lock.
 
 ## Not present or not valid for research claims
 
-- The protected 379-query source and 3,790 retrieval-candidate pairs are not
-  present in this checkout, so their existence cannot be independently
-  reproduced here.
-- No human relevance labels, agreement statistic, adjudication result, or
-  released qrels are present.
+- The protected annotation source, canonical labels, agreement, adjudication,
+  split, and qrels are not public repository artifacts and cannot be verified
+  from a fresh public clone alone.
+- Final configuration promotion and a clean-tree final evaluation gate have
+  not yet been completed.
 - Metrics from the four-document synthetic fixture must not be reported as
   metrics for the 843-document research corpus.
 
 ## Required external evidence
 
-1. A human reviewer must confirm the license, notices, attribution, and
-   redistribution status for the admitted corpus.
-2. Two independent annotators must complete the protected blinded packages.
-3. The returned packages must pass submission validation, agreement analysis,
-   adjudication, and the final-qrels release gate.
-4. Only then may the held-out research evaluation be generated and reported.
+1. Preserve the protected artifacts and their checksums outside the public
+   repository.
+2. Freeze the final ranking and embedding configuration after validation-set
+   review.
+3. Run the final held-out evaluation only after the clean-tree gate passes.
+4. Obtain supervisor/institutional review before making human-study claims.

@@ -42,11 +42,11 @@ python tools/generate_blinded_annotation_packages.py `
   --seed 20260822 --packet-size 25
 ```
 
-The generated ZIP files are local research artifacts and are intentionally not
-committed to the repository. The generator cannot run from this checkout until
-the private candidate pool and anonymous-ID mapping are supplied locally.
-Human annotation remains required; no labels, agreement values, or qrels are
-claimed by this pipeline.
+The generated ZIP files and completed canonical exports are local research
+artifacts and are intentionally not committed to the repository. The protected
+review batch has completed validation, agreement, consensus release, and qrels
+generation; the public repository records the process and evidence boundary,
+not the protected labels.
 
 ## Required annotation process
 

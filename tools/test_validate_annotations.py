@@ -21,6 +21,18 @@ def main():
             validate(annotations, queries, corpus)
         except ValueError:
             print("test_validate_annotations: PASS")
+        canonical = root / "canonical.psv"; canonical.write_text(
+            "annotator_code|query_id|document_id|grade|uncertainty|evidence_note|annotated_at\n"
+            "A|q1|a.md|3|false|Direct evidence.|2026-11-05T12:00:00+00:00\n", encoding="utf-8")
+        result = validate(canonical, queries, corpus)
+        assert result["status"] == "valid" and result["annotators"] == 1
+        try:
+            canonical.write_text(
+                "annotator_code|query_id|document_id|grade|uncertainty|evidence_note|annotated_at\n"
+                "A|q1|a.md|3|maybe|Direct evidence.|2026-11-05T12:00:00+00:00\n", encoding="utf-8")
+            validate(canonical, queries, corpus)
+        except ValueError:
+            print("test_validate_annotations: PASS")
             return
         raise AssertionError("invalid grade was accepted")
 

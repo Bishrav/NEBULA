@@ -1,6 +1,6 @@
 # NEBULA research-readiness dashboard
 
-**Revision assessed:** `c50634c`
+**Revision assessed:** `398d2f1`
 **Interpretation:** COMPLETE means supported by repository evidence; PARTIAL means infrastructure exists but the study evidence is incomplete; BLOCKED means external or missing data is required; NOT STARTED means no credible implementation exists.
 
 | Requirement | Status | Evidence |
@@ -10,12 +10,12 @@
 | Ranking formula and configuration | COMPLETE | [Ranking model](ranking-model.md) and versioned JSON configuration. |
 | Defensible trust definition | COMPLETE | [Ranking model](ranking-model.md) separates relevance, reliability signals, freshness, authority, graph importance, and evidence quality. |
 | Regression benchmark | COMPLETE | `benchmarks/evaluation/corpus-v1`, `queries-v1.psv`, CI runner. |
-| Realistic public corpus | PARTIAL | Provisional `datasets/research-corpus-v1` contains 843 documents from fixed Kubernetes/PostgreSQL commits with raw/normalized checksums and reports; human licensing review remains required. |
-| Sufficient research query set | PARTIAL | 400 corpus-grounded candidates exist across 13 categories; review batch 01 produced 47 finalized queries (2 approved and 45 rewritten) and rejected 13. No qrels or final split exist. |
-| Multi-annotator relevance judgements | BLOCKED | Two blinded packages are versioned for review batch 01, covering 47 queries and 188 candidate pairs per annotator. Human labels, agreement, adjudication, and qrels remain absent. |
-| Weighted agreement | PARTIAL | The canonical agreement analyzer reports nominal, linear weighted, and quadratic weighted kappa; real independently labelled qrels are absent. |
-| Development/validation/test split | PARTIAL | Stratified 60/20/20 freeze tool, immutable manifest, held-out CLI guard, and final-evaluation gate exist; final split is blocked until approved queries and human qrels exist. |
-| Strong baselines | PARTIAL | BM25, hashing, character n-gram, hybrid, RRF, authority, freshness, trust variants, and the pinned BGE cache path exist; BGE is evaluated on the regression fixture but not yet on human qrels. |
+| Realistic public corpus | PARTIAL | `datasets/research-corpus-v1` contains 843 documents from fixed Kubernetes/PostgreSQL commits with raw/normalized checksums and recorded conditional licensing review; redistribution and institutional review boundaries remain. |
+| Sufficient research query set | PARTIAL | Review batch 01 has 47 approved queries in protected storage, with a frozen 30/9/8 split; the public repository retains the candidate-generation and review tooling, not protected query labels. |
+| Multi-annotator relevance judgements | PARTIAL | Two protected canonical exports validate with 188 rows each; labels and qrels are intentionally excluded from the public repository. |
+| Weighted agreement | COMPLETE (protected) | Recomputed agreement reports zero disagreements and nominal, linear weighted, and quadratic weighted kappa of 1.0. |
+| Development/validation/test split | COMPLETE (protected) | The protected split manifest is frozen, disjoint, and requires `--final-heldout-evaluation`. |
+| Strong baselines | PARTIAL | BGE, hybrid, and baseline results now exist on protected research qrels; final model/configuration promotion remains separate from the validation-selected candidate. |
 | Trust-signal ablation | PARTIAL | Legacy variants and explicit A3–A9 hybrid signal combinations now run; real research results and A0–A2 labels still require the expanded benchmark. |
 | Weight sensitivity | PARTIAL | Deterministic one-factor 16-row evaluator and regression-fixture artifact are implemented; research-corpus sensitivity remains blocked by human qrels and frozen splits. |
 | Per-query and category analysis | PARTIAL | Per-query failures and category summaries are generated for the synthetic fixture; signal-level analysis and human-judged research-corpus results remain incomplete. |
@@ -29,7 +29,7 @@
 | Claim ledger | COMPLETE | [Claim ledger](claim-ledger.md) constrains wording and prohibits unsupported claims. |
 | Human study | BLOCKED | Draft submission package now exists in docs/research/human-study with protocol, participant materials, consent, risk, data-management, task, questionnaire, debriefing, analysis, and checklist documents; supervisor/institutional review, recruitment, consent, and real data remain outstanding. |
 | Ethics review | BLOCKED | Institutional determination is external. |
-| Final held-out evaluation | BLOCKED | Final-evaluation gate stops execution until corpus licensing, approved queries, human qrels/agreement, frozen split, final model/configuration, and clean-tree checks pass. |
+| Final held-out evaluation | BLOCKED | Protected human evidence is ready, but final model/configuration promotion and the clean-tree final-evaluation gate remain before a final held-out claim. |
 | Paper | NOT STARTED | Must wait for sufficient corpus, labels, experiments, and analysis. |
 
 ## Publication gate
