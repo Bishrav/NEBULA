@@ -37,6 +37,28 @@ $java = Join-Path $env:JAVA_HOME 'bin\java.exe'
 
 The API listens on `http://127.0.0.1:8082` and loads every Markdown file below the supplied directory at startup. This makes the local search index available after every restart.
 
+### Opt-in BGE hybrid mode
+
+The validation-selected BGE configuration is exposed as `mode=bge-hybrid` only
+when the pinned offline cache is supplied. Keep the cache private and set its
+path through `NEBULA_EMBEDDING_CACHE`:
+
+```powershell
+$env:NEBULA_EMBEDDING_CACHE = '.\data\review-batch-01-annotation-private\modern-embedding-cache-bge-base-en-v1.5.tsv'
+& $java -cp 'build\classes' com.nebula.search.LexicalSearchHttpServer '.\datasets\research-corpus-v1\normalized'
+```
+
+Then compare the explicit candidate mode with the default hybrid mode:
+
+```powershell
+Invoke-WebRequest 'http://127.0.0.1:8082/v1/search?q=hybrid%20retrieval&mode=bge-hybrid&limit=5'
+```
+
+Without the pinned cache, `bge-hybrid` returns `503` rather than silently
+using the dependency-free hashing fallback. The current offline cache is for
+the frozen research query set; an arbitrary live query returns `422` until a
+live query-embedding provider is connected.
+
 For deployment, restrict browser access to the known search workspace origin with `NEBULA_ALLOWED_ORIGIN` (or the `nebula.allowedOrigin` Java system property). The default `*` is intended only for local development. API responses include preflight support and browser-safety headers.
 
 To persist pilot search and feedback events across API restarts, pass a third argument for the append-only telemetry log:

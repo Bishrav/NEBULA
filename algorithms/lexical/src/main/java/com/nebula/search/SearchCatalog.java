@@ -124,6 +124,18 @@ public final class SearchCatalog {
                 .search(query, limit);
     }
 
+    /** Validation-selected BGE hybrid configuration; requires the pinned cache model. */
+    public List<SearchResult> bgeHybridSearch(String query, int limit) {
+        if (!embeddingModel.modelId().startsWith("BAAI/bge-base-en-v1.5@")) {
+            throw new IllegalStateException("bge-hybrid requires the pinned BGE embedding cache");
+        }
+        return hybridSearch(query, limit, 0.40, 0.60, 5);
+    }
+
+    public boolean hasPinnedBgeEmbedding() {
+        return embeddingModel.modelId().startsWith("BAAI/bge-base-en-v1.5@");
+    }
+
     /** Fuses lexical and semantic ranks without assuming compatible score scales. */
     public List<SearchResult> rrfSearch(String query, int limit) {
         int candidateLimit = Math.max(limit * 5, limit);

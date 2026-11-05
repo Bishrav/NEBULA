@@ -104,6 +104,15 @@ public final class LexicalSearchHttpServer {
         return create(port, catalog, telemetryFile, studyMetadata);
     }
 
+    private static SearchCatalog catalogFromMarkdownDirectory(Path directory, Path embeddingCache) throws IOException {
+        SearchCatalog catalog = embeddingCache == null
+                ? new SearchCatalog()
+                : new SearchCatalog(new com.nebula.ingestion.DocumentIngestor(), new InvertedIndex(),
+                new CachedEmbeddingModel(embeddingCache));
+        if (directory != null) catalog.indexMarkdownDirectory(directory);
+        return catalog;
+    }
+
     public void start() {
         executor = Executors.newCachedThreadPool();
         server.setExecutor(executor);
@@ -176,6 +185,17 @@ public final class LexicalSearchHttpServer {
                 results = catalog.semanticSearch(query, limit);
             } else if ("hybrid".equalsIgnoreCase(parameters.get("mode"))) {
                 results = catalog.hybridSearch(query, limit);
+            } else if ("bge-hybrid".equalsIgnoreCase(parameters.get("mode"))) {
+                if (!catalog.hasPinnedBgeEmbedding()) {
+                    respond(exchange, 503, "{\"error\":\"bge-hybrid requires NEBULA_EMBEDDING_CACHE with the pinned BGE model\"}");
+                    return;
+                }
+                try {
+                    results = catalog.bgeHybridSearch(query, limit);
+                } catch (IllegalArgumentException exception) {
+                    respond(exchange, 422, "{\"error\":\"query is absent from the offline BGE cache; generate a query embedding before live use\"}");
+                    return;
+                }
             } else if ("hnsw".equalsIgnoreCase(parameters.get("mode"))) {
                 results = catalog.hnswSemanticSearch(query, limit);
             } else {
@@ -621,17 +641,23 @@ public final class LexicalSearchHttpServer {
     public static void main(String[] args) throws Exception {
         int port = args.length > 1 ? Integer.parseInt(args[1]) : 8082;
         Path telemetryFile = args.length > 2 ? Paths.get(args[2]) : null;
+        Path embeddingCache = configuredEmbeddingCache();
         ResearchStudyMetadata metadata = args.length > 3
                 ? new ResearchStudyMetadata(args[3], args.length > 4 ? args[4] : "corpus-v1",
                 args.length > 5 ? args[5] : "wave-1", args.length > 6 ? args[6] : "query-set-v1",
                 args.length > 7 ? args[7] : "unknown")
                 : ResearchStudyMetadata.defaults();
-        LexicalSearchHttpServer httpServer = args.length > 0 && telemetryFile != null
-                ? createFromMarkdownDirectory(port, Paths.get(args[0]), telemetryFile, metadata)
-                : args.length > 0
-                ? createFromMarkdownDirectory(port, Paths.get(args[0]))
-                : create(port, new SearchCatalog());
+        SearchCatalog catalog = catalogFromMarkdownDirectory(args.length > 0 ? Paths.get(args[0]) : null, embeddingCache);
+        LexicalSearchHttpServer httpServer = telemetryFile != null
+                ? create(port, catalog, telemetryFile, metadata)
+                : create(port, catalog);
         httpServer.start();
         System.out.println("NEBULA lexical search listening on http://127.0.0.1:" + port);
+    }
+
+    private static Path configuredEmbeddingCache() {
+        String value = System.getProperty("nebula.embeddingCache");
+        if (value == null || value.trim().isEmpty()) value = System.getenv("NEBULA_EMBEDDING_CACHE");
+        return value == null || value.trim().isEmpty() ? null : Paths.get(value.trim());
     }
 }
