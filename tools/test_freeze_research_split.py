@@ -17,7 +17,7 @@ class SplitTest(unittest.TestCase):
                 for i in range(10): writer.writerow(dict(zip(fields, [f"q{i}", f"How should an engineer configure system {i}?", "configuration", "Kubernetes", "intermediate", "false", "false", "false", "true", "human", "d", "a" * 64, "APPROVED"])))
             qrels.write_text("query_id|document_id|relevance_grade\n" + "\n".join(f"q{i}|d|2" for i in range(10)) + "\n", encoding="utf-8")
             args = type("Args", (), {"queries": queries, "qrels": qrels, "output_dir": output, "corpus_version": "research-corpus-v1", "qrels_version": "qrels-v1", "seed": 7, "code_revision": "test"})()
-            manifest = freeze(args); self.assertEqual(sum(manifest["counts"].values()), 10); self.assertTrue(manifest["frozen"])
+            manifest = freeze(args); self.assertEqual(sum(manifest["counts"].values()), 10); self.assertEqual(manifest["counts"], {"development": 6, "validation": 2, "test": 2}); self.assertTrue(manifest["frozen"])
             with self.assertRaises(ValueError): freeze(args)
 
 

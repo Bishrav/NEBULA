@@ -4,6 +4,7 @@
 import argparse
 import csv
 import hashlib
+import io
 import json
 import random
 import sys
@@ -29,10 +30,10 @@ def load_queries(path):
 
 
 def load_qrels(path, query_ids):
-    with path.open(encoding="utf-8", newline="") as handle:
-        reader = csv.DictReader(handle, delimiter="|")
-        if reader.fieldnames != ["query_id", "document_id", "relevance_grade"]: raise ValueError("qrels schema mismatch")
-        rows = list(reader)
+    lines = [line for line in path.read_text(encoding="utf-8").splitlines() if line.strip() and not line.lstrip().startswith("#")]
+    reader = csv.DictReader(io.StringIO("\n".join(lines)), delimiter="|")
+    if reader.fieldnames != ["query_id", "document_id", "relevance_grade"]: raise ValueError("qrels schema mismatch")
+    rows = list(reader)
     seen = set()
     for row in rows:
         if row["query_id"] not in query_ids: raise ValueError("qrels contains unknown query")
@@ -50,12 +51,14 @@ def assign(rows, seed):
         key = (row["category"], row["project"], row["difficulty"], row["freshness_sensitive"])
         groups[key].append(row["query_id"])
     result = {}
+    cursor = 0
     for key in sorted(groups):
         values = groups[key][:]
         random.Random(f"{seed}|{key}").shuffle(values)
-        for index, query_id in enumerate(values):
-            bucket = index % 10
+        for query_id in values:
+            bucket = cursor % 10
             result[query_id] = "development" if bucket < 6 else ("validation" if bucket < 8 else "test")
+            cursor += 1
     return result
 
 

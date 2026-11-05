@@ -12,7 +12,7 @@
 
 The splitter stratifies by category, project, difficulty, and freshness sensitivity using a deterministic 60/20/20 round-robin allocation. It writes development, validation, and test query files plus an immutable manifest containing source checksums, qrels checksum, assignments, and the required held-out flag.
 
-The current 400 candidates are intentionally not split because they are still `NEEDS_HUMAN_REVIEW` and have no human qrels. No research test set is frozen.
+Review batch 01 now has a protected frozen split for 47 human-approved queries: 30 development, 9 validation, and 8 test queries. The source query file, qrels, and split manifest remain in protected study storage. A broader public final evaluation remains pending.
 
 ## Held-out safety guard
 
