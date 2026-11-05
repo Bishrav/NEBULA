@@ -18,11 +18,18 @@ def git_clean(root):
     return not result.stdout.strip()
 
 
+def read_rows(path):
+    lines = [line for line in path.read_text(encoding="utf-8", newline="").splitlines() if line.strip() and not line.startswith("#")]
+    if not lines:
+        return []
+    delimiter = "|" if "|" in lines[0] else ","
+    return list(csv.DictReader(lines, delimiter=delimiter))
+
+
 def approved_queries(path):
     if not path.is_file():
         return False, "approved query file is absent"
-    with path.open(encoding="utf-8", newline="") as handle:
-        rows = list(csv.DictReader(line for line in handle if not line.startswith("#")))
+    rows = read_rows(path)
     if not rows:
         return False, "approved query file is empty"
     required = {"query_id", "query_text", "review_status"}
@@ -40,8 +47,7 @@ def approved_queries(path):
 def qrels_ready(path):
     if not path.is_file():
         return False, "human qrels file is absent"
-    with path.open(encoding="utf-8", newline="") as handle:
-        rows = list(csv.DictReader(line for line in handle if not line.startswith("#")))
+    rows = read_rows(path)
     if not rows:
         return False, "qrels file is empty"
     if set(rows[0]) != {"query_id", "document_id", "relevance_grade"}:
@@ -146,17 +152,24 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
     parser.add_argument("--output", type=Path)
+    parser.add_argument("--corpus", type=Path)
+    parser.add_argument("--queries", type=Path)
+    parser.add_argument("--qrels", type=Path)
+    parser.add_argument("--split", type=Path)
+    parser.add_argument("--ranking", type=Path)
+    parser.add_argument("--embedding", type=Path)
+    parser.add_argument("--statistics", type=Path)
     args = parser.parse_args()
     root = args.root.resolve()
     result = evaluate(
         root,
-        root / "datasets/research-corpus-v1/manifests/research-corpus-v1.json",
-        root / "datasets/research-corpus-v1/metadata/approved-queries.psv",
-        root / "datasets/research-corpus-v1/metadata/qrels-v1.psv",
-        root / "datasets/research-corpus-v1/splits/split-manifest.json",
-        root / "experiments/retrieval/final-ranking.json",
-        root / "experiments/retrieval/final-embedding.json",
-        root / "docs/research/statistical-analysis.md",
+        (args.corpus or root / "datasets/research-corpus-v1/manifests/research-corpus-v1.json").resolve(),
+        (args.queries or root / "datasets/research-corpus-v1/metadata/approved-queries.psv").resolve(),
+        (args.qrels or root / "datasets/research-corpus-v1/metadata/qrels-v1.psv").resolve(),
+        (args.split or root / "datasets/research-corpus-v1/splits/split-manifest.json").resolve(),
+        (args.ranking or root / "experiments/retrieval/final-ranking.json").resolve(),
+        (args.embedding or root / "experiments/retrieval/final-embedding.json").resolve(),
+        (args.statistics or root / "docs/research/statistical-analysis.md").resolve(),
     )
     text = json.dumps(result, indent=2) + "\n"
     if args.output:
