@@ -1,10 +1,10 @@
 # research-corpus-v1 report
 
-**Status:** `PROVISIONAL — NEEDS HUMAN LICENSING REVIEW`
+**Status:** `ADMITTED WITH ATTRIBUTION`
 
-Documents: **843**  
-Words: **1164933**  
-Rejected during acquisition: **7**
+Documents: **843**
+Words: **1164933**
+Rejected during acquisition: **7**, Licensing status: **APPROVED_WITH_ATTRIBUTION**
 
 ## Composition
 

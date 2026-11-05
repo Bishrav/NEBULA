@@ -27,8 +27,8 @@
     "CC-BY-4.0",
     "PostgreSQL License"
   ],
-  "licensing_status": "NEEDS_HUMAN_LICENSING_REVIEW",
-  "provisional": true,
+  "licensing_status": "APPROVED_WITH_ATTRIBUTION",
+  "provisional": false,
   "rejected": 7,
   "schema_version": "research-corpus-statistics-v1",
   "words": 1164933

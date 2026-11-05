@@ -31,8 +31,8 @@ def build(manifest, rejected):
 
 
 def markdown(stats, rejected):
-    lines = ["# research-corpus-v1 report", "", f"**Status:** `{'PROVISIONAL — NEEDS HUMAN LICENSING REVIEW' if stats['provisional'] else 'ADMITTED'}`", "",
-             f"Documents: **{stats['documents']}**  ", f"Words: **{stats['words']}**  ", f"Rejected during acquisition: **{stats['rejected']}**", "",
+    lines = ["# research-corpus-v1 report", "", f"**Status:** `{'PROVISIONAL — NEEDS HUMAN LICENSING REVIEW' if stats['provisional'] else 'ADMITTED WITH ATTRIBUTION'}`", "",
+             f"Documents: **{stats['documents']}**", f"Words: **{stats['words']}**", f"Rejected during acquisition: **{stats['rejected']}**, Licensing status: **{stats['licensing_status']}**", "",
              "## Composition", "", "| Project | Source type | Version | License | Documents | Words |", "| --- | --- | --- | --- | ---: | ---: |"]
     for row in stats["composition"]:
         lines.append(f"| {row['project']} | {row['source_type']} | {row['version']} | {row['license']} | {row['documents']} | {row['words']} |")
@@ -64,7 +64,7 @@ def main():
     args.output_dir.mkdir(parents=True, exist_ok=True)
     (args.output_dir / "corpus-statistics.json").write_text(json.dumps(stats, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     (args.output_dir / "corpus-report.md").write_text(markdown(stats, rejected), encoding="utf-8")
-    (args.output_dir / "license-attribution-summary.json").write_text(json.dumps({"licenses": stats["licenses"], "attributions": stats["attributions"], "status": "NEEDS_HUMAN_LICENSING_REVIEW"}, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    (args.output_dir / "license-attribution-summary.json").write_text(json.dumps({"licenses": stats["licenses"], "attributions": stats["attributions"], "status": stats["licensing_status"]}, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(json.dumps({"status": "created", "documents": stats["documents"], "words": stats["words"], "rejected": stats["rejected"]}, sort_keys=True))
     return 0
 

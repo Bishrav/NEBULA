@@ -4,9 +4,9 @@ This directory is the first public engineering corpus snapshot for NEBULA. It is
 
 ## Status
 
-**PROVISIONAL - NEEDS HUMAN LICENSING REVIEW**
+**APPROVED WITH ATTRIBUTION - SEE NOTICE.md**
 
-The source-level licenses are recorded in `benchmarks/research/source-registry-v1.psv`, but repository-level licensing does not automatically resolve third-party excerpts, generated content, attribution requirements, or redistribution obligations for every document. Do not describe this snapshot as legally cleared until a human review is recorded.
+Human review by Bishrav Shiwakoti recorded conditional APPROVED_WITH_ATTRIBUTION decisions for both source projects on 2026-11-05. The source-level licenses are recorded in the repository registry; NOTICE.md and the retained source notices must accompany every corpus export. This status is a project release record, not legal advice.
 
 ## Layout
 

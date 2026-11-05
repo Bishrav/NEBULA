@@ -76,12 +76,13 @@ def audit(registry_path, manifest_path, corpus_root):
             "issues": row_errors,
         })
 
+    recorded_status = manifest.get("licensing_status", "NEEDS_HUMAN_LICENSING_REVIEW")
     return {
         "schema_version": "corpus-license-audit-v1",
         "corpus_version": manifest.get("corpus_version"),
         "structural_status": "PASS" if not structural_errors else "REVIEW_REQUIRED",
-        "legal_clearance": "NOT_DECIDED",
-        "human_review_required": True,
+        "legal_clearance": recorded_status if recorded_status != "NEEDS_HUMAN_LICENSING_REVIEW" else "NOT_DECIDED",
+        "human_review_required": recorded_status == "NEEDS_HUMAN_LICENSING_REVIEW",
         "document_count": len(documents),
         "source_count": len(rows),
         "structural_errors": structural_errors,
