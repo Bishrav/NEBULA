@@ -1,0 +1,6 @@
+# CPU-only environment for the pinned offline embedding workflow.
+# Install this file in a Linux container or another compatible Python 3.11 environment.
+--extra-index-url https://download.pytorch.org/whl/cpu
+sentence-transformers==6.0.0
+torch==2.13.0+cpu
+numpy==1.26.4

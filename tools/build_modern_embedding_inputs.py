@@ -34,11 +34,14 @@ def build(corpus, queries):
     lines = queries.read_text(encoding="utf-8").splitlines()
     for line in lines:
         if not line.strip() or line.startswith("#") or line.startswith("query_id|"): continue
-        parts = line.split("|", 2)
-        if len(parts) < 2 or not parts[0].strip() or not parts[1].strip(): raise ValueError("malformed query row")
-        text = parts[1].strip()
+        first_separator = line.find("|")
+        last_separator = line.rfind("|")
+        if first_separator <= 0 or last_separator <= first_separator: raise ValueError("malformed query row")
+        query_id = line[:first_separator].strip()
+        text = line[first_separator + 1:last_separator].strip()
+        if not query_id or not text: raise ValueError("malformed query row")
         if text not in seen:
-            seen.add(text); rows.append({"kind": "query", "id": parts[0].strip(), "text": text})
+            seen.add(text); rows.append({"kind": "query", "id": query_id, "text": text})
     if not rows: raise ValueError("no corpus or query texts found")
     return rows
 

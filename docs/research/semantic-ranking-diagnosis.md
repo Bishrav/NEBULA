@@ -34,8 +34,10 @@ Linux engine is unavailable.
 
 ## Next action
 
-Prepare a compatible isolated Python environment, run the frozen input
-manifest through `tools/generate_modern_embeddings.py`, and rerun development,
-validation, and held-out evaluation with `--embedding-cache`. Only after that
-measurement should NEBULA tune semantic/hybrid weights or make a claim about
-semantic retrieval quality.
+Prepare a compatible isolated Python environment using
+`tools/modern-embeddings-cpu-requirements.txt` (the CPU-only variant avoids
+installing unnecessary CUDA packages), run the frozen input manifest through
+`tools/generate_modern_embeddings.py`, and rerun development, validation, and
+held-out evaluation with `--embedding-cache`. Only after that measurement
+should NEBULA tune semantic/hybrid weights or make a claim about semantic
+retrieval quality.
