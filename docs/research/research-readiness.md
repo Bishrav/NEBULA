@@ -1,6 +1,6 @@
 # NEBULA research-readiness dashboard
 
-**Revision assessed:** `398d2f1`
+**Revision assessed:** `ef3b9d8`
 **Interpretation:** COMPLETE means supported by repository evidence; PARTIAL means infrastructure exists but the study evidence is incomplete; BLOCKED means external or missing data is required; NOT STARTED means no credible implementation exists.
 
 | Requirement | Status | Evidence |
@@ -10,15 +10,15 @@
 | Ranking formula and configuration | COMPLETE | [Ranking model](ranking-model.md) and versioned JSON configuration. |
 | Defensible trust definition | COMPLETE | [Ranking model](ranking-model.md) separates relevance, reliability signals, freshness, authority, graph importance, and evidence quality. |
 | Regression benchmark | COMPLETE | `benchmarks/evaluation/corpus-v1`, `queries-v1.psv`, CI runner. |
-| Realistic public corpus | PARTIAL | `datasets/research-corpus-v1` contains 843 documents from fixed Kubernetes/PostgreSQL commits with raw/normalized checksums and recorded conditional licensing review; redistribution and institutional review boundaries remain. |
+| Realistic public corpus | COMPLETE (protected) | `datasets/research-corpus-v1` contains 843 documents from fixed Kubernetes/PostgreSQL commits with raw/normalized checksums and an approved-with-attribution licensing review; redistribution and institutional review boundaries remain explicit. |
 | Sufficient research query set | PARTIAL | Review batch 01 has 47 approved queries in protected storage, with a frozen 30/9/8 split; the public repository retains the candidate-generation and review tooling, not protected query labels. |
-| Multi-annotator relevance judgements | PARTIAL | Two protected canonical exports validate with 188 rows each; labels and qrels are intentionally excluded from the public repository. |
+| Multi-annotator relevance judgements | COMPLETE (protected batch) | Two protected canonical exports validate with 188 rows each; labels and qrels are intentionally excluded from the public repository. |
 | Weighted agreement | COMPLETE (protected) | Recomputed agreement reports zero disagreements and nominal, linear weighted, and quadratic weighted kappa of 1.0. |
 | Development/validation/test split | COMPLETE (protected) | The protected split manifest is frozen, disjoint, and requires `--final-heldout-evaluation`. |
 | Strong baselines | COMPLETE (configuration frozen) | BGE, hybrid, and baseline results exist on protected research qrels; final BGE ranking and embedding manifests are frozen from validation-only evidence. |
-| Trust-signal ablation | PARTIAL | Legacy variants and explicit A3–A9 hybrid signal combinations now run; real research results and A0–A2 labels still require the expanded benchmark. |
+| Trust-signal ablation | PARTIAL | Legacy variants and explicit A0–A9 hybrid signal combinations run; the current protected held-out comparison is preliminary and the benchmark should be expanded. |
 | Weight sensitivity | PARTIAL | Deterministic one-factor 16-row evaluator and regression-fixture artifact are implemented; research-corpus sensitivity remains blocked by human qrels and frozen splits. |
-| Per-query and category analysis | PARTIAL | Per-query failures and category summaries are generated for the synthetic fixture; signal-level analysis and human-judged research-corpus results remain incomplete. |
+| Per-query and category analysis | PARTIAL | Per-query failures and category summaries are generated for the synthetic fixture, with protected held-out analysis recorded separately; broader signal-level analysis remains incomplete. |
 | Statistical uncertainty | PARTIAL | Paired bootstrap intervals, permutation p-values, effect sizes, and Holm correction tooling now exist; no adequately powered research result exists. |
 | ANN scaling | PARTIAL | Configurable repeated-trial harness and manifest tooling exist; 10K and a lower-cost 100K run are measured, with the 100K configuration showing zero recall; target-parameter 100K and 1M runs are HARDWARE-LIMITED. Results are synthetic-vector systems evidence only. |
 | Distributed experiments | PARTIAL | Local D0/D1/D3/D8 measurements now record latency, partial responses, retries, circuit observations, recovery, and top-k overlap; the remaining matrix, qrels-based quality degradation, and broader topology replication remain. See [distributed plan](distributed-experiment-plan.md). |
