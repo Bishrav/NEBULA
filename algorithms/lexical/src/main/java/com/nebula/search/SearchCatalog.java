@@ -115,6 +115,15 @@ public final class SearchCatalog {
         return hybridSearchEngine.search(query, limit);
     }
 
+    /** Controlled hybrid variant used by reproducible ranking ablations. */
+    public List<SearchResult> hybridSearch(String query, int limit,
+                                           double lexicalWeight, double semanticWeight,
+                                           int candidateMultiplier) {
+        return new HybridSearchEngine(searchEngine, semanticSearchEngine,
+                RankingConfiguration.hybrid(lexicalWeight, semanticWeight), candidateMultiplier)
+                .search(query, limit);
+    }
+
     /** Fuses lexical and semantic ranks without assuming compatible score scales. */
     public List<SearchResult> rrfSearch(String query, int limit) {
         int candidateLimit = Math.max(limit * 5, limit);

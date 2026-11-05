@@ -98,6 +98,7 @@ jobs:
           java -cp build/classes com.nebula.search.CorsSecurityTest
           java -cp build/classes com.nebula.evaluation.RankingVariantEvaluatorTest
           java -cp build/classes com.nebula.evaluation.EvaluationDatasetLoaderTest
+          java -cp build/classes com.nebula.evaluation.BgeHybridSweepEvaluatorTest
           java -cp build/classes com.nebula.search.DistributedSearchTest
           java -cp build/classes com.nebula.search.ReplicationRecoveryTest
           java -cp build/classes com.nebula.search.NetworkQueryCoordinatorTest

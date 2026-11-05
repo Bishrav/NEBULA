@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "ranking-configuration-v1",
+  "purpose": "validation-selected BGE hybrid candidate; held-out confirmed, not a publication claim",
+  "modelId": "BAAI/bge-base-en-v1.5",
+  "revision": "a5beb1e3e68b9ab74eb54cfd186867f64f240e1a",
+  "hybrid": {
+    "fusionStrategy": "weighted_min_max",
+    "lexicalWeight": 0.4,
+    "semanticWeight": 0.6,
+    "candidateMultiplier": 5
+  },
+  "selection": {
+    "selectionSplit": "validation",
+    "validationNdcgAt5": 0.958992,
+    "validationMrr": 0.944444,
+    "heldOutConfirmationNdcgAt5": 0.864665,
+    "heldOutConfirmationMrr": 0.875,
+    "heldOutConfirmationRecallAt5": 0.8125
+  },
+  "interpretation": "Candidate configuration is recorded for reproducibility; runtime defaults remain unchanged until a broader evaluation supports promotion."
+}

@@ -14,6 +14,7 @@ public final class HybridSearchEngine {
     private final BM25SearchEngine lexical;
     private final SemanticSearchEngine semantic;
     private final RankingConfiguration configuration;
+    private final int candidateMultiplier;
 
     public HybridSearchEngine(BM25SearchEngine lexical, SemanticSearchEngine semantic) {
         this(lexical, semantic, RankingConfiguration.hybrid(0.5, 0.5));
@@ -26,19 +27,26 @@ public final class HybridSearchEngine {
 
     public HybridSearchEngine(BM25SearchEngine lexical, SemanticSearchEngine semantic,
                               RankingConfiguration configuration) {
+        this(lexical, semantic, configuration, CANDIDATE_MULTIPLIER);
+    }
+
+    public HybridSearchEngine(BM25SearchEngine lexical, SemanticSearchEngine semantic,
+                              RankingConfiguration configuration, int candidateMultiplier) {
         if (lexical == null || semantic == null) throw new IllegalArgumentException("search engines are required");
         if (configuration == null) throw new IllegalArgumentException("ranking configuration is required");
+        if (candidateMultiplier <= 0) throw new IllegalArgumentException("candidate multiplier must be positive");
         this.lexical = lexical;
         this.semantic = semantic;
         this.configuration = configuration;
+        this.candidateMultiplier = candidateMultiplier;
     }
 
     public RankingConfiguration getConfiguration() { return configuration; }
 
     public List<SearchResult> search(String query, int limit) {
         if (limit <= 0) throw new IllegalArgumentException("limit must be positive");
-        int candidateLimit = limit > Integer.MAX_VALUE / CANDIDATE_MULTIPLIER
-                ? Integer.MAX_VALUE : limit * CANDIDATE_MULTIPLIER;
+        int candidateLimit = limit > Integer.MAX_VALUE / candidateMultiplier
+                ? Integer.MAX_VALUE : limit * candidateMultiplier;
         List<SearchResult> lexicalResults = lexical.search(query, candidateLimit);
         List<SearchResult> semanticResults = semantic.search(query, candidateLimit);
         Map<String, Candidate> candidates = new LinkedHashMap<>();

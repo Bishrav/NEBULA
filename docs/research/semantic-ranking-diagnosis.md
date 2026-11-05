@@ -44,5 +44,8 @@ the pinned model revision.
 ## Next action
 
 The next research action is weight and candidate-depth analysis using the real
-BGE cache. Any new ranking configuration must beat this BGE hybrid baseline on
-validation and then be confirmed on the held-out split.
+BGE cache. That sweep selected a 0.40 lexical / 0.60 semantic configuration
+with the existing candidate multiplier of 5: validation nDCG@5 was 0.958992,
+and held-out confirmation nDCG@5 was 0.864665. The candidate is recorded in
+`experiments/retrieval/bge-hybrid-selected.json`; runtime defaults remain
+unchanged until a broader evaluation supports promotion.
