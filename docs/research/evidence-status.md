@@ -28,6 +28,10 @@ Assessed against commit `398d2f1`.
   measured on 843 documents and 8 queries: BM25 NDCG@5 `0.739665` versus
   frozen BGE hybrid NDCG@5 `0.864665`. This is preliminary protected evidence,
   not a generalization or superiority claim.
+- The paired analysis over those 8 queries produced mean NDCG@5 difference
+  `+0.125000`, median `0.000000`, bootstrap 95% interval `[0.000000,
+  0.375000]`, permutation p-value `1.0`, and Holm-adjusted p-value `1.0`.
+  The result is descriptive and underpowered.
 
 ## Not present or not valid for research claims
 

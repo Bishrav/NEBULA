@@ -85,6 +85,13 @@ split. This is a measured result from a small protected research batch. It is
 not sufficient to claim statistical significance, general engineering-search
 quality, or user benefit.
 
+The paired NDCG@5 analysis used 10,000 bootstrap resamples and 10,000 sign
+permutations with seed `20261105`. Across the 8 paired queries, the mean
+difference was `+0.125000`, the median difference was `0.000000`, and the win
+rate was `12.5%`. The bootstrap 95% interval was `[0.000000, 0.375000]`; the
+permutation p-value and Holm-adjusted p-value were both `1.0`. These are
+descriptive uncertainty outputs, not evidence of statistical significance.
+
 The detailed report and JSON comparison remain in protected local evaluation
 storage rather than the public repository.
 
