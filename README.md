@@ -16,7 +16,7 @@ NEBULA is a research prototype for retrieving engineering documentation with sig
 
 </div>
 
-> **Honest status.** NEBULA has a working retrieval and reliability prototype, a reproducible synthetic regression fixture, and research tooling. It is not yet a validated claim about trust, user benefit, statistical superiority, or production-scale search. The next research milestone is a licensed corpus with independently created relevance judgements.
+> **Honest status.** NEBULA has a working Java 17 retrieval and reliability prototype, an attributed 843-document research corpus, protected independently created relevance judgements, a frozen BGE configuration, and one measured held-out run. The protected result is preliminary and underpowered; it is not a validated claim about trust, user benefit, statistical superiority, or production-scale search.
 
 ## The problem
 
@@ -41,10 +41,10 @@ The project is designed to answer three practical questions:
 | Retrieval methods | BM25, phrase search, semantic baselines, exact cosine, custom HNSW, score fusion, RRF |
 | Trust-oriented signals | Freshness, source authority, PageRank-style graph authority, evidence metadata |
 | Reliability model | Sharding, fan-out, deterministic top-k merge, retries, replicas, circuit breaking, partial-result reporting |
-| Current evidence | Small synthetic regression benchmark plus a provisional public-safe corpus under provenance review |
+| Current evidence | Reproducible synthetic fixture plus a protected 843-document corpus evaluation with 47 approved queries and an 8-query held-out split |
 | Metrics | Precision@k, Recall@k, MRR, NDCG, ANN recall/latency, graph diagnostics, and failure behaviour |
 | Reproducibility | Versioned inputs, frozen split, SHA-256 lock file, generated reports, CI validation |
-| Academic status | Strong prototype infrastructure; publication-quality corpus and human qrels are still pending |
+| Academic status | Research prototype with measured protected evidence; broader validation, institutional review, and publication-quality inference remain pending |
 
 ## What is implemented
 
@@ -263,9 +263,9 @@ docs/research/              Research plan, protocols, audit, claim controls
 
 | Priority | Next milestone | Definition of done |
 | --- | --- | --- |
-| 1 | Research corpus | Licensed, attributed corpus with provenance and redistribution records |
-| 2 | Human qrels | Frozen query protocol, independent annotations, agreement, adjudication |
-| 3 | Statistical evaluation | COMPLETE FOR SYNTHETIC FIXTURE: per-query results, paired uncertainty intervals, effect sizes, and sensitivity analysis |
+| 1 | Research corpus | CONDITIONAL COMPLETE: 843-document attributed corpus with provenance records; institutional/licensing review boundaries remain |
+| 2 | Human qrels | COMPLETE IN PROTECTED STORAGE: frozen query protocol, independent annotations, agreement, adjudication, and release-ready qrels |
+| 3 | Statistical evaluation | MEASURED, UNDERPOWERED: protected held-out metrics, paired uncertainty intervals, effect sizes, and sensitivity analysis |
 | 4 | Systems evidence | PARTIAL: local ANN and distributed measurements exist; broader scale and topology evidence remain |
 | 5 | Academic package | COMPLETE FOR PROTOTYPE: research brief, review brief, demo workflow, reproducibility bundle, and bounded claims |
 | 6 | Product hardening | Authenticated connectors, durable storage, observability, backups, and deployment automation |
