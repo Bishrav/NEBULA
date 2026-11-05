@@ -38,3 +38,15 @@ Then calculate agreement and produce the disagreement list:
 python tools/analyze_canonical_annotation_agreement.py --annotations data/review-batch-01-annotation-private/annotations-A.canonical.psv data/review-batch-01-annotation-private/annotations-B.canonical.psv --output data/review-batch-01-annotation-private/agreement.json
 
 Do not create qrels until disagreements have been adjudicated and the explicit release gate is marked release-ready.
+
+## Zero-disagreement release
+
+When both validated canonical exports have zero disagreements, prepare the
+protected consensus release and qrels:
+
+python tools/prepare_canonical_release.py --annotations data/review-batch-01-annotation-private/annotations-A.canonical.psv data/review-batch-01-annotation-private/annotations-B.canonical.psv --agreement data/review-batch-01-annotation-private/agreement.json --adjudication data/review-batch-01-annotation-private/consensus-adjudication.json --release data/review-batch-01-annotation-private/release.json
+
+python tools/build_final_qrels.py --release data/review-batch-01-annotation-private/release.json --adjudication data/review-batch-01-annotation-private/consensus-adjudication.json --output data/review-batch-01-annotation-private/final-qrels.psv
+
+Keep canonical annotations, the consensus record, release record, and qrels in
+protected study storage. They must not be committed to the public repository.
