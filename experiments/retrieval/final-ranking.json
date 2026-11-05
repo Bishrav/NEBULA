@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "ranking-configuration-v1",
+  "purpose": "final configuration frozen from validation only; held-out evaluation must remain one-time and confirmatory",
+  "modelId": "BAAI/bge-base-en-v1.5",
+  "revision": "a5beb1e3e68b9ab74eb54cfd186867f64f240e1a",
+  "hybrid": {
+    "fusionStrategy": "weighted_min_max",
+    "lexicalWeight": 0.4,
+    "semanticWeight": 0.6,
+    "candidateMultiplier": 5
+  },
+  "freeze": {
+    "selectionSplit": "validation",
+    "selectionEvidence": "experiments/retrieval/bge-hybrid-selected.json",
+    "testResultsUsedForTuning": false
+  },
+  "interpretation": "Frozen configuration for the protected research evaluation; not a claim of general superiority or production readiness."
+}

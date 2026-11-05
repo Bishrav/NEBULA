@@ -15,7 +15,7 @@
 | Multi-annotator relevance judgements | PARTIAL | Two protected canonical exports validate with 188 rows each; labels and qrels are intentionally excluded from the public repository. |
 | Weighted agreement | COMPLETE (protected) | Recomputed agreement reports zero disagreements and nominal, linear weighted, and quadratic weighted kappa of 1.0. |
 | Development/validation/test split | COMPLETE (protected) | The protected split manifest is frozen, disjoint, and requires `--final-heldout-evaluation`. |
-| Strong baselines | PARTIAL | BGE, hybrid, and baseline results now exist on protected research qrels; final model/configuration promotion remains separate from the validation-selected candidate. |
+| Strong baselines | COMPLETE (configuration frozen) | BGE, hybrid, and baseline results exist on protected research qrels; final BGE ranking and embedding manifests are frozen from validation-only evidence. |
 | Trust-signal ablation | PARTIAL | Legacy variants and explicit A3–A9 hybrid signal combinations now run; real research results and A0–A2 labels still require the expanded benchmark. |
 | Weight sensitivity | PARTIAL | Deterministic one-factor 16-row evaluator and regression-fixture artifact are implemented; research-corpus sensitivity remains blocked by human qrels and frozen splits. |
 | Per-query and category analysis | PARTIAL | Per-query failures and category summaries are generated for the synthetic fixture; signal-level analysis and human-judged research-corpus results remain incomplete. |
@@ -29,7 +29,7 @@
 | Claim ledger | COMPLETE | [Claim ledger](claim-ledger.md) constrains wording and prohibits unsupported claims. |
 | Human study | BLOCKED | Draft submission package now exists in docs/research/human-study with protocol, participant materials, consent, risk, data-management, task, questionnaire, debriefing, analysis, and checklist documents; supervisor/institutional review, recruitment, consent, and real data remain outstanding. |
 | Ethics review | BLOCKED | Institutional determination is external. |
-| Final held-out evaluation | BLOCKED | Protected human evidence is ready, but final model/configuration promotion and the clean-tree final-evaluation gate remain before a final held-out claim. |
+| Final held-out evaluation | BLOCKED | Protected human evidence and final configuration manifests are ready; the protected-path gate and clean-tree one-time evaluation remain before a final held-out claim. |
 | Paper | NOT STARTED | Must wait for sufficient corpus, labels, experiments, and analysis. |
 
 ## Publication gate

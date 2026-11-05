@@ -28,9 +28,10 @@ as independently validated human evidence.
 
 The protected review batch now has approved queries, independent annotations,
 agreement, consensus adjudication, frozen splits, and released qrels. Those
-artifacts remain outside the public repository. The gate is still blocked until
-the final ranking/embedding configuration is explicitly promoted and the
-evaluation is run from a clean, versioned revision. No final held-out claim may
-be made from the current validation-selected candidate alone.
+artifacts remain outside the public repository. The final ranking and embedding
+manifests are now frozen from validation-only evidence. The gate remains blocked
+until the protected paths are supplied to the gate and the evaluation is run
+from a clean, versioned revision. No final held-out claim may be made before
+that run.
 
 Synthetic regression evaluation remains permitted for software regression only. It must not be reported as final research evidence.
