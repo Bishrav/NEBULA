@@ -85,7 +85,9 @@ def split_ready(path):
     except (OSError, json.JSONDecodeError):
         return False, "split manifest is invalid JSON"
     required = {"development", "validation", "test"}
-    if data.get("frozen") is not True or data.get("heldoutFlagRequired") != "--final-heldout-evaluation" or not required.issubset(data):
+    has_expanded_sets = required.issubset(data)
+    has_assignments = isinstance(data.get("assignments"), dict)
+    if data.get("frozen") is not True or data.get("heldoutFlagRequired") != "--final-heldout-evaluation" or not (has_expanded_sets or has_assignments):
         return False, "split must be frozen, contain development/validation/test, and require the held-out flag"
     sets = []
     assignments = data.get("assignments")
