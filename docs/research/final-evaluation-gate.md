@@ -24,14 +24,14 @@ as independently validated human evidence.
 
 ## Current gate status
 
-**BLOCKED — NOT READY FOR FINAL HELD-OUT EVALUATION**
+**GATE PASSED — PROTECTED RUN MEASURED; PUBLICATION CLAIM STILL BLOCKED**
 
-The protected review batch now has approved queries, independent annotations,
-agreement, consensus adjudication, frozen splits, and released qrels. Those
-artifacts remain outside the public repository. The final ranking and embedding
-manifests are now frozen from validation-only evidence. The gate remains blocked
-until the protected paths are supplied to the gate and the evaluation is run
-from a clean, versioned revision. No final held-out claim may be made before
-that run.
+The protected review batch has approved queries, independent annotations,
+agreement, consensus adjudication, frozen splits, and released qrels. The final
+ranking and embedding manifests were frozen from validation-only evidence. The
+protected-path gate passed and the held-out run completed once on 8 queries.
+Those artifacts remain outside the public repository. The result is measured
+preliminary evidence, not a claim of statistical significance, generalization,
+or user benefit.
 
 Synthetic regression evaluation remains permitted for software regression only. It must not be reported as final research evidence.

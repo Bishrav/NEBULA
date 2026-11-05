@@ -24,14 +24,19 @@ Assessed against commit `398d2f1`.
   they contain protected research data.
 - The synthetic regression benchmark is reproducible with
   `python tools/reproduce_benchmark.py` and has a checksum lock.
+- After the protected final-evaluation gate passed, one frozen held-out run was
+  measured on 843 documents and 8 queries: BM25 NDCG@5 `0.739665` versus
+  frozen BGE hybrid NDCG@5 `0.864665`. This is preliminary protected evidence,
+  not a generalization or superiority claim.
 
 ## Not present or not valid for research claims
 
 - The protected annotation source, canonical labels, agreement, adjudication,
   split, and qrels are not public repository artifacts and cannot be verified
   from a fresh public clone alone.
-- Final configuration promotion and a clean-tree final evaluation gate have
-  not yet been completed.
+- The held-out run is intentionally small and underpowered for publication-grade
+  inference; supervisor review and broader independently judged evidence remain
+  required.
 - Metrics from the four-document synthetic fixture must not be reported as
   metrics for the 843-document research corpus.
 
@@ -41,5 +46,6 @@ Assessed against commit `398d2f1`.
    repository.
 2. Freeze the final ranking and embedding configuration after validation-set
    review.
-3. Run the final held-out evaluation only after the clean-tree gate passes.
+3. Treat the protected held-out run as preliminary until the statistical and
+   study protocol support a claim.
 4. Obtain supervisor/institutional review before making human-study claims.

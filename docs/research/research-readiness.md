@@ -29,7 +29,7 @@
 | Claim ledger | COMPLETE | [Claim ledger](claim-ledger.md) constrains wording and prohibits unsupported claims. |
 | Human study | BLOCKED | Draft submission package now exists in docs/research/human-study with protocol, participant materials, consent, risk, data-management, task, questionnaire, debriefing, analysis, and checklist documents; supervisor/institutional review, recruitment, consent, and real data remain outstanding. |
 | Ethics review | BLOCKED | Institutional determination is external. |
-| Final held-out evaluation | BLOCKED | Protected human evidence and final configuration manifests are ready; the protected-path gate and clean-tree one-time evaluation remain before a final held-out claim. |
+| Final held-out evaluation | PARTIAL | The protected gate passed and one frozen held-out run was measured on 8 queries; the batch is too small for publication-grade inference or generalization claims. |
 | Paper | NOT STARTED | Must wait for sufficient corpus, labels, experiments, and analysis. |
 
 ## Publication gate
