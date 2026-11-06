@@ -1,14 +1,15 @@
-﻿# University submission package
+# University submission package
 
 This folder contains the editable outreach template for an academic discussion of NEBULA.
 
 ## Before sending
 
 1. Replace every bracketed placeholder in `NEBULA-professor-approval-letter-template.docx`.
-2. Keep the project status accurate: NEBULA is a research prototype with preliminary synthetic-fixture evidence.
+2. Keep the project status accurate: NEBULA is a research prototype with preliminary protected held-out evidence; the public fixture remains synthetic and regression-only.
 3. Attach the [university review brief](../tu-darmstadt-submission-brief.md), [academic research brief](../academic-research-brief.md), and [demo workflow](../../demo-workflow.md).
 4. Include the [claim ledger](../claim-ledger.md) when a reviewer wants a compact view of what is demonstrated and what remains open.
 5. Do not describe the project as affiliated with TU Darmstadt, approved by an ethics board, or validated on human participants unless that becomes true through the appropriate process.
+6. Use [professor-outreach-email.md](professor-outreach-email.md) as the starting point for a concise first contact, replacing every bracketed field before sending.
 
 ## Local verification
 
