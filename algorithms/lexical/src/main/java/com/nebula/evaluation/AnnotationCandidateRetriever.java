@@ -12,6 +12,8 @@ import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.HashSet;
@@ -20,8 +22,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Produces the private, fixed-retrieval candidate artifact used to populate
- * blinded annotation packets. It never injects query grounding documents.
+ * Produces the private, pooled retrieval artifact used to populate blinded
+ * annotation packets. It never injects query grounding documents.
  */
 public final class AnnotationCandidateRetriever {
     private static final Pattern OBJECT = Pattern.compile("\\{\\s*\\n(.*?)\\n\\s*\\}", Pattern.DOTALL);
@@ -30,17 +32,18 @@ public final class AnnotationCandidateRetriever {
 
     public static void main(String[] args) throws Exception {
         if (args.length < 3 || args.length > 7) {
-            System.err.println("Usage: AnnotationCandidateRetriever <approved-queries.psv> <corpus-manifest.json> <output-dir> [topK] [hybrid|trust-oriented] [seed] [nowEpochMillis]");
+            System.err.println("Usage: AnnotationCandidateRetriever <approved-queries.psv> <corpus-manifest.json> <output-dir> [topKPerSystem] [modes] [seed] [nowEpochMillis]");
             System.exit(2);
         }
         Path queriesPath = Paths.get(args[0]);
         Path manifestPath = Paths.get(args[1]);
         Path outputDir = Paths.get(args[2]);
         int topK = args.length > 3 ? Integer.parseInt(args[3]) : 10;
-        String mode = args.length > 4 ? args[4] : "hybrid";
+        String modesArgument = args.length > 4 ? args[4] : "hybrid";
         long seed = args.length > 5 ? Long.parseLong(args[5]) : 20260822L;
         long now = args.length > 6 ? Long.parseLong(args[6]) : System.currentTimeMillis();
-        if (topK <= 0 || !(mode.equals("hybrid") || mode.equals("trust-oriented"))) throw new IllegalArgumentException("invalid retrieval configuration");
+        if (topK <= 0) throw new IllegalArgumentException("topKPerSystem must be positive");
+        List<String> modes = parseModes(modesArgument);
 
         List<Query> queries = readQueries(queriesPath);
         List<ManifestDocument> manifest = readManifest(manifestPath);
@@ -53,37 +56,96 @@ public final class AnnotationCandidateRetriever {
             byTextPath.put(document.textPath.replace('\\', '/'), document);
         }
         outputDir.toFile().mkdirs();
-        StringBuilder candidates = new StringBuilder("query_id|annotation_query_id|document_id|retrieval_rank|title|excerpt|score|source_path|source_url\n");
+        StringBuilder candidates = new StringBuilder("query_id|annotation_query_id|document_id|retrieval_rank|title|excerpt|score|source_path|source_url|retrieval_systems|retrieval_ranks\n");
         StringBuilder key = new StringBuilder("annotation_query_id|original_query_id\n");
         int queryNumber = 0;
         for (Query query : queries) {
             String annotationId = String.format("AQ-%04d", ++queryNumber);
             key.append(annotationId).append('|').append(query.id).append('\n');
-            List<SearchResult> results = mode.equals("hybrid")
-                    ? catalog.hybridSearch(query.text, topK)
-                    : catalog.searchTrustOrientedHybrid(query.text, topK, now, 0.70, 0.0, 0.14, 0.10, 0.06);
-            int rank = 0;
-            for (SearchResult result : results) {
-                ManifestDocument document = byTextPath.get(result.getDocument().getSourcePath().replace('\\', '/'));
-                if (document == null) throw new IllegalStateException("retrieved document missing from corpus manifest: " + result.getDocument().getSourcePath());
+            Map<String, PooledDocument> pooled = new HashMap<>();
+            for (String mode : modes) {
+                List<SearchResult> results = search(catalog, query.text, topK, now, mode);
+                for (int index = 0; index < results.size(); index++) {
+                    SearchResult result = results.get(index);
+                    String sourcePath = result.getDocument().getSourcePath().replace('\\', '/');
+                    ManifestDocument document = byTextPath.get(sourcePath);
+                    if (document == null) throw new IllegalStateException("retrieved document missing from corpus manifest: " + sourcePath);
+                    PooledDocument item = pooled.get(sourcePath);
+                    if (item == null) {
+                        item = new PooledDocument(document, result.getDocument().getText());
+                        pooled.put(sourcePath, item);
+                    }
+                    item.systems.add(mode);
+                    item.ranks.put(mode, index + 1);
+                    item.minRank = Math.min(item.minRank, index + 1);
+                }
+            }
+            List<PooledDocument> selected = new ArrayList<>(pooled.values());
+            selected.sort(Comparator.comparingInt((PooledDocument item) -> -item.systems.size())
+                    .thenComparingInt(item -> item.minRank)
+                    .thenComparing(item -> item.document.id));
+            for (PooledDocument item : selected) {
+                ManifestDocument document = item.document;
                 candidates.append(query.id).append('|').append(annotationId).append('|').append(document.id).append('|')
-                        .append(++rank).append('|').append(field(document.title)).append('|')
-                        .append(field(excerpt(result.getDocument().getText(), 1200))).append('|')
-                        .append(String.format(java.util.Locale.ROOT, "%.10f", result.getScore())).append('|')
-                        .append(field(document.textPath)).append('|').append(field(document.sourceUrl)).append('\n');
+                        .append(item.minRank).append('|').append(field(document.title)).append('|')
+                        .append(field(excerpt(item.text, 1200))).append("||")
+                        .append(field(document.textPath)).append('|').append(field(document.sourceUrl)).append('|')
+                        .append(field(String.join(",", item.systems))).append('|')
+                        .append(field(ranks(item.ranks))).append('\n');
             }
         }
         Files.write(outputDir.resolve("retrieval-candidates.psv"), candidates.toString().getBytes(StandardCharsets.UTF_8));
         Files.write(outputDir.resolve("PRIVATE-query-id-key.psv"), key.toString().getBytes(StandardCharsets.UTF_8));
-        String manifestJson = "{\"schemaVersion\":\"annotation-retrieval-v1\",\"queryCount\":" + queries.size()
+        String manifestJson = "{\"schemaVersion\":\"annotation-retrieval-pooled-v1\",\"queryCount\":" + queries.size()
                 + ",\"corpusDocumentCount\":" + manifest.size() + ",\"topK\":" + topK
-                + ",\"mode\":\"" + mode + "\",\"lexicalWeight\":0.50,\"semanticWeight\":0.50"
+                + ",\"modes\":[\"" + String.join("\",\"", modes) + "\"],\"pooled\":true,\"lexicalWeight\":0.50,\"semanticWeight\":0.50"
                 + ",\"trustLexicalWeight\":0.70,\"trustAuthorityWeight\":0.14,\"trustFreshnessWeight\":0.10,\"trustGraphWeight\":0.06"
                 + ",\"freshnessHalfLifeDays\":30.0,\"seed\":" + seed + ",\"retrievalNowEpochMillis\":" + now
                 + ",\"querySourceSha256\":\"" + sha256(queriesPath) + "\",\"corpusManifestSha256\":\"" + sha256(manifestPath) + "\""
-                + ",\"groundingDocumentsInjected\":false,\"status\":\"PRIVATE_CANDIDATE_ARTIFACT\"}\n";
+                + ",\"groundingDocumentsInjected\":false,\"status\":\"PRIVATE_POOLED_CANDIDATE_ARTIFACT\"}\n";
         Files.write(outputDir.resolve("retrieval-manifest.json"), manifestJson.getBytes(StandardCharsets.UTF_8));
         System.out.println("GENERATED: " + outputDir.toAbsolutePath());
+    }
+
+    private static List<String> parseModes(String value) {
+        Set<String> allowed = new HashSet<>(java.util.Arrays.asList(
+                "bm25", "semantic", "hybrid", "bge-hybrid", "rrf", "trust-oriented",
+                "a3_hybrid_freshness", "a4_hybrid_authority", "a5_hybrid_graph",
+                "a6_hybrid_freshness_authority", "a7_hybrid_authority_graph",
+                "a8_hybrid_freshness_graph", "a9_full_nebula"));
+        LinkedHashSet<String> result = new LinkedHashSet<>();
+        for (String mode : value.split(",")) {
+            String normalized = mode.trim();
+            if (!allowed.contains(normalized)) throw new IllegalArgumentException("unknown retrieval mode: " + normalized);
+            result.add(normalized);
+        }
+        if (result.isEmpty()) throw new IllegalArgumentException("at least one retrieval mode is required");
+        return new ArrayList<>(result);
+    }
+
+    private static List<SearchResult> search(SearchCatalog catalog, String query, int limit, long now, String mode) {
+        if ("bm25".equals(mode)) return catalog.search(query, limit);
+        if ("semantic".equals(mode)) return catalog.semanticSearch(query, limit);
+        if ("hybrid".equals(mode)) return catalog.hybridSearch(query, limit);
+        if ("bge-hybrid".equals(mode)) return catalog.bgeHybridSearch(query, limit);
+        if ("rrf".equals(mode)) return catalog.rrfSearch(query, limit);
+        if ("trust-oriented".equals(mode)) return catalog.searchTrustOrientedHybrid(query, limit, now, 0.70, 0.0, 0.14, 0.10, 0.06);
+        if ("a3_hybrid_freshness".equals(mode)) return catalog.searchTrustOrientedHybrid(query, limit, now, 0.45, 0.45, 0.0, 0.10, 0.0);
+        if ("a4_hybrid_authority".equals(mode)) return catalog.searchTrustOrientedHybrid(query, limit, now, 0.45, 0.45, 0.10, 0.0, 0.0);
+        if ("a5_hybrid_graph".equals(mode)) return catalog.searchTrustOrientedHybrid(query, limit, now, 0.45, 0.45, 0.0, 0.0, 0.10);
+        if ("a6_hybrid_freshness_authority".equals(mode)) return catalog.searchTrustOrientedHybrid(query, limit, now, 0.40, 0.40, 0.10, 0.10, 0.0);
+        if ("a7_hybrid_authority_graph".equals(mode)) return catalog.searchTrustOrientedHybrid(query, limit, now, 0.40, 0.40, 0.10, 0.0, 0.10);
+        if ("a8_hybrid_freshness_graph".equals(mode)) return catalog.searchTrustOrientedHybrid(query, limit, now, 0.40, 0.40, 0.0, 0.10, 0.10);
+        return catalog.searchTrustOrientedHybrid(query, limit, now, 0.35, 0.35, 0.10, 0.10, 0.10);
+    }
+
+    private static String ranks(Map<String, Integer> ranks) {
+        StringBuilder result = new StringBuilder();
+        for (Map.Entry<String, Integer> entry : ranks.entrySet()) {
+            if (result.length() > 0) result.append(',');
+            result.append(entry.getKey()).append(':').append(entry.getValue());
+        }
+        return result.toString();
     }
 
     private static List<Query> readQueries(Path path) throws IOException {
@@ -135,6 +197,14 @@ public final class AnnotationCandidateRetriever {
         StringBuilder result = new StringBuilder(); for (byte value : hash) result.append(String.format("%02x", value & 0xff)); return result.toString();
     }
 
+    private static final class PooledDocument {
+        private final ManifestDocument document;
+        private final String text;
+        private final Set<String> systems = new LinkedHashSet<>();
+        private final Map<String, Integer> ranks = new LinkedHashMap<>();
+        private int minRank = Integer.MAX_VALUE;
+        private PooledDocument(ManifestDocument document, String text) { this.document = document; this.text = text; }
+    }
     private static final class Query { private final String id, text; private Query(String id, String text) { this.id = id; this.text = text; } }
     private static final class ManifestDocument {
         private final String id, textPath, title, sourceUrl;

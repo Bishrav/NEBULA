@@ -64,6 +64,17 @@ review batch has completed validation, agreement, consensus release, and qrels
 generation; the public repository records the process and evidence boundary,
 not the protected labels.
 
+## Next pooled evaluation wave
+
+The current four-document packet is preserved for reproducibility. The next
+wave should use the pooled design in
+[pooled-annotation-evaluation.md](pooled-annotation-evaluation.md): top-10
+results from each pre-registered system are unioned before blinded annotation.
+The Java retriever records private system/rank provenance, while the package
+generator strips that metadata from annotator-facing files. This is new
+annotation infrastructure; it does not change the current protected results or
+create A3-A9 evidence until humans complete the pooled labels and release gate.
+
 ## Required annotation process
 
 Provide one package to each independent annotator. Annotators assign the rubric

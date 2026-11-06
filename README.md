@@ -288,6 +288,7 @@ docs/research/              Research plan, protocols, audit, claim controls
 - [ANN scalability benchmark](docs/research/ann-scaling.md)
 - [Study registration draft](docs/research/study-registration.md)
 - [Annotation guide](docs/research/annotation-guide.md)
+- [Pooled annotation evaluation](docs/research/pooled-annotation-evaluation.md)
 - [Docker deployment guide](infrastructure/docker/README.md)
 
 ## Responsible use and licensing
