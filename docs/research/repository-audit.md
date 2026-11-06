@@ -1,7 +1,7 @@
 # NEBULA research-grade repository audit
 
 **Audit date:** 2026-11-05
-**Audited revision:** `ef3b9d8`
+**Audited revision:** `252d058`
 **Scope:** repository source, benchmarks, research documents, tests, CI, Docker configuration, and research tooling
 
 ## Executive assessment

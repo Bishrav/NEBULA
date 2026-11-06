@@ -1,6 +1,6 @@
 # NEBULA research-readiness dashboard
 
-**Revision assessed:** `ef3b9d8`
+**Revision assessed:** `252d058`
 **Interpretation:** COMPLETE means supported by repository evidence; PARTIAL means infrastructure exists but the study evidence is incomplete; BLOCKED means external or missing data is required; NOT STARTED means no credible implementation exists.
 
 | Requirement | Status | Evidence |
