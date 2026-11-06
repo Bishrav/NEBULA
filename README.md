@@ -2,6 +2,8 @@
 
 # NEBULA
 
+[![XERJ Corpus Hub contributor](https://hub.xerj.org/contributors/Bishrav/badge.svg)](https://hub.xerj.org/contributors/Bishrav)
+
 ### Trust-oriented, explainable hybrid search for engineering knowledge
 
 NEBULA is a research prototype for retrieving engineering documentation with signals that make results easier to inspect: lexical relevance, semantic similarity, freshness, source authority, graph context, evidence, and system health.
