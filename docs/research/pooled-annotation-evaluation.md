@@ -6,7 +6,11 @@ The current protected batch labels one grounding page and three seeded random
 same-project distractors per query. That packet is useful for process testing,
 but it cannot support broad agreement or corpus-wide relevance claims.
 
-The next evaluation wave uses a depth-10 pooled design. For each approved query,
+The next evaluation wave uses a depth-10 pooled design. It is a new
+pre-registered evaluation, not a re-run of the already-spent 8-query held-out
+test. For the current development wave, use only development and validation
+queries; seal a fresh held-out query file before any future test evaluation.
+For each approved query,
 the private candidate artifact takes the union of the top 10 results from each
 pre-registered retrieval mode. Duplicate documents are retained once and record
 which systems retrieved them and at which ranks. The grounding document is not
@@ -21,10 +25,17 @@ java -cp build/classes com.nebula.evaluation.AnnotationCandidateRetriever `
   <corpus-manifest.json> `
   <private-output-dir> `
   10 `
-  bm25,semantic,hybrid,a3_hybrid_freshness,a4_hybrid_authority,a5_hybrid_graph,a6_hybrid_freshness_authority,a7_hybrid_authority_graph,a8_hybrid_freshness_graph,a9_full_nebula `
+  bm25,semantic,hybrid,bge-hybrid,a3_hybrid_freshness,a4_hybrid_authority,a5_hybrid_graph,a6_hybrid_freshness_authority,a7_hybrid_authority_graph,a8_hybrid_freshness_graph,a9_full_nebula `
   20261106 `
-  <fixed-now-epoch-millis>
+  <fixed-now-epoch-millis> `
+  --embedding-cache <pinned-bge-cache.tsv>
 ```
+
+The `--embedding-cache` argument is mandatory for the research pool. Without
+it, the retriever uses the 128-dimensional hashing fallback and cannot produce
+the pinned BGE results used by the existing held-out comparison. The manifest
+records the embedding model ID and dimension, and the pool must include
+`bge-hybrid` plus the BGE-backed A3-A9 variants from the same catalog.
 
 The output is private because it contains retrieval ranks, scores, system
 membership, source paths, and query-to-document mappings. Pass its candidate

@@ -26,8 +26,9 @@ as independently validated human evidence.
 
 **GATE PASSED — PROTECTED RUN MEASURED; PUBLICATION CLAIM STILL BLOCKED**
 
-The protected review batch has approved queries, independent annotations,
-agreement, consensus adjudication, frozen splits, and released qrels. The final
+The public review batch has approved query texts, while independent annotations,
+agreement, consensus adjudication, frozen splits, and released qrels remain
+protected. The final
 ranking and embedding manifests were frozen from validation-only evidence. The
 protected-path gate passed and the held-out run completed once on 8 queries.
 Those artifacts remain outside the public repository. The result is measured

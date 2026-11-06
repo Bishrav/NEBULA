@@ -41,7 +41,7 @@ The project is designed to answer three practical questions:
 | Retrieval methods | BM25, phrase search, semantic baselines, exact cosine, custom HNSW, score fusion, RRF |
 | Trust-oriented signals | Freshness, source authority, PageRank-style graph authority, evidence metadata |
 | Reliability model | Sharding, fan-out, deterministic top-k merge, retries, replicas, circuit breaking, partial-result reporting |
-| Current evidence | Reproducible synthetic fixture plus a protected four-candidate-per-query evaluation over the public 843-document corpus, with 47 approved queries and an 8-query held-out split |
+| Current evidence | Reproducible synthetic fixture plus a protected four-candidate-per-query evaluation over the public 843-document corpus; query text is public, while labels and the 8-query split remain protected |
 | Metrics | Precision@k, Recall@k, MRR, NDCG, ANN recall/latency, graph diagnostics, and failure behaviour |
 | Reproducibility | Versioned inputs, frozen split, SHA-256 lock file, generated reports, CI validation |
 | Academic status | Research prototype with measured protected evidence; broader validation, institutional review, and publication-quality inference remain pending |

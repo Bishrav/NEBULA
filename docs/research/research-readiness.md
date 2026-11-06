@@ -10,8 +10,8 @@
 | Ranking formula and configuration | COMPLETE | [Ranking model](ranking-model.md) and versioned JSON configuration. |
 | Defensible trust definition | COMPLETE | [Ranking model](ranking-model.md) separates relevance, reliability signals, freshness, authority, graph importance, and evidence quality. |
 | Regression benchmark | COMPLETE | `benchmarks/evaluation/corpus-v1`, `queries-v1.psv`, CI runner. |
-| Realistic public corpus | COMPLETE (public corpus) | `datasets/research-corpus-v1` contains 843 public-repository documents from fixed Kubernetes/PostgreSQL commits with raw/normalized checksums and an approved-with-attribution licensing review; queries, labels, and qrels remain protected. |
-| Sufficient research query set | PARTIAL | Review batch 01 has 47 approved queries in protected storage, with a frozen 30/9/8 split; the public repository retains the candidate-generation and review tooling, not protected query labels. |
+| Realistic public corpus | COMPLETE (public corpus) | `datasets/research-corpus-v1` contains 843 public-repository documents from fixed Kubernetes/PostgreSQL commits with raw/normalized checksums and an approved-with-attribution licensing review; query text is public, while labels, qrels, and split assignments remain protected. |
+| Sufficient research query set | PARTIAL | Review batch 01 has 47 public approved query texts; the labels, adjudication records, and frozen 30/9/8 split remain protected. |
 | Multi-annotator candidate labels | PARTIAL (protected batch) | Two protected blinded exports validate with 188 rows each across four candidates per query; labels and qrels are intentionally excluded from the public repository, and the remaining corpus is unjudged. |
 | Weighted agreement | DESCRIPTIVE ONLY (protected) | Recomputed agreement reports zero disagreements and kappa of 1.0 on the constrained four-candidate packet; this does not establish broad relevance-label quality. |
 | Development/validation/test split | COMPLETE (protected) | The protected split manifest is frozen, disjoint, and requires `--final-heldout-evaluation`. |

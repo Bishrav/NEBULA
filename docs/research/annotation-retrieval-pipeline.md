@@ -5,7 +5,7 @@ wording before any labels are collected.
 
 ## Frozen inputs
 
-- Query source: the versioned query source `datasets/research-corpus-v1/metadata/review-batch-01/reviewed-query-draft/reviewed-query-draft.psv` containing 47 finalized reviewed queries in this checkout.
+- Query source: the public versioned query source `datasets/research-corpus-v1/metadata/review-batch-01/reviewed-query-draft/reviewed-query-draft.psv` containing 47 finalized reviewed query texts in this checkout. Labels and split assignments remain protected.
 - Corpus: `datasets/research-corpus-v1`, admitted through its versioned manifest.
 - Annotation packet: one grounded corpus document plus three deterministic
   same-project distractors per query for this review batch. The builder shuffles

@@ -23,7 +23,7 @@ inspectable: its research question, ranking configuration, evaluation tooling,
 claim ledger, and limitations are documented in the repository.
 
 The current evidence includes a public 843-document Kubernetes/PostgreSQL
-corpus, protected queries and four-candidate labels, two separately completed
+corpus, public query text with protected four-candidate labels, two separately completed
 blinded annotation exports, a frozen development/validation/held-out split,
 and one preliminary 8-query held-out run. Each packet contained one grounding
 page and three seeded random same-project distractors; it was not produced by

@@ -1,0 +1,95 @@
+package com.nebula.evaluation;
+
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+/** Exercises pooled retrieval provenance without requiring protected BGE data. */
+public final class AnnotationCandidateRetrieverTest {
+    public static void main(String[] args) throws Exception {
+        Path root = Files.createTempDirectory("nebula-pooled-retriever-");
+        try {
+            Path corpus = root.resolve("corpus");
+            Path normalized = corpus.resolve("normalized");
+            Path manifests = corpus.resolve("manifests");
+            Files.createDirectories(normalized);
+            Files.createDirectories(manifests);
+            Files.write(normalized.resolve("d1.md"), "unrelated grounding placeholder".getBytes(StandardCharsets.UTF_8));
+            Files.write(normalized.resolve("d2.md"), "alpha target configuration target alpha".getBytes(StandardCharsets.UTF_8));
+            Files.write(normalized.resolve("d3.md"), "target alpha operational guidance".getBytes(StandardCharsets.UTF_8));
+            Files.write(normalized.resolve("d4.md"), "unrelated material".getBytes(StandardCharsets.UTF_8));
+            Path manifest = manifests.resolve("manifest.json");
+            Files.write(manifest, ("{\n  \"documents\": [\n"
+                    + "    {\"document_id\":\"d1\",\"text_path\":\"normalized/d1.md\",\"title\":\"One\",\"source_url\":\"https://example/1\"},\n"
+                    + "    {\"document_id\":\"d2\",\"text_path\":\"normalized/d2.md\",\"title\":\"Two\",\"source_url\":\"https://example/2\"},\n"
+                    + "    {\"document_id\":\"d3\",\"text_path\":\"normalized/d3.md\",\"title\":\"Three\",\"source_url\":\"https://example/3\"},\n"
+                    + "    {\"document_id\":\"d4\",\"text_path\":\"normalized/d4.md\",\"title\":\"Four\",\"source_url\":\"https://example/4\"}\n"
+                    + "  ]\n}\n").getBytes(StandardCharsets.UTF_8));
+            Path queries = root.resolve("queries.psv");
+            Files.write(queries, "query_id|query_text\nq1|alpha target\n".getBytes(StandardCharsets.UTF_8));
+            Path outputA = root.resolve("out-a");
+            Path outputB = root.resolve("out-b");
+            String[] command = {queries.toString(), manifest.toString(), outputA.toString(), "2", "bm25,semantic,hybrid", "7", "1700000000000"};
+            AnnotationCandidateRetriever.main(command);
+            command[2] = outputB.toString();
+            AnnotationCandidateRetriever.main(command);
+
+            Path candidatesA = outputA.resolve("retrieval-candidates.psv");
+            String first = new String(Files.readAllBytes(candidatesA), StandardCharsets.UTF_8);
+            String second = new String(Files.readAllBytes(outputB.resolve("retrieval-candidates.psv")), StandardCharsets.UTF_8);
+            check(first.equals(second), "pooled output is deterministic");
+            List<String> lines = Files.readAllLines(candidatesA, StandardCharsets.UTF_8);
+            Set<String> documents = new HashSet<>();
+            Set<String> systems = new HashSet<>();
+            for (String line : lines.subList(1, lines.size())) {
+                String[] fields = line.split("\\|", -1);
+                check(fields.length == 11, "pooled schema includes provenance columns");
+                check(documents.add(fields[2]), "pooled documents are deduplicated");
+                check(!fields[9].isEmpty(), "system provenance is recorded");
+                check(!fields[10].isEmpty(), "rank provenance is recorded");
+                for (String system : fields[9].split(",")) systems.add(system);
+                check(!"d1".equals(fields[2]), "grounding documents are not injected");
+            }
+            check(systems.size() > 1, "multiple retrieval systems contribute to the pool");
+            check(documents.size() == lines.size() - 1, "one row per pooled document");
+            System.out.println("AnnotationCandidateRetrieverTest: PASS");
+
+            Path cache = root.resolve("bge-cache.tsv");
+            StringBuilder cacheText = new StringBuilder()
+                    .append("#modelId=BAAI/bge-base-en-v1.5\n")
+                    .append("#revision=test-revision\n")
+                    .append("#license=Apache-2.0\n")
+                    .append("#dimension=2\n")
+                    .append("#normalized=true\n");
+            for (String text : new String[]{"unrelated grounding placeholder", "alpha target configuration target alpha",
+                    "target alpha operational guidance", "unrelated material", "alpha target"}) {
+                cacheText.append(com.nebula.search.CachedEmbeddingModel.hash(text)).append("\t1,0\n");
+            }
+            Files.write(cache, cacheText.toString().getBytes(StandardCharsets.UTF_8));
+            Path outputBge = root.resolve("out-bge");
+            AnnotationCandidateRetriever.main(new String[]{queries.toString(), manifest.toString(), outputBge.toString(),
+                    "2", "bge-hybrid,a3_hybrid_freshness", "7", "1700000000000", "--embedding-cache", cache.toString()});
+            String bgeManifest = new String(Files.readAllBytes(outputBge.resolve("retrieval-manifest.json")), StandardCharsets.UTF_8);
+            check(bgeManifest.contains("BAAI/bge-base-en-v1.5@test-revision"), "embedding model ID is recorded");
+            check(bgeManifest.contains("bge-hybrid"), "BGE mode is recorded");
+        } finally {
+            deleteTree(root);
+        }
+    }
+
+    private static void deleteTree(Path path) throws Exception {
+        if (!Files.exists(path)) return;
+        try (java.util.stream.Stream<Path> paths = Files.walk(path)) {
+            paths.sorted(java.util.Comparator.reverseOrder()).forEach(item -> {
+                try { Files.deleteIfExists(item); } catch (Exception error) { throw new RuntimeException(error); }
+            });
+        }
+    }
+
+    private static void check(boolean condition, String message) {
+        if (!condition) throw new AssertionError(message);
+    }
+}

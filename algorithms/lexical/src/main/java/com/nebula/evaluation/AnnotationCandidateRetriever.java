@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.nebula.search.CachedEmbeddingModel;
 
 /**
  * Produces the private, pooled retrieval artifact used to populate blinded
@@ -31,24 +32,39 @@ public final class AnnotationCandidateRetriever {
     private AnnotationCandidateRetriever() { }
 
     public static void main(String[] args) throws Exception {
-        if (args.length < 3 || args.length > 7) {
-            System.err.println("Usage: AnnotationCandidateRetriever <approved-queries.psv> <corpus-manifest.json> <output-dir> [topKPerSystem] [modes] [seed] [nowEpochMillis]");
+        if (args.length < 3) {
+            System.err.println("Usage: AnnotationCandidateRetriever <approved-queries.psv> <corpus-manifest.json> <output-dir> [topKPerSystem] [modes] [seed] [nowEpochMillis] [--embedding-cache cache.tsv]");
             System.exit(2);
         }
         Path queriesPath = Paths.get(args[0]);
         Path manifestPath = Paths.get(args[1]);
         Path outputDir = Paths.get(args[2]);
-        int topK = args.length > 3 ? Integer.parseInt(args[3]) : 10;
-        String modesArgument = args.length > 4 ? args[4] : "hybrid";
-        long seed = args.length > 5 ? Long.parseLong(args[5]) : 20260822L;
-        long now = args.length > 6 ? Long.parseLong(args[6]) : System.currentTimeMillis();
+        List<String> optional = new ArrayList<>();
+        Path embeddingCache = null;
+        for (int index = 3; index < args.length; index++) {
+            if ("--embedding-cache".equals(args[index])) {
+                if (index + 1 >= args.length) throw new IllegalArgumentException("--embedding-cache requires a path");
+                embeddingCache = Paths.get(args[++index]);
+            } else optional.add(args[index]);
+        }
+        if (optional.size() > 4) throw new IllegalArgumentException("too many positional options");
+        int topK = optional.size() > 0 ? Integer.parseInt(optional.get(0)) : 10;
+        String modesArgument = optional.size() > 1 ? optional.get(1) : "hybrid";
+        long seed = optional.size() > 2 ? Long.parseLong(optional.get(2)) : 20260822L;
+        long now = optional.size() > 3 ? Long.parseLong(optional.get(3)) : System.currentTimeMillis();
         if (topK <= 0) throw new IllegalArgumentException("topKPerSystem must be positive");
         List<String> modes = parseModes(modesArgument);
+        if (embeddingCache == null && requiresPinnedEmbedding(modes)) {
+            throw new IllegalArgumentException("--embedding-cache is required for bge-hybrid and A3-A9 research pooling");
+        }
 
         List<Query> queries = readQueries(queriesPath);
         List<ManifestDocument> manifest = readManifest(manifestPath);
         Map<String, ManifestDocument> byTextPath = new HashMap<>();
-        SearchCatalog catalog = new SearchCatalog();
+        CachedEmbeddingModel cachedModel = embeddingCache == null ? null : new CachedEmbeddingModel(embeddingCache);
+        SearchCatalog catalog = cachedModel == null
+                ? new SearchCatalog()
+                : new SearchCatalog(new com.nebula.ingestion.DocumentIngestor(), new com.nebula.search.InvertedIndex(), cachedModel);
         Path root = manifestPath.getParent().getParent();
         for (ManifestDocument document : manifest) {
             Path textPath = root.resolve(document.textPath);
@@ -98,13 +114,17 @@ public final class AnnotationCandidateRetriever {
         Files.write(outputDir.resolve("PRIVATE-query-id-key.psv"), key.toString().getBytes(StandardCharsets.UTF_8));
         String manifestJson = "{\"schemaVersion\":\"annotation-retrieval-pooled-v1\",\"queryCount\":" + queries.size()
                 + ",\"corpusDocumentCount\":" + manifest.size() + ",\"topK\":" + topK
-                + ",\"modes\":[\"" + String.join("\",\"", modes) + "\"],\"pooled\":true,\"lexicalWeight\":0.50,\"semanticWeight\":0.50"
+                + ",\"modes\":[\"" + String.join("\",\"", modes) + "\"],\"pooled\":true,\"embeddingModelId\":\"" + field(catalogModelId(cachedModel)) + "\",\"embeddingDimension\":" + (cachedModel == null ? 128 : cachedModel.dimension()) + ",\"lexicalWeight\":0.50,\"semanticWeight\":0.50"
                 + ",\"trustLexicalWeight\":0.70,\"trustAuthorityWeight\":0.14,\"trustFreshnessWeight\":0.10,\"trustGraphWeight\":0.06"
                 + ",\"freshnessHalfLifeDays\":30.0,\"seed\":" + seed + ",\"retrievalNowEpochMillis\":" + now
                 + ",\"querySourceSha256\":\"" + sha256(queriesPath) + "\",\"corpusManifestSha256\":\"" + sha256(manifestPath) + "\""
                 + ",\"groundingDocumentsInjected\":false,\"status\":\"PRIVATE_POOLED_CANDIDATE_ARTIFACT\"}\n";
         Files.write(outputDir.resolve("retrieval-manifest.json"), manifestJson.getBytes(StandardCharsets.UTF_8));
         System.out.println("GENERATED: " + outputDir.toAbsolutePath());
+    }
+
+    private static String catalogModelId(CachedEmbeddingModel cachedModel) {
+        return cachedModel == null ? "hashing-v1-d128" : cachedModel.modelId();
     }
 
     private static List<String> parseModes(String value) {
@@ -121,6 +141,15 @@ public final class AnnotationCandidateRetriever {
         }
         if (result.isEmpty()) throw new IllegalArgumentException("at least one retrieval mode is required");
         return new ArrayList<>(result);
+    }
+
+    private static boolean requiresPinnedEmbedding(List<String> modes) {
+        for (String mode : modes) {
+            if ("bge-hybrid".equals(mode) || mode.startsWith("a3_") || mode.startsWith("a4_")
+                    || mode.startsWith("a5_") || mode.startsWith("a6_") || mode.startsWith("a7_")
+                    || mode.startsWith("a8_") || mode.startsWith("a9_")) return true;
+        }
+        return false;
     }
 
     private static List<SearchResult> search(SearchCatalog catalog, String query, int limit, long now, String mode) {

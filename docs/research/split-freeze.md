@@ -12,7 +12,7 @@
 
 The splitter stratifies by category, project, difficulty, and freshness sensitivity using a deterministic 60/20/20 round-robin allocation. It writes development, validation, and test query files plus an immutable manifest containing source checksums, qrels checksum, assignments, and the required held-out flag.
 
-Review batch 01 now has a protected frozen split for 47 human-approved queries: 30 development, 9 validation, and 8 test queries. The source query file, qrels, and split manifest remain in protected study storage. The split is valid for the current protected known-item run; a broader corpus-wide evaluation with more complete judgments remains pending.
+Review batch 01 now has a protected frozen split for 47 public approved query texts: 30 development, 9 validation, and 8 test queries. The qrels and split manifest remain in protected study storage. The split is valid for the current protected known-item run; a broader corpus-wide evaluation with more complete judgments remains pending.
 
 ## Held-out safety guard
 

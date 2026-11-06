@@ -13,8 +13,9 @@ Assessed against commit `906fb1c`.
   PostgreSQL Global Development Group. The recorded review decision is
   `APPROVED_WITH_ATTRIBUTION`; this is not legal advice or a substitute for
   institutional review.
-- The protected review batch contains 47 approved queries and a frozen
-  development/validation/test split (30/9/8).
+- The public repository contains the 47 approved query texts; protected labels,
+  adjudication records, and the frozen development/validation/test split
+  (30/9/8) remain outside the public checkout.
 - Two independent protected canonical annotation exports validate against the
   approved query source and the 843-document corpus. They contain 188 rows
   each, have zero disagreements, and report Cohen's, linear weighted, and
