@@ -4,7 +4,7 @@ Assessed against commit `398d2f1`.
 
 ## Reproducible now
 
-- The provisional research corpus contains 843 documents: 595 Kubernetes and
+- The public research corpus contains 843 documents: 595 Kubernetes and
   248 PostgreSQL documents.
 - All 843 raw and 843 normalized checksums validate with
   `tools/validate_research_corpus.py`.
@@ -19,6 +19,10 @@ Assessed against commit `398d2f1`.
   approved query source and the 843-document corpus. They contain 188 rows
   each, have zero disagreements, and report Cohen's, linear weighted, and
   quadratic weighted kappa of 1.0.
+- Independence was enforced operationally: each annotator received a separate
+  blinded package, labelled without access to the other annotator's export or
+  ranking-system outputs, and submitted the completed export before agreement
+  analysis and adjudication.
 - The protected consensus release and final qrels regenerate byte-identically
   to the recorded qrels checksum. These artifacts remain outside Git because
   they contain protected research data.

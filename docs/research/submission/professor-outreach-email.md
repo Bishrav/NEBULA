@@ -22,10 +22,12 @@ evidence, and failure-aware distributed retrieval. The project is deliberately
 inspectable: its research question, ranking configuration, evaluation tooling,
 claim ledger, and limitations are documented in the repository.
 
-The current evidence includes a protected 843-document Kubernetes/PostgreSQL
-evaluation corpus, independently created relevance judgements, a frozen
-development/validation/held-out split, and one preliminary 8-query held-out
-run. The held-out result is intentionally reported as underpowered and
+The current evidence includes a public 843-document Kubernetes/PostgreSQL
+corpus, protected queries and labels, two separately completed blinded
+annotation exports, a frozen development/validation/held-out split, and one
+preliminary 8-query held-out run. The annotation packages were distributed
+separately, and annotators did not see each other's labels or ranking-system
+outputs. The held-out result is intentionally reported as underpowered and
 descriptive; I am not presenting it as publication-grade evidence or as proof
 of user benefit, statistical superiority, or a general trust claim.
 

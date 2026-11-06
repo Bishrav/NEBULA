@@ -10,8 +10,8 @@ The initial registry contains two proposed official documentation families:
 
 | Source | License evidence | Proposed scope | Status |
 | --- | --- | --- | --- |
-| Kubernetes website documentation | [Kubernetes website repository](https://github.com/kubernetes/website/) identifies the documentation repository as CC BY 4.0. | English documentation pages about configuration, deployment, networking, observability, and security. | Admitted in protected snapshot; attribution recorded. |
-| PostgreSQL documentation | [PostgreSQL license](https://www.postgresql.org/about/licence/) grants permission to use, copy, modify, and distribute documentation subject to its notice terms. | Versioned manuals about administration, replication, configuration, performance, and migration. | Admitted in protected snapshot; preserve notice information. |
+| Kubernetes website documentation | [Kubernetes website repository](https://github.com/kubernetes/website/) identifies the documentation repository as CC BY 4.0. | English documentation pages about configuration, deployment, networking, observability, and security. | Admitted in public snapshot; attribution recorded. |
+| PostgreSQL documentation | [PostgreSQL license](https://www.postgresql.org/about/licence/) grants permission to use, copy, modify, and distribute documentation subject to its notice terms. | Versioned manuals about administration, replication, configuration, performance, and migration. | Admitted in public snapshot; preserve notice information. |
 
 The registry is deliberately small. Additional sources should be admitted only after checking their repository terms, documentation-specific license, third-party excerpts, robots/terms constraints where relevant, and redistribution obligations.
 
@@ -39,4 +39,4 @@ The first research release targets at least 500 documents, with 1,000+ preferred
 
 ## Current status
 
-The source registry, acquisition tool, normalization rules, manifest validator, checksums, statistics report, and rejected-source report exist. `datasets/research-corpus-v1` contains an 843-document snapshot from fixed upstream commits. The corpus review is **APPROVED WITH ATTRIBUTION**: source notices and attribution obligations are recorded, and the snapshot is suitable for the protected evaluation workflow. Public redistribution and institutional reuse must still follow the recorded notices and any additional review required by the receiving institution. The existing four-document synthetic fixture remains regression-only.
+The source registry, acquisition tool, normalization rules, manifest validator, checksums, statistics report, and rejected-source report exist. `datasets/research-corpus-v1` contains a public 843-document snapshot from fixed upstream commits. The corpus review is **APPROVED WITH ATTRIBUTION**: source notices and attribution obligations are recorded, and the public corpus is used with protected queries, labels, and qrels for evaluation. Public redistribution and institutional reuse must still follow the recorded notices and any additional review required by the receiving institution. The existing four-document synthetic fixture remains regression-only.

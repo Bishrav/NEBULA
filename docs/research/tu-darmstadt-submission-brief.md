@@ -33,9 +33,10 @@ ANN latency/recall and distributed failure behaviour.
 - Reproducible synthetic benchmark with 30 queries, 14 variants, per-query
   metrics, paired uncertainty analysis, ablations, weight sensitivity, category
   summaries, and failure classifications.
-- Protected research evaluation on an attributed 843-document
-  Kubernetes/PostgreSQL snapshot, 47 approved queries, independently created
-  relevance judgements, and a frozen 30/9/8 development/validation/held-out
+- Public research corpus with a protected evaluation package: an attributed
+  843-document Kubernetes/PostgreSQL snapshot, 47 approved queries, two
+  separately completed blinded annotation exports, and a frozen 30/9/8
+  development/validation/held-out
   split. The current held-out subset contains 8 queries and is intentionally
   reported as preliminary and underpowered.
 - Dedicated six-node Docker research topology with measured healthy, primary
@@ -52,8 +53,10 @@ quality, statistical superiority, user benefit, production availability, or
 population-level trust.
 
 A protected evaluation package has since completed corpus licensing review with
-attribution, independent annotation, agreement analysis, adjudication, and a
-frozen split. One held-out run is measured on 8 queries: hybrid NDCG@10 is
+attribution, separate blinded annotation, agreement analysis, adjudication, and
+a frozen split. The annotation packages were distributed separately; each
+annotator labelled without seeing the other export or ranking-system outputs.
+One held-out run is measured on 8 queries: hybrid NDCG@5 is
 0.8647 versus 0.7397 for BM25, a mean paired improvement of 0.125. Because the
 test set is small, the result is descriptive preliminary evidence rather than a
 publication-grade generalisation claim. Protected qrels and participant-related

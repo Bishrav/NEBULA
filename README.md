@@ -16,7 +16,7 @@ NEBULA is a research prototype for retrieving engineering documentation with sig
 
 </div>
 
-> **Honest status.** NEBULA has a working Java 17 retrieval and reliability prototype, an attributed 843-document research corpus, protected independently created relevance judgements, a frozen BGE configuration, and one measured held-out run. The protected result is preliminary and underpowered; it is not a validated claim about trust, user benefit, statistical superiority, or production-scale search.
+> **Honest status.** NEBULA has a working Java 17 retrieval and reliability prototype, a public attributed 843-document research corpus, protected queries and labels from separate blinded annotation exports, a frozen BGE configuration, and one measured held-out run. The protected result is preliminary and underpowered; it is not a validated claim about trust, user benefit, statistical superiority, or production-scale search.
 
 ## The problem
 
