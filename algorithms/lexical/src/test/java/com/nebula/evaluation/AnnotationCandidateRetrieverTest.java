@@ -30,16 +30,29 @@ public final class AnnotationCandidateRetrieverTest {
                     + "  ]\n}\n").getBytes(StandardCharsets.UTF_8));
             Path queries = root.resolve("queries.psv");
             Files.write(queries, "query_id|query_text\nq1|alpha target\n".getBytes(StandardCharsets.UTF_8));
+            Path split = root.resolve("split-manifest.json");
+            Files.write(split, "{\"assignments\":{\"q1\":\"development\",\"q2\":\"test\"}}\n".getBytes(StandardCharsets.UTF_8));
+            Path noTestSplit = root.resolve("no-test-split.json");
+            Files.write(noTestSplit, "{\"assignments\":{\"q1\":\"development\"}}\n".getBytes(StandardCharsets.UTF_8));
+            Path embeddingConfig = root.resolve("embedding-config.json");
+            Files.write(embeddingConfig, ("{\"modelId\":\"BAAI/bge-base-en-v1.5\",\"revision\":\"a5beb1e3e68b9ab74eb54cfd186867f64f240e1a\"}\n").getBytes(StandardCharsets.UTF_8));
             Path outputA = root.resolve("out-a");
             Path outputB = root.resolve("out-b");
             Path emptyExclusions = root.resolve("excluded-empty.txt");
             Files.write(emptyExclusions, new byte[0]);
             Path spentExclusions = root.resolve("excluded-spent.txt");
             Files.write(spentExclusions, "q1\n".getBytes(StandardCharsets.UTF_8));
-            String[] command = {queries.toString(), manifest.toString(), outputA.toString(), "2", "bm25,semantic,hybrid", "7", "1700000000000"};
+            String[] command = {queries.toString(), manifest.toString(), outputA.toString(), "2", "bm25,semantic,hybrid", "7", "1700000000000", "--split-manifest", split.toString()};
             AnnotationCandidateRetriever.main(command);
             command[2] = outputB.toString();
             AnnotationCandidateRetriever.main(command);
+            try {
+                AnnotationCandidateRetriever.main(new String[]{queries.toString(), manifest.toString(), root.resolve("missing-scope").toString(),
+                        "2", "hybrid", "7", "1700000000000"});
+                throw new AssertionError("missing split manifest must fail");
+            } catch (IllegalArgumentException expected) {
+                check(expected.getMessage().contains("--split-manifest"), "split manifest is mandatory");
+            }
 
             Path candidatesA = outputA.resolve("retrieval-candidates.psv");
             String first = new String(Files.readAllBytes(candidatesA), StandardCharsets.UTF_8);
@@ -61,19 +74,37 @@ public final class AnnotationCandidateRetrieverTest {
             check(documents.size() == lines.size() - 1, "one row per pooled document");
             String pooledManifest = new String(Files.readAllBytes(outputA.resolve("retrieval-manifest.json")), StandardCharsets.UTF_8);
             check(pooledManifest.contains("\"corpusDocumentCount\":4"), "all manifest documents were parsed");
+            check(pooledManifest.contains("splitManifestSha256"), "split manifest checksum is recorded");
             System.out.println("AnnotationCandidateRetrieverTest: PASS");
 
             try {
+                AnnotationCandidateRetriever.main(new String[]{queries.toString(), manifest.toString(), root.resolve("no-test").toString(),
+                        "2", "hybrid", "7", "1700000000000", "--split-manifest", noTestSplit.toString()});
+                throw new AssertionError("split manifest without test assignments must fail");
+            } catch (IllegalArgumentException expected) {
+                check(expected.getMessage().contains("no test assignments"), "missing test assignments are rejected");
+            }
+
+            try {
                 AnnotationCandidateRetriever.main(new String[]{queries.toString(), manifest.toString(), root.resolve("excluded-run").toString(),
-                        "2", "hybrid", "7", "1700000000000", "--exclude-query-ids", spentExclusions.toString()});
+                        "2", "hybrid", "7", "1700000000000", "--split-manifest", split.toString(), "--exclude-query-ids", spentExclusions.toString()});
                 throw new AssertionError("excluded query IDs must fail");
             } catch (IllegalArgumentException expected) {
                 check(expected.getMessage().contains("excluded from pooling"), "spent query IDs are rejected");
             }
+            Path unknownQueries = root.resolve("unknown-queries.psv");
+            Files.write(unknownQueries, "query_id|query_text\nq99|alpha target\n".getBytes(StandardCharsets.UTF_8));
+            try {
+                AnnotationCandidateRetriever.main(new String[]{unknownQueries.toString(), manifest.toString(), root.resolve("unknown-run").toString(),
+                        "2", "hybrid", "7", "1700000000000", "--split-manifest", split.toString()});
+                throw new AssertionError("unknown query IDs must fail");
+            } catch (IllegalArgumentException expected) {
+                check(expected.getMessage().contains("absent from split manifest"), "unknown query IDs are rejected");
+            }
 
             try {
                 AnnotationCandidateRetriever.main(new String[]{queries.toString(), manifest.toString(), root.resolve("missing-cache").toString(),
-                        "2", "bge-hybrid", "7", "1700000000000", "--exclude-query-ids", emptyExclusions.toString()});
+                        "2", "bge-hybrid", "7", "1700000000000", "--split-manifest", split.toString(), "--exclude-query-ids", emptyExclusions.toString()});
                 throw new AssertionError("BGE pooling without a cache must fail");
             } catch (IllegalArgumentException expected) {
                 check(expected.getMessage().contains("embedding-cache"), "missing cache is rejected explicitly");
@@ -95,21 +126,21 @@ public final class AnnotationCandidateRetrieverTest {
             Files.write(wrongCache, cacheText.toString().replace("a5beb1e3e68b9ab74eb54cfd186867f64f240e1a", "wrong-revision").getBytes(StandardCharsets.UTF_8));
             try {
                 AnnotationCandidateRetriever.main(new String[]{queries.toString(), manifest.toString(), root.resolve("wrong-pin").toString(),
-                        "2", "bge-hybrid", "7", "1700000000000", "--embedding-cache", wrongCache.toString(), "--exclude-query-ids", emptyExclusions.toString()});
+                        "2", "bge-hybrid", "7", "1700000000000", "--embedding-cache", wrongCache.toString(), "--embedding-config", embeddingConfig.toString(), "--split-manifest", split.toString(), "--exclude-query-ids", emptyExclusions.toString()});
                 throw new AssertionError("wrong BGE revision must fail");
             } catch (IllegalArgumentException expected) {
-                check(expected.getMessage().contains("pinned BGE"), "wrong cache revision is rejected");
+                check(expected.getMessage().contains("configured BGE"), "wrong cache revision is rejected");
             }
             try {
                 AnnotationCandidateRetriever.main(new String[]{queries.toString(), manifest.toString(), root.resolve("missing-time").toString(),
-                        "2", "a3_hybrid_freshness", "7", "--embedding-cache", cache.toString(), "--exclude-query-ids", emptyExclusions.toString()});
+                        "2", "a3_hybrid_freshness", "7", "--embedding-cache", cache.toString(), "--embedding-config", embeddingConfig.toString(), "--split-manifest", split.toString(), "--exclude-query-ids", emptyExclusions.toString()});
                 throw new AssertionError("freshness pooling without fixed time must fail");
             } catch (IllegalArgumentException expected) {
                 check(expected.getMessage().contains("fixed nowEpochMillis"), "fixed time is required");
             }
             Path outputBge = root.resolve("out-bge");
             AnnotationCandidateRetriever.main(new String[]{queries.toString(), manifest.toString(), outputBge.toString(),
-                    "2", "bge-hybrid,a3_hybrid_freshness", "7", "1700000000000", "--embedding-cache", cache.toString(), "--exclude-query-ids", emptyExclusions.toString()});
+                    "2", "bge-hybrid,a3_hybrid_freshness", "7", "1700000000000", "--embedding-cache", cache.toString(), "--embedding-config", embeddingConfig.toString(), "--split-manifest", split.toString(), "--exclude-query-ids", emptyExclusions.toString()});
             String bgeManifest = new String(Files.readAllBytes(outputBge.resolve("retrieval-manifest.json")), StandardCharsets.UTF_8);
             check(bgeManifest.contains("BAAI/bge-base-en-v1.5@a5beb1e3e68b9ab74eb54cfd186867f64f240e1a"), "embedding model ID is recorded");
             check(bgeManifest.contains("bge-hybrid"), "BGE mode is recorded");

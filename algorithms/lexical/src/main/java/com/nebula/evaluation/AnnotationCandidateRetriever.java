@@ -27,7 +27,6 @@ import com.nebula.search.CachedEmbeddingModel;
  * annotation packets. It never injects query grounding documents.
  */
 public final class AnnotationCandidateRetriever {
-    private static final String PINNED_BGE_MODEL_ID = "BAAI/bge-base-en-v1.5@a5beb1e3e68b9ab74eb54cfd186867f64f240e1a";
     private static final Pattern OBJECT = Pattern.compile("\\{\\s*\\n(.*?)\\n\\s*\\}", Pattern.DOTALL);
     private static final Pattern FIELD = Pattern.compile("\"([^\"]+)\"\\s*:\\s*\"((?:\\\\.|[^\"\\\\])*)\"");
     private AnnotationCandidateRetriever() { }
@@ -42,12 +41,16 @@ public final class AnnotationCandidateRetriever {
         Path outputDir = Paths.get(args[2]);
         List<String> optional = new ArrayList<>();
         Path embeddingCache = null;
+        Path embeddingConfig = null;
         Path splitManifest = null;
         Path excludedQueryIds = null;
         for (int index = 3; index < args.length; index++) {
             if ("--embedding-cache".equals(args[index])) {
                 if (index + 1 >= args.length) throw new IllegalArgumentException("--embedding-cache requires a path");
                 embeddingCache = Paths.get(args[++index]);
+            } else if ("--embedding-config".equals(args[index])) {
+                if (index + 1 >= args.length) throw new IllegalArgumentException("--embedding-config requires a path");
+                embeddingConfig = Paths.get(args[++index]);
             } else if ("--split-manifest".equals(args[index])) {
                 if (index + 1 >= args.length) throw new IllegalArgumentException("--split-manifest requires a path");
                 splitManifest = Paths.get(args[++index]);
@@ -70,23 +73,31 @@ public final class AnnotationCandidateRetriever {
         if (requiresFreshnessTimestamp(modes) && requestedNow == null) {
             throw new IllegalArgumentException("fixed nowEpochMillis is required for freshness-using research modes");
         }
-        if (requiresPinnedEmbedding(modes) && splitManifest == null && excludedQueryIds == null) {
-            throw new IllegalArgumentException("--split-manifest or --exclude-query-ids is required for research pooling");
-        }
+        if (splitManifest == null) throw new IllegalArgumentException("--split-manifest is required for every annotation pool");
+        if (requiresPinnedEmbedding(modes) && embeddingConfig == null) throw new IllegalArgumentException("--embedding-config is required for BGE research pooling");
 
         List<Query> queries = readQueries(queriesPath);
         Set<String> excluded = excludedQueryIds == null ? new HashSet<>() : readIds(excludedQueryIds);
-        Set<String> testIds = splitManifest == null ? new HashSet<>() : readTestIds(splitManifest);
-        excluded.addAll(testIds);
+        Map<String, String> assignments = readSplitAssignments(splitManifest);
+        if (!assignments.containsValue("test")) throw new IllegalArgumentException("split manifest contains no test assignments");
         for (Query query : queries) {
+            String assignment = assignments.get(query.id);
+            if (assignment == null) throw new IllegalArgumentException("query is absent from split manifest: " + query.id);
+            if (!"development".equals(assignment) && !"validation".equals(assignment)) {
+                throw new IllegalArgumentException("query is excluded from pooling: " + query.id);
+            }
             if (excluded.contains(query.id)) throw new IllegalArgumentException("query is excluded from pooling: " + query.id);
         }
         List<ManifestDocument> manifest = readManifest(manifestPath);
         Map<String, ManifestDocument> byTextPath = new HashMap<>();
         CachedEmbeddingModel cachedModel = embeddingCache == null ? null : new CachedEmbeddingModel(embeddingCache);
-        if (requiresPinnedEmbedding(modes) && !PINNED_BGE_MODEL_ID.equals(cachedModel.modelId())) {
-            throw new IllegalArgumentException("embedding cache model does not match pinned BGE model: " + cachedModel.modelId());
+        if (requiresPinnedEmbedding(modes)) {
+            String configuredModelId = readConfiguredModelId(embeddingConfig);
+            if (!configuredModelId.equals(cachedModel.modelId())) {
+                throw new IllegalArgumentException("embedding cache model does not match configured BGE model: " + cachedModel.modelId());
+            }
         }
+        Map<String, Integer> poolSizes = new LinkedHashMap<>();
         SearchCatalog catalog = cachedModel == null
                 ? new SearchCatalog()
                 : new SearchCatalog(new com.nebula.ingestion.DocumentIngestor(), new com.nebula.search.InvertedIndex(), cachedModel);
@@ -134,12 +145,13 @@ public final class AnnotationCandidateRetriever {
                         .append(field(String.join(",", item.systems))).append('|')
                         .append(field(ranks(item.ranks))).append('\n');
             }
+            poolSizes.put(query.id, selected.size());
         }
         Files.write(outputDir.resolve("retrieval-candidates.psv"), candidates.toString().getBytes(StandardCharsets.UTF_8));
         Files.write(outputDir.resolve("PRIVATE-query-id-key.psv"), key.toString().getBytes(StandardCharsets.UTF_8));
         String manifestJson = "{\"schemaVersion\":\"annotation-retrieval-pooled-v1\",\"queryCount\":" + queries.size()
                 + ",\"corpusDocumentCount\":" + manifest.size() + ",\"topK\":" + topK
-                + ",\"modes\":[\"" + String.join("\",\"", modes) + "\"],\"pooled\":true,\"embeddingModelId\":\"" + field(catalogModelId(cachedModel)) + "\",\"embeddingDimension\":" + (cachedModel == null ? 128 : cachedModel.dimension()) + (embeddingCache == null ? ",\"embeddingCacheSha256\":null" : ",\"embeddingCacheSha256\":\"" + sha256(embeddingCache) + "\"") + ",\"lexicalWeight\":0.50,\"semanticWeight\":0.50"
+                + ",\"modes\":[\"" + String.join("\",\"", modes) + "\"],\"pooled\":true,\"poolSizes\":" + mapJson(poolSizes) + ",\"embeddingModelId\":\"" + field(catalogModelId(cachedModel)) + "\",\"embeddingDimension\":" + (cachedModel == null ? 128 : cachedModel.dimension()) + (embeddingCache == null ? ",\"embeddingCacheSha256\":null" : ",\"embeddingCacheSha256\":\"" + sha256(embeddingCache) + "\"") + ",\"candidateOutputSha256\":\"" + sha256(outputDir.resolve("retrieval-candidates.psv")) + "\",\"mappingOutputSha256\":\"" + sha256(outputDir.resolve("PRIVATE-query-id-key.psv")) + "\",\"splitManifestSha256\":\"" + sha256(splitManifest) + "\",\"lexicalWeight\":0.50,\"semanticWeight\":0.50"
                 + ",\"trustLexicalWeight\":0.70,\"trustAuthorityWeight\":0.14,\"trustFreshnessWeight\":0.10,\"trustGraphWeight\":0.06"
                 + ",\"freshnessHalfLifeDays\":30.0,\"seed\":" + seed + ",\"retrievalNowEpochMillis\":" + now
                 + ",\"querySourceSha256\":\"" + sha256(queriesPath) + "\",\"corpusManifestSha256\":\"" + sha256(manifestPath) + "\""
@@ -150,6 +162,15 @@ public final class AnnotationCandidateRetriever {
 
     private static String catalogModelId(CachedEmbeddingModel cachedModel) {
         return cachedModel == null ? "hashing-v1-d128" : cachedModel.modelId();
+    }
+
+    private static String mapJson(Map<String, Integer> values) {
+        StringBuilder result = new StringBuilder("{");
+        for (Map.Entry<String, Integer> entry : values.entrySet()) {
+            if (result.length() > 1) result.append(',');
+            result.append('"').append(field(entry.getKey())).append("\":").append(entry.getValue());
+        }
+        return result.append('}').toString();
     }
 
     private static List<String> parseModes(String value) {
@@ -237,13 +258,21 @@ public final class AnnotationCandidateRetriever {
         return ids;
     }
 
-    private static Set<String> readTestIds(Path path) throws IOException {
+    private static Map<String, String> readSplitAssignments(Path path) throws IOException {
         String text = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
-        Set<String> ids = new HashSet<>();
-        Matcher assignments = Pattern.compile("\\\"([^\\\"]+)\\\"\\s*:\\s*\\\"test\\\"").matcher(text);
-        while (assignments.find()) ids.add(assignments.group(1));
-        if (ids.isEmpty()) throw new IllegalArgumentException("split manifest contains no test assignments");
-        return ids;
+        Map<String, String> assignments = new HashMap<>();
+        Matcher matcher = Pattern.compile("\\\"([^\\\"]+)\\\"\\s*:\\s*\\\"(development|validation|test)\\\"").matcher(text);
+        while (matcher.find()) assignments.put(matcher.group(1), matcher.group(2));
+        if (assignments.isEmpty()) throw new IllegalArgumentException("split manifest contains no assignments");
+        return assignments;
+    }
+
+    private static String readConfiguredModelId(Path path) throws IOException {
+        String text = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
+        Matcher model = Pattern.compile("\\\"modelId\\\"\\s*:\\s*\\\"([^\\\"]+)\\\"").matcher(text);
+        Matcher revision = Pattern.compile("\\\"revision\\\"\\s*:\\s*\\\"([^\\\"]+)\\\"").matcher(text);
+        if (!model.find() || !revision.find()) throw new IllegalArgumentException("embedding config lacks modelId or revision");
+        return model.group(1) + "@" + revision.group(1);
     }
 
     private static List<ManifestDocument> readManifest(Path path) throws IOException {

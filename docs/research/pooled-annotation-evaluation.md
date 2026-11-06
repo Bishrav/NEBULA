@@ -29,18 +29,21 @@ java -cp build/classes com.nebula.evaluation.AnnotationCandidateRetriever `
   20261106 `
   <fixed-now-epoch-millis> `
   --embedding-cache <pinned-bge-cache.tsv> `
+  --embedding-config experiments/retrieval/modern-embedding-bge-base-en-v1.5.json `
   --split-manifest <frozen-split-manifest.json>
 ```
 
-The `--embedding-cache` argument is mandatory for the research pool. Without
+The `--embedding-cache` and `--embedding-config` arguments are mandatory for
+the BGE research pool. Without
 it, the retriever uses the 128-dimensional hashing fallback and cannot produce
 the pinned BGE results used by the existing held-out comparison. The retriever
 requires the exact configured model ID
 `BAAI/bge-base-en-v1.5@a5beb1e3e68b9ab74eb54cfd186867f64f240e1a`, records the
 cache SHA-256, model ID, and dimension, and the pool must include `bge-hybrid`
-plus the BGE-backed A3-A9 variants from the same catalog. A run using only
-`--embedding-cache` is not enough: it must also provide `--split-manifest` or
-`--exclude-query-ids` so spent test IDs cannot enter the pool. Freshness-using
+plus the BGE-backed A3-A9 variants from the same catalog. Every pool run must
+provide `--split-manifest`; the retriever checks that every query is assigned
+development or validation and rejects test or unknown IDs. The optional
+`--exclude-query-ids` file adds another deny-list check. Freshness-using
 modes must provide an explicit fixed timestamp; the tool never silently uses
 wall-clock time for those modes.
 
