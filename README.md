@@ -241,7 +241,7 @@ See the [evaluation guide](benchmarks/evaluation/README.md) for manifests, repor
 - Human-perceived trust or user benefit
 - Statistical superiority over established retrieval systems
 - Production-scale latency, memory, or availability
-- Valid conclusions from the provisional corpus before licensing and annotation review
+- Publication-grade generalisation from the current underpowered protected evaluation batch
 
 These boundaries are part of the research contribution: they make the next experiment explicit and prevent prototype measurements from being mistaken for scientific conclusions.
 
