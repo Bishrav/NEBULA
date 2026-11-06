@@ -77,6 +77,16 @@ public final class AnnotationCandidateRetrieverTest {
             check(pooledManifest.contains("splitManifestSha256"), "split manifest checksum is recorded");
             System.out.println("AnnotationCandidateRetrieverTest: PASS");
 
+            Path testQueries = root.resolve("test-queries.psv");
+            Files.write(testQueries, "query_id|query_text\nq2|alpha target\n".getBytes(StandardCharsets.UTF_8));
+            try {
+                AnnotationCandidateRetriever.main(new String[]{testQueries.toString(), manifest.toString(), root.resolve("test-query-run").toString(),
+                        "2", "hybrid", "7", "1700000000000", "--split-manifest", split.toString()});
+                throw new AssertionError("test-assigned query must fail");
+            } catch (IllegalArgumentException expected) {
+                check(expected.getMessage().contains("excluded from pooling"), "test-assigned queries are rejected");
+            }
+
             try {
                 AnnotationCandidateRetriever.main(new String[]{queries.toString(), manifest.toString(), root.resolve("no-test").toString(),
                         "2", "hybrid", "7", "1700000000000", "--split-manifest", noTestSplit.toString()});
@@ -122,6 +132,13 @@ public final class AnnotationCandidateRetrieverTest {
                 cacheText.append(com.nebula.search.CachedEmbeddingModel.hash(text)).append("\t1,0\n");
             }
             Files.write(cache, cacheText.toString().getBytes(StandardCharsets.UTF_8));
+            try {
+                AnnotationCandidateRetriever.main(new String[]{queries.toString(), manifest.toString(), root.resolve("missing-bge-config").toString(),
+                        "2", "bge-hybrid", "7", "1700000000000", "--embedding-cache", cache.toString(), "--split-manifest", split.toString(), "--exclude-query-ids", emptyExclusions.toString()});
+                throw new AssertionError("BGE pooling without a config must fail");
+            } catch (IllegalArgumentException expected) {
+                check(expected.getMessage().contains("embedding-config"), "missing BGE config is rejected");
+            }
             Path wrongCache = root.resolve("wrong-cache.tsv");
             Files.write(wrongCache, cacheText.toString().replace("a5beb1e3e68b9ab74eb54cfd186867f64f240e1a", "wrong-revision").getBytes(StandardCharsets.UTF_8));
             try {
@@ -145,6 +162,25 @@ public final class AnnotationCandidateRetrieverTest {
             check(bgeManifest.contains("BAAI/bge-base-en-v1.5@a5beb1e3e68b9ab74eb54cfd186867f64f240e1a"), "embedding model ID is recorded");
             check(bgeManifest.contains("bge-hybrid"), "BGE mode is recorded");
             check(bgeManifest.contains("embeddingCacheSha256"), "embedding cache checksum is recorded");
+            check(bgeManifest.contains("embeddingConfigSha256"), "embedding config checksum is recorded");
+
+            try {
+                AnnotationCandidateRetriever.main(new String[]{queries.toString(), manifest.toString(), root.resolve("research-without-bge").toString(),
+                        "2", "a3_hybrid_freshness", "7", "1700000000000", "--embedding-cache", cache.toString(), "--embedding-config", embeddingConfig.toString(), "--split-manifest", split.toString(), "--exclude-query-ids", emptyExclusions.toString()});
+                throw new AssertionError("research pooling without bge-hybrid must fail");
+            } catch (IllegalArgumentException expected) {
+                check(expected.getMessage().contains("bge-hybrid"), "research pool requires bge-hybrid");
+            }
+
+            Path partialSplit = root.resolve("partial-split.json");
+            Files.write(partialSplit, "{\"assignments\":{\"q1\":\"development\",\"q2\":\"validation\",\"q3\":\"test\"}}\n".getBytes(StandardCharsets.UTF_8));
+            try {
+                AnnotationCandidateRetriever.main(new String[]{queries.toString(), manifest.toString(), root.resolve("partial-run").toString(),
+                        "2", "hybrid", "7", "1700000000000", "--split-manifest", partialSplit.toString()});
+                throw new AssertionError("partial development/validation coverage must fail");
+            } catch (IllegalArgumentException expected) {
+                check(expected.getMessage().contains("every development/validation"), "partial query coverage is rejected");
+            }
         } finally {
             deleteTree(root);
         }

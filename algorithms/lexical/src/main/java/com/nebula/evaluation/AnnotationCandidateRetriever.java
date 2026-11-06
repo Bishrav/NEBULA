@@ -75,12 +75,21 @@ public final class AnnotationCandidateRetriever {
         }
         if (splitManifest == null) throw new IllegalArgumentException("--split-manifest is required for every annotation pool");
         if (requiresPinnedEmbedding(modes) && embeddingConfig == null) throw new IllegalArgumentException("--embedding-config is required for BGE research pooling");
+        if (requiresPinnedEmbedding(modes) && !modes.contains("bge-hybrid")) {
+            throw new IllegalArgumentException("research pooling must include bge-hybrid");
+        }
 
         List<Query> queries = readQueries(queriesPath);
         Set<String> excluded = excludedQueryIds == null ? new HashSet<>() : readIds(excludedQueryIds);
         Map<String, String> assignments = readSplitAssignments(splitManifest);
         if (!assignments.containsValue("test")) throw new IllegalArgumentException("split manifest contains no test assignments");
+        Set<String> expectedQueries = new HashSet<>();
+        for (Map.Entry<String, String> entry : assignments.entrySet()) {
+            if ("development".equals(entry.getValue()) || "validation".equals(entry.getValue())) expectedQueries.add(entry.getKey());
+        }
+        Set<String> actualQueries = new HashSet<>();
         for (Query query : queries) {
+            actualQueries.add(query.id);
             String assignment = assignments.get(query.id);
             if (assignment == null) throw new IllegalArgumentException("query is absent from split manifest: " + query.id);
             if (!"development".equals(assignment) && !"validation".equals(assignment)) {
@@ -88,11 +97,15 @@ public final class AnnotationCandidateRetriever {
             }
             if (excluded.contains(query.id)) throw new IllegalArgumentException("query is excluded from pooling: " + query.id);
         }
+        if (!expectedQueries.equals(actualQueries)) throw new IllegalArgumentException("query file must contain every development/validation query in the split manifest");
         List<ManifestDocument> manifest = readManifest(manifestPath);
         Map<String, ManifestDocument> byTextPath = new HashMap<>();
         CachedEmbeddingModel cachedModel = embeddingCache == null ? null : new CachedEmbeddingModel(embeddingCache);
         if (requiresPinnedEmbedding(modes)) {
             String configuredModelId = readConfiguredModelId(embeddingConfig);
+            if (!cachedModel.modelId().startsWith("BAAI/bge-base-en-v1.5@")) {
+                throw new IllegalArgumentException("embedding cache is not a BAAI BGE model: " + cachedModel.modelId());
+            }
             if (!configuredModelId.equals(cachedModel.modelId())) {
                 throw new IllegalArgumentException("embedding cache model does not match configured BGE model: " + cachedModel.modelId());
             }
@@ -151,7 +164,7 @@ public final class AnnotationCandidateRetriever {
         Files.write(outputDir.resolve("PRIVATE-query-id-key.psv"), key.toString().getBytes(StandardCharsets.UTF_8));
         String manifestJson = "{\"schemaVersion\":\"annotation-retrieval-pooled-v1\",\"queryCount\":" + queries.size()
                 + ",\"corpusDocumentCount\":" + manifest.size() + ",\"topK\":" + topK
-                + ",\"modes\":[\"" + String.join("\",\"", modes) + "\"],\"pooled\":true,\"poolSizes\":" + mapJson(poolSizes) + ",\"embeddingModelId\":\"" + field(catalogModelId(cachedModel)) + "\",\"embeddingDimension\":" + (cachedModel == null ? 128 : cachedModel.dimension()) + (embeddingCache == null ? ",\"embeddingCacheSha256\":null" : ",\"embeddingCacheSha256\":\"" + sha256(embeddingCache) + "\"") + ",\"candidateOutputSha256\":\"" + sha256(outputDir.resolve("retrieval-candidates.psv")) + "\",\"mappingOutputSha256\":\"" + sha256(outputDir.resolve("PRIVATE-query-id-key.psv")) + "\",\"splitManifestSha256\":\"" + sha256(splitManifest) + "\",\"lexicalWeight\":0.50,\"semanticWeight\":0.50"
+                + ",\"modes\":[\"" + String.join("\",\"", modes) + "\"],\"pooled\":true,\"poolSizes\":" + mapJson(poolSizes) + ",\"embeddingModelId\":\"" + field(catalogModelId(cachedModel)) + "\",\"embeddingDimension\":" + (cachedModel == null ? 128 : cachedModel.dimension()) + (embeddingCache == null ? ",\"embeddingCacheSha256\":null,\"embeddingConfigSha256\":null" : ",\"embeddingCacheSha256\":\"" + sha256(embeddingCache) + "\",\"embeddingConfigSha256\":\"" + (embeddingConfig == null ? "" : sha256(embeddingConfig)) + "\"") + ",\"candidateOutputSha256\":\"" + sha256(outputDir.resolve("retrieval-candidates.psv")) + "\",\"mappingOutputSha256\":\"" + sha256(outputDir.resolve("PRIVATE-query-id-key.psv")) + "\",\"splitManifestSha256\":\"" + sha256(splitManifest) + "\",\"lexicalWeight\":0.50,\"semanticWeight\":0.50"
                 + ",\"trustLexicalWeight\":0.70,\"trustAuthorityWeight\":0.14,\"trustFreshnessWeight\":0.10,\"trustGraphWeight\":0.06"
                 + ",\"freshnessHalfLifeDays\":30.0,\"seed\":" + seed + ",\"retrievalNowEpochMillis\":" + now
                 + ",\"querySourceSha256\":\"" + sha256(queriesPath) + "\",\"corpusManifestSha256\":\"" + sha256(manifestPath) + "\""
