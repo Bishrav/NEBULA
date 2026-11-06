@@ -28,20 +28,32 @@ java -cp build/classes com.nebula.evaluation.AnnotationCandidateRetriever `
   bm25,semantic,hybrid,bge-hybrid,a3_hybrid_freshness,a4_hybrid_authority,a5_hybrid_graph,a6_hybrid_freshness_authority,a7_hybrid_authority_graph,a8_hybrid_freshness_graph,a9_full_nebula `
   20261106 `
   <fixed-now-epoch-millis> `
-  --embedding-cache <pinned-bge-cache.tsv>
+  --embedding-cache <pinned-bge-cache.tsv> `
+  --split-manifest <frozen-split-manifest.json>
 ```
 
 The `--embedding-cache` argument is mandatory for the research pool. Without
 it, the retriever uses the 128-dimensional hashing fallback and cannot produce
-the pinned BGE results used by the existing held-out comparison. The manifest
-records the embedding model ID and dimension, and the pool must include
-`bge-hybrid` plus the BGE-backed A3-A9 variants from the same catalog.
+the pinned BGE results used by the existing held-out comparison. The retriever
+requires the exact configured model ID
+`BAAI/bge-base-en-v1.5@a5beb1e3e68b9ab74eb54cfd186867f64f240e1a`, records the
+cache SHA-256, model ID, and dimension, and the pool must include `bge-hybrid`
+plus the BGE-backed A3-A9 variants from the same catalog. A run using only
+`--embedding-cache` is not enough: it must also provide `--split-manifest` or
+`--exclude-query-ids` so spent test IDs cannot enter the pool. Freshness-using
+modes must provide an explicit fixed timestamp; the tool never silently uses
+wall-clock time for those modes.
 
 The output is private because it contains retrieval ranks, scores, system
 membership, source paths, and query-to-document mappings. Pass its candidate
 file to `tools/generate_blinded_annotation_packages.py`; the generated
 annotator packages contain only query text, document excerpts, and blank label
 fields. Ranking metadata and system identity are excluded from those packages.
+
+The earlier local 964-pair artifact was generated before cache enforcement and
+used hashing-based retrieval. It is **UNUSABLE FOR ANNOTATION OR RESEARCH
+CLAIMS** and must be discarded, not relabelled or merged. Its exact query
+contents and scope cannot be independently verified from this public checkout.
 
 ## Freeze and release requirements
 

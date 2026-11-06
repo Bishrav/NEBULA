@@ -27,6 +27,7 @@ import com.nebula.search.CachedEmbeddingModel;
  * annotation packets. It never injects query grounding documents.
  */
 public final class AnnotationCandidateRetriever {
+    private static final String PINNED_BGE_MODEL_ID = "BAAI/bge-base-en-v1.5@a5beb1e3e68b9ab74eb54cfd186867f64f240e1a";
     private static final Pattern OBJECT = Pattern.compile("\\{\\s*\\n(.*?)\\n\\s*\\}", Pattern.DOTALL);
     private static final Pattern FIELD = Pattern.compile("\"([^\"]+)\"\\s*:\\s*\"((?:\\\\.|[^\"\\\\])*)\"");
     private AnnotationCandidateRetriever() { }
@@ -41,27 +42,51 @@ public final class AnnotationCandidateRetriever {
         Path outputDir = Paths.get(args[2]);
         List<String> optional = new ArrayList<>();
         Path embeddingCache = null;
+        Path splitManifest = null;
+        Path excludedQueryIds = null;
         for (int index = 3; index < args.length; index++) {
             if ("--embedding-cache".equals(args[index])) {
                 if (index + 1 >= args.length) throw new IllegalArgumentException("--embedding-cache requires a path");
                 embeddingCache = Paths.get(args[++index]);
+            } else if ("--split-manifest".equals(args[index])) {
+                if (index + 1 >= args.length) throw new IllegalArgumentException("--split-manifest requires a path");
+                splitManifest = Paths.get(args[++index]);
+            } else if ("--exclude-query-ids".equals(args[index])) {
+                if (index + 1 >= args.length) throw new IllegalArgumentException("--exclude-query-ids requires a path");
+                excludedQueryIds = Paths.get(args[++index]);
             } else optional.add(args[index]);
         }
         if (optional.size() > 4) throw new IllegalArgumentException("too many positional options");
         int topK = optional.size() > 0 ? Integer.parseInt(optional.get(0)) : 10;
         String modesArgument = optional.size() > 1 ? optional.get(1) : "hybrid";
         long seed = optional.size() > 2 ? Long.parseLong(optional.get(2)) : 20260822L;
-        long now = optional.size() > 3 ? Long.parseLong(optional.get(3)) : System.currentTimeMillis();
+        Long requestedNow = optional.size() > 3 ? Long.parseLong(optional.get(3)) : null;
+        long now = requestedNow == null ? 1_700_000_000_000L : requestedNow;
         if (topK <= 0) throw new IllegalArgumentException("topKPerSystem must be positive");
         List<String> modes = parseModes(modesArgument);
         if (embeddingCache == null && requiresPinnedEmbedding(modes)) {
             throw new IllegalArgumentException("--embedding-cache is required for bge-hybrid and A3-A9 research pooling");
         }
+        if (requiresFreshnessTimestamp(modes) && requestedNow == null) {
+            throw new IllegalArgumentException("fixed nowEpochMillis is required for freshness-using research modes");
+        }
+        if (requiresPinnedEmbedding(modes) && splitManifest == null && excludedQueryIds == null) {
+            throw new IllegalArgumentException("--split-manifest or --exclude-query-ids is required for research pooling");
+        }
 
         List<Query> queries = readQueries(queriesPath);
+        Set<String> excluded = excludedQueryIds == null ? new HashSet<>() : readIds(excludedQueryIds);
+        Set<String> testIds = splitManifest == null ? new HashSet<>() : readTestIds(splitManifest);
+        excluded.addAll(testIds);
+        for (Query query : queries) {
+            if (excluded.contains(query.id)) throw new IllegalArgumentException("query is excluded from pooling: " + query.id);
+        }
         List<ManifestDocument> manifest = readManifest(manifestPath);
         Map<String, ManifestDocument> byTextPath = new HashMap<>();
         CachedEmbeddingModel cachedModel = embeddingCache == null ? null : new CachedEmbeddingModel(embeddingCache);
+        if (requiresPinnedEmbedding(modes) && !PINNED_BGE_MODEL_ID.equals(cachedModel.modelId())) {
+            throw new IllegalArgumentException("embedding cache model does not match pinned BGE model: " + cachedModel.modelId());
+        }
         SearchCatalog catalog = cachedModel == null
                 ? new SearchCatalog()
                 : new SearchCatalog(new com.nebula.ingestion.DocumentIngestor(), new com.nebula.search.InvertedIndex(), cachedModel);
@@ -114,7 +139,7 @@ public final class AnnotationCandidateRetriever {
         Files.write(outputDir.resolve("PRIVATE-query-id-key.psv"), key.toString().getBytes(StandardCharsets.UTF_8));
         String manifestJson = "{\"schemaVersion\":\"annotation-retrieval-pooled-v1\",\"queryCount\":" + queries.size()
                 + ",\"corpusDocumentCount\":" + manifest.size() + ",\"topK\":" + topK
-                + ",\"modes\":[\"" + String.join("\",\"", modes) + "\"],\"pooled\":true,\"embeddingModelId\":\"" + field(catalogModelId(cachedModel)) + "\",\"embeddingDimension\":" + (cachedModel == null ? 128 : cachedModel.dimension()) + ",\"lexicalWeight\":0.50,\"semanticWeight\":0.50"
+                + ",\"modes\":[\"" + String.join("\",\"", modes) + "\"],\"pooled\":true,\"embeddingModelId\":\"" + field(catalogModelId(cachedModel)) + "\",\"embeddingDimension\":" + (cachedModel == null ? 128 : cachedModel.dimension()) + (embeddingCache == null ? ",\"embeddingCacheSha256\":null" : ",\"embeddingCacheSha256\":\"" + sha256(embeddingCache) + "\"") + ",\"lexicalWeight\":0.50,\"semanticWeight\":0.50"
                 + ",\"trustLexicalWeight\":0.70,\"trustAuthorityWeight\":0.14,\"trustFreshnessWeight\":0.10,\"trustGraphWeight\":0.06"
                 + ",\"freshnessHalfLifeDays\":30.0,\"seed\":" + seed + ",\"retrievalNowEpochMillis\":" + now
                 + ",\"querySourceSha256\":\"" + sha256(queriesPath) + "\",\"corpusManifestSha256\":\"" + sha256(manifestPath) + "\""
@@ -147,6 +172,14 @@ public final class AnnotationCandidateRetriever {
         for (String mode : modes) {
             if ("bge-hybrid".equals(mode) || mode.startsWith("a3_") || mode.startsWith("a4_")
                     || mode.startsWith("a5_") || mode.startsWith("a6_") || mode.startsWith("a7_")
+                    || mode.startsWith("a8_") || mode.startsWith("a9_")) return true;
+        }
+        return false;
+    }
+
+    private static boolean requiresFreshnessTimestamp(List<String> modes) {
+        for (String mode : modes) {
+            if ("trust-oriented".equals(mode) || mode.startsWith("a3_") || mode.startsWith("a6_")
                     || mode.startsWith("a8_") || mode.startsWith("a9_")) return true;
         }
         return false;
@@ -193,6 +226,24 @@ public final class AnnotationCandidateRetriever {
         result.sort(Comparator.comparing(query -> query.id));
         if (result.isEmpty()) throw new IllegalArgumentException("approved query source is empty");
         return result;
+    }
+
+    private static Set<String> readIds(Path path) throws IOException {
+        Set<String> ids = new HashSet<>();
+        for (String line : Files.readAllLines(path, StandardCharsets.UTF_8)) {
+            String value = line.trim();
+            if (!value.isEmpty() && !value.startsWith("#")) ids.add(value.split("\\|", 2)[0].trim());
+        }
+        return ids;
+    }
+
+    private static Set<String> readTestIds(Path path) throws IOException {
+        String text = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
+        Set<String> ids = new HashSet<>();
+        Matcher assignments = Pattern.compile("\\\"([^\\\"]+)\\\"\\s*:\\s*\\\"test\\\"").matcher(text);
+        while (assignments.find()) ids.add(assignments.group(1));
+        if (ids.isEmpty()) throw new IllegalArgumentException("split manifest contains no test assignments");
+        return ids;
     }
 
     private static List<ManifestDocument> readManifest(Path path) throws IOException {
