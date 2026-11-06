@@ -1,6 +1,6 @@
 # NEBULA evidence status
 
-Assessed against commit `252d058`.
+Assessed against commit `906fb1c`.
 
 ## Reproducible now
 
