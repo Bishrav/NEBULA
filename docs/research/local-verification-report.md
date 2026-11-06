@@ -72,8 +72,11 @@ better than the other ranking modes on a broad or independently judged corpus.
 ## Protected research-corpus held-out run
 
 After the protected final-evaluation gate reported `READY`, the frozen test
-split was evaluated once with the pinned BGE cache. The run used 843 corpus
-documents, 8 held-out queries, 32 judged pairs, and 9 relevant judgements.
+split was evaluated once with the pinned BGE cache. The public corpus contains
+843 documents, while the protected test packet labels 4 candidate documents for
+each of 8 held-out queries (32 judged pairs, including 9 positive grades).
+The candidate builder selected one grounding page and three seeded random
+same-project distractors; it did not run system retrieval.
 
 | Variant | Recall@5 | MRR | NDCG@5 |
 | --- | ---: | ---: | ---: |
@@ -81,9 +84,11 @@ documents, 8 held-out queries, 32 judged pairs, and 9 relevant judgements.
 | Frozen BGE hybrid | 0.812500 | 0.875000 | 0.864665 |
 
 The BGE hybrid delta versus BM25 was `+0.125000` NDCG@5 on this held-out
-split. This is a measured result from a small protected research batch. It is
-not sufficient to claim statistical significance, general engineering-search
-quality, or user benefit.
+split. This measures source-page identification within the four-candidate
+packet, not exhaustive relevance across the 843-document corpus. It is a
+measured result from a small protected research batch and is not sufficient to
+claim statistical significance, general engineering-search quality, or user
+benefit.
 
 The paired NDCG@5 analysis used 10,000 bootstrap resamples and 10,000 sign
 permutations with seed `20261105`. Across the 8 paired queries, the mean
@@ -99,10 +104,10 @@ storage rather than the public repository.
 
 The repository can currently demonstrate a working, inspectable, deterministic
 retrieval prototype and a reproducible measurement pipeline. It cannot yet
-claim generalisation to engineering organisations, user-perceived benefit,
-production-scale reliability, or human-subject findings. Those claims require
-the approved corpus, independent relevance judgements, agreement analysis,
-adjudication, and a frozen final evaluation.
+claim corpus-wide relevance, generalisation to engineering organisations,
+user-perceived benefit, production-scale reliability, or human-subject
+findings. Those claims require broader candidate coverage or exhaustive
+relevance assessment, an adequately powered design, and further review.
 
 ## Reviewer handoff
 

@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Build a deterministic private candidate pool for reviewed-query annotation."""
+"""Build a deterministic four-item candidate pool for reviewed-query annotation.
+
+This is not a retrieval run: it selects one grounding document and seeded
+same-project distractors for a blinded annotation packet.
+"""
 
 import argparse
 import csv
@@ -52,6 +56,8 @@ def build(draft_path, manifest_path, output_path, seed=20261102, distractors=3):
                 "query_id": query["query_id"],
                 "annotation_query_id": annotation_id(query["query_id"]),
                 "document_id": doc["document_id"],
+                # Kept for packet-schema compatibility; this is candidate
+                # position, not a ranking-system result.
                 "retrieval_rank": rank,
                 "title": doc["title"],
                 "excerpt": excerpt(text),

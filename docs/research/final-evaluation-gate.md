@@ -34,4 +34,10 @@ Those artifacts remain outside the public repository. The result is measured
 preliminary evidence, not a claim of statistical significance, generalization,
 or user benefit.
 
+The qrels cover only four candidates per query: one grounding document and
+three seeded random same-project distractors. The candidate builder does not
+run system retrieval, and documents outside those packets are unjudged. The
+gate therefore verifies protocol and artifact integrity; it does not establish
+exhaustive corpus-wide relevance labels or validate the relevance rubric.
+
 Synthetic regression evaluation remains permitted for software regression only. It must not be reported as final research evidence.

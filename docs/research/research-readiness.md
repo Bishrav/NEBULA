@@ -12,10 +12,10 @@
 | Regression benchmark | COMPLETE | `benchmarks/evaluation/corpus-v1`, `queries-v1.psv`, CI runner. |
 | Realistic public corpus | COMPLETE (public corpus) | `datasets/research-corpus-v1` contains 843 public-repository documents from fixed Kubernetes/PostgreSQL commits with raw/normalized checksums and an approved-with-attribution licensing review; queries, labels, and qrels remain protected. |
 | Sufficient research query set | PARTIAL | Review batch 01 has 47 approved queries in protected storage, with a frozen 30/9/8 split; the public repository retains the candidate-generation and review tooling, not protected query labels. |
-| Multi-annotator relevance judgements | COMPLETE (protected batch) | Two protected canonical exports validate with 188 rows each; labels and qrels are intentionally excluded from the public repository. |
-| Weighted agreement | COMPLETE (protected) | Recomputed agreement reports zero disagreements and nominal, linear weighted, and quadratic weighted kappa of 1.0. |
+| Multi-annotator candidate labels | PARTIAL (protected batch) | Two protected blinded exports validate with 188 rows each across four candidates per query; labels and qrels are intentionally excluded from the public repository, and the remaining corpus is unjudged. |
+| Weighted agreement | DESCRIPTIVE ONLY (protected) | Recomputed agreement reports zero disagreements and kappa of 1.0 on the constrained four-candidate packet; this does not establish broad relevance-label quality. |
 | Development/validation/test split | COMPLETE (protected) | The protected split manifest is frozen, disjoint, and requires `--final-heldout-evaluation`. |
-| Strong baselines | COMPLETE (configuration frozen) | BGE, hybrid, and baseline results exist on protected research qrels; final BGE ranking and embedding manifests are frozen from validation-only evidence. |
+| Strong baselines | PARTIAL (configuration frozen) | BGE, hybrid, and baseline results exist on the protected four-candidate qrels; final BGE ranking and embedding manifests are frozen from validation-only evidence, but corpus-wide relevance remains unmeasured. |
 | Trust-signal ablation | PARTIAL | Legacy variants and explicit A0–A9 hybrid signal combinations are implemented and runnable, but no protected held-out A3–A9 results are reported; the current held-out comparison is BM25 versus BGE-hybrid only. |
 | Weight sensitivity | PARTIAL | Deterministic one-factor 16-row evaluator and regression-fixture artifact are implemented; research-corpus sensitivity remains blocked by human qrels and frozen splits. |
 | Per-query and category analysis | PARTIAL | Per-query failures and category summaries are generated for the synthetic fixture, with protected held-out analysis recorded separately; broader signal-level analysis remains incomplete. |
@@ -29,7 +29,7 @@
 | Claim ledger | COMPLETE | [Claim ledger](claim-ledger.md) constrains wording and prohibits unsupported claims. |
 | Human study | BLOCKED | Draft submission package now exists in docs/research/human-study with protocol, participant materials, consent, risk, data-management, task, questionnaire, debriefing, analysis, and checklist documents; supervisor/institutional review, recruitment, consent, and real data remain outstanding. |
 | Ethics review | BLOCKED | Institutional determination is external. |
-| Final held-out evaluation | PARTIAL | The protected gate passed and one frozen held-out run was measured on 8 queries; the batch is too small for publication-grade inference or generalization claims. |
+| Final held-out evaluation | PARTIAL | The protected gate passed and one frozen held-out run was measured on 8 queries with four labelled candidates per query; it tests source-page identification within the candidate pool, not corpus-wide relevance, and is too small for publication-grade inference. |
 | Paper | NOT STARTED | Must wait for sufficient corpus, labels, experiments, and analysis. |
 
 ## Publication gate

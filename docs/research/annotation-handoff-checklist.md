@@ -2,11 +2,12 @@
 
 Status: `RELEASE VALIDATED IN PROTECTED STORAGE`
 
-The intended handoff contains two sanitized packages with the same 3,790
-query-document pairs from a protected 379-query source and frozen research
-corpus. Those packages are not present in this checkout and must not be
-described as generated until the protected inputs are supplied. Human labels
-must be collected independently before agreement analysis or qrels creation.
+The completed review batch contains two sanitized packages with the same 188
+query-document pairs: 47 queries with one grounding document and three seeded
+random same-project distractors each. The packages are not present in this
+checkout. Human labels must be collected independently before agreement
+analysis or qrels creation; this constrained packet is not a corpus-wide
+relevance assessment.
 
 ## Before sending
 
@@ -16,7 +17,8 @@ must be collected independently before agreement analysis or qrels creation.
 - Send `blinded-annotation-package-B.zip` to annotator B.
 - Do not send `PRIVATE-query-id-key.psv`.
 - Do not send `retrieval-candidates.psv` or `retrieval-manifest.json`.
-- Do not tell annotators which retrieval system produced the candidates.
+- Do not reveal the grounding-document identity or candidate-construction
+  metadata to annotators.
 - Keep annotator identities and contact details outside the annotation files.
 
 ## Instructions to annotators
@@ -57,5 +59,5 @@ The protected review batch has two validated canonical exports, zero
 disagreements, completed consensus adjudication, and a release-ready qrels
 file. The protected labels and qrels must remain outside the public repository.
 This does not by itself authorize a final held-out claim or a human-study
-claim; final configuration freezing and institutional review remain separate
-gates.
+claim; the agreement result is descriptive for the four-candidate packet, and
+final configuration freezing and institutional review remain separate gates.

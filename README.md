@@ -16,7 +16,7 @@ NEBULA is a research prototype for retrieving engineering documentation with sig
 
 </div>
 
-> **Honest status.** NEBULA has a working Java 17 retrieval and reliability prototype, a public attributed 843-document research corpus, protected queries and labels from separate blinded annotation exports, a frozen BGE configuration, and one measured held-out run. The protected result is preliminary and underpowered; it is not a validated claim about trust, user benefit, statistical superiority, or production-scale search.
+> **Honest status.** NEBULA has a working Java 17 retrieval and reliability prototype, a public attributed 843-document research corpus, and protected labels from separate blinded four-candidate annotation packets. One held-out run measures source-page identification within that constrained candidate pool; it is preliminary and underpowered, not a validated claim about corpus-wide relevance, trust, user benefit, statistical superiority, or production-scale search.
 
 ## The problem
 
@@ -41,7 +41,7 @@ The project is designed to answer three practical questions:
 | Retrieval methods | BM25, phrase search, semantic baselines, exact cosine, custom HNSW, score fusion, RRF |
 | Trust-oriented signals | Freshness, source authority, PageRank-style graph authority, evidence metadata |
 | Reliability model | Sharding, fan-out, deterministic top-k merge, retries, replicas, circuit breaking, partial-result reporting |
-| Current evidence | Reproducible synthetic fixture plus a protected 843-document corpus evaluation with 47 approved queries and an 8-query held-out split |
+| Current evidence | Reproducible synthetic fixture plus a protected four-candidate-per-query evaluation over the public 843-document corpus, with 47 approved queries and an 8-query held-out split |
 | Metrics | Precision@k, Recall@k, MRR, NDCG, ANN recall/latency, graph diagnostics, and failure behaviour |
 | Reproducibility | Versioned inputs, frozen split, SHA-256 lock file, generated reports, CI validation |
 | Academic status | Research prototype with measured protected evidence; broader validation, institutional review, and publication-quality inference remain pending |
@@ -264,7 +264,7 @@ docs/research/              Research plan, protocols, audit, claim controls
 | Priority | Next milestone | Definition of done |
 | --- | --- | --- |
 | 1 | Research corpus | CONDITIONAL COMPLETE: 843-document attributed corpus with provenance records; institutional/licensing review boundaries remain |
-| 2 | Human qrels | COMPLETE IN PROTECTED STORAGE: frozen query protocol, independent annotations, agreement, adjudication, and release-ready qrels |
+| 2 | Candidate labels | COMPLETE AS CONSTRAINED PACKET: four candidates per query, separate blinded annotations, agreement, adjudication, and protected qrels; corpus-wide relevance remains unmeasured |
 | 3 | Statistical evaluation | MEASURED, UNDERPOWERED: protected held-out metrics, paired uncertainty intervals, effect sizes, and sensitivity analysis |
 | 4 | Systems evidence | PARTIAL: local ANN and distributed measurements exist; broader scale and topology evidence remain |
 | 5 | Academic package | COMPLETE FOR PROTOTYPE: research brief, review brief, demo workflow, reproducibility bundle, and bounded claims |

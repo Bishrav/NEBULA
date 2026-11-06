@@ -7,20 +7,33 @@ wording before any labels are collected.
 
 - Query source: the versioned query source `datasets/research-corpus-v1/metadata/review-batch-01/reviewed-query-draft/reviewed-query-draft.psv` containing 47 finalized reviewed queries in this checkout.
 - Corpus: `datasets/research-corpus-v1`, admitted through its versioned manifest.
-- Fixed development retrieval configuration: hybrid lexical `0.50` plus semantic
-  `0.50`, with the retrieval timestamp and seed recorded in a private manifest.
-- Candidate pool: one grounded corpus document plus three deterministic same-project distractors per query for this review batch.
+- Candidate pool: one grounded corpus document plus three deterministic
+  same-project distractors per query for this review batch. The builder shuffles
+  the distractor pool with a seeded pseudorandom generator and then shuffles the
+  four selected candidates.
 
-The retriever reads only corpus-manifest documents. It does not inject the
-original grounding document and does not manually add documents that appear
-useful.
+This script does **not** run a retrieval system. The private file's legacy
+`retrieval_rank` column records the shuffled candidate position, not a system
+rank, and its `score` field is blank. The candidate artifact therefore records
+annotation-packet provenance, not retrieval quality.
 
-## Private retrieval artifact
+## Private candidate-pool artifact
 
-The private artifact records query/document pairs, retrieval rank, title,
-excerpt, score, source path, source URL, corpus checksum, configuration, seed,
+The private artifact records query/document pairs, candidate position, title,
+excerpt, source path, source URL, corpus checksum, candidate-construction seed,
 and the mapping from anonymous annotation IDs to original query IDs. It must
 not be distributed to annotators.
+
+## Interpretation limitation
+
+Each query has only four labelled documents: the grounding page and three
+random same-project distractors. The other corpus documents are unjudged, so a
+zero grade in this packet is not evidence that every unshown document is
+irrelevant. Agreement measures consistency on this constrained candidate task;
+the observed kappa of 1.0 should not be presented as evidence that the rubric
+has established broad relevance-label quality. Results from these qrels measure
+how well a system places the grounding page within the four-item candidate set,
+not corpus-wide graded relevance.
 
 ## Sanitized annotator packages
 

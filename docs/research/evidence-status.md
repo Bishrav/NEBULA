@@ -19,6 +19,10 @@ Assessed against commit `252d058`.
   approved query source and the 843-document corpus. They contain 188 rows
   each, have zero disagreements, and report Cohen's, linear weighted, and
   quadratic weighted kappa of 1.0.
+- The 188 rows are exactly 47 queries × 4 candidates: one query-grounding
+  document plus three seeded random same-project distractors. The candidate
+  builder does not run system retrieval, and the remaining corpus documents are
+  unjudged.
 - Independence was enforced operationally: each annotator received a separate
   blinded package, labelled without access to the other annotator's export or
   ranking-system outputs, and submitted the completed export before agreement
@@ -29,9 +33,11 @@ Assessed against commit `252d058`.
 - The synthetic regression benchmark is reproducible with
   `python tools/reproduce_benchmark.py` and has a checksum lock.
 - After the protected final-evaluation gate passed, one frozen held-out run was
-  measured on 843 documents and 8 queries: BM25 NDCG@5 `0.739665` versus
-  frozen BGE hybrid NDCG@5 `0.864665`. This is preliminary protected evidence,
-  not a generalization or superiority claim.
+  measured with 843 public corpus documents, 8 queries, and four labelled
+  candidates per query: BM25 NDCG@5 `0.739665` versus frozen BGE hybrid NDCG@5
+  `0.864665`. This is a preliminary source-page identification result within a
+  constrained candidate pool, not corpus-wide graded relevance evidence or a
+  generalization/superiority claim.
 - The paired analysis over those 8 queries produced mean NDCG@5 difference
   `+0.125000`, median `0.000000`, bootstrap 95% interval `[0.000000,
   0.375000]`, permutation p-value `1.0`, and Holm-adjusted p-value `1.0`.
@@ -47,6 +53,10 @@ Assessed against commit `252d058`.
   required.
 - Metrics from the four-document synthetic fixture must not be reported as
   metrics for the 843-document research corpus.
+- The protected qrels must not be described as exhaustive or corpus-wide
+  relevance judgements. Unjudged documents are not established negatives, and
+  the current NDCG/MRR values primarily measure whether the grounding page is
+  ranked within the four-item candidate set.
 
 ## Required external evidence
 

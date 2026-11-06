@@ -35,7 +35,7 @@ ANN latency/recall and distributed failure behaviour.
   summaries, and failure classifications.
 - Public research corpus with a protected evaluation package: an attributed
   843-document Kubernetes/PostgreSQL snapshot, 47 approved queries, two
-  separately completed blinded annotation exports, and a frozen 30/9/8
+  separately completed blinded four-candidate annotation exports, and a frozen 30/9/8
   development/validation/held-out
   split. The current held-out subset contains 8 queries and is intentionally
   reported as preliminary and underpowered.
@@ -54,11 +54,15 @@ population-level trust.
 
 A protected evaluation package has since completed corpus licensing review with
 attribution, separate blinded annotation, agreement analysis, adjudication, and
-a frozen split. The annotation packages were distributed separately; each
+a frozen split. Each query packet contained the grounding page plus three
+seeded random same-project distractors; the builder did not run system
+retrieval. The annotation packages were distributed separately, and each
 annotator labelled without seeing the other export or ranking-system outputs.
 One held-out run is measured on 8 queries: hybrid NDCG@5 is
-0.8647 versus 0.7397 for BM25, a mean paired improvement of 0.125. Because the
-test set is small, the result is descriptive preliminary evidence rather than a
+0.8647 versus 0.7397 for BM25, a mean paired improvement of 0.125. These
+metrics measure source-page identification within the four-candidate packet;
+the other corpus documents are unjudged. Because the candidate pool and test
+set are limited, the result is descriptive preliminary evidence rather than a
 publication-grade generalisation claim. Protected qrels and participant-related
 materials are intentionally excluded from the public repository.
 
