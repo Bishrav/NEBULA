@@ -84,8 +84,10 @@ same-project distractors; it did not run system retrieval.
 | Frozen BGE hybrid | 0.812500 | 0.875000 | 0.864665 |
 
 The BGE hybrid delta versus BM25 was `+0.125000` NDCG@5 on this held-out
-split. This measures source-page identification within the four-candidate
-packet, not exhaustive relevance across the 843-document corpus. It is a
+split. The evaluator ranks all 843 corpus documents, while the four-document
+packet supplies the protected judgments. This measures known-item/source-page
+identification against incomplete judgments, not exhaustive relevance across
+the corpus. It is a
 measured result from a small protected research batch and is not sufficient to
 claim statistical significance, general engineering-search quality, or user
 benefit.

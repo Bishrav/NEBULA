@@ -29,8 +29,9 @@ and one preliminary 8-query held-out run. Each packet contained one grounding
 page and three seeded random same-project distractors; it was not produced by
 system retrieval. The annotation packages were distributed separately, and
 annotators did not see each other's labels or ranking-system outputs. The
-held-out result therefore measures source-page identification within a narrow
-candidate pool, not corpus-wide graded relevance. It is intentionally reported
+held-out result therefore measures known-item/source-page identification over
+the public corpus against a narrow judged packet, not corpus-wide graded
+relevance. It is intentionally reported
 as underpowered and descriptive; I am not presenting it as publication-grade
 evidence or as proof of user benefit, statistical superiority, or a general
 trust claim.

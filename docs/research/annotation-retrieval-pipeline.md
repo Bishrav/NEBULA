@@ -7,10 +7,11 @@ wording before any labels are collected.
 
 - Query source: the versioned query source `datasets/research-corpus-v1/metadata/review-batch-01/reviewed-query-draft/reviewed-query-draft.psv` containing 47 finalized reviewed queries in this checkout.
 - Corpus: `datasets/research-corpus-v1`, admitted through its versioned manifest.
-- Candidate pool: one grounded corpus document plus three deterministic
+- Annotation packet: one grounded corpus document plus three deterministic
   same-project distractors per query for this review batch. The builder shuffles
   the distractor pool with a seeded pseudorandom generator and then shuffles the
-  four selected candidates.
+  four selected candidates. This packet is for annotation only; it is not
+  the search evaluator's candidate set.
 
 This script does **not** run a retrieval system. The private file's legacy
 `retrieval_rank` column records the shuffled candidate position, not a system
@@ -29,11 +30,13 @@ not be distributed to annotators.
 Each query has only four labelled documents: the grounding page and three
 random same-project distractors. The other corpus documents are unjudged, so a
 zero grade in this packet is not evidence that every unshown document is
-irrelevant. Agreement measures consistency on this constrained candidate task;
+irrelevant. Agreement measures consistency on this constrained annotation task;
 the observed kappa of 1.0 should not be presented as evidence that the rubric
 has established broad relevance-label quality. Results from these qrels measure
-how well a system places the grounding page within the four-item candidate set,
-not corpus-wide graded relevance.
+known-item/source-page retrieval against incomplete judgments. The evaluator
+ranks all indexed corpus documents and scores only the protected qrel entries;
+the four-document packet is the judged subset, not the search candidate set, and
+unjudged documents are not established negatives.
 
 ## Sanitized annotator packages
 

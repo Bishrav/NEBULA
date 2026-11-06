@@ -66,7 +66,9 @@ restored, D8 completed three repetitions with no partial responses; p50 latency
 was 52.2 ms and p95 latency was 67.5 ms.
 
 These are local topology and hardware observations, not production availability
-or scalability evidence. NDCG degradation was not measured because released
-human qrels are unavailable. The remaining D2, D4, D5, D6, and D7 scenarios
+or scalability evidence. NDCG degradation was not measured because
+corpus-wide relevance qrels are unavailable; the protected four-document
+known-item packet is not sufficient for a corpus-wide quality-degradation claim.
+The remaining D2, D4, D5, D6, and D7 scenarios
 remain part of the versioned experiment matrix and should be run before making
 broader resilience statements.

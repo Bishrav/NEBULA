@@ -60,8 +60,9 @@ retrieval. The annotation packages were distributed separately, and each
 annotator labelled without seeing the other export or ranking-system outputs.
 One held-out run is measured on 8 queries: hybrid NDCG@5 is
 0.8647 versus 0.7397 for BM25, a mean paired improvement of 0.125. These
-metrics measure source-page identification within the four-candidate packet;
-the other corpus documents are unjudged. Because the candidate pool and test
+metrics measure known-item/source-page identification while ranking the public
+corpus; the four-document packet is the judged subset and the other corpus
+documents are unjudged. Because the judged packet and test
 set are limited, the result is descriptive preliminary evidence rather than a
 publication-grade generalisation claim. Protected qrels and participant-related
 materials are intentionally excluded from the public repository.

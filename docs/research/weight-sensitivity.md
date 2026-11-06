@@ -19,4 +19,6 @@ java -cp build/classes com.nebula.evaluation.WeightSensitivityEvaluator `
 The output includes Precision@k, Recall@k, MRR, and NDCG@k for each grid row.
 Current output from the synthetic regression fixture is descriptive only and
 is labelled `REGRESSION_FIXTURE_ONLY`; it cannot establish robustness on the
-research corpus until human qrels and frozen splits exist.
+research corpus beyond the current narrow known-item run. The protected split
+is frozen, but its four-document packet qrels are incomplete and are not
+sufficient to support a broad corpus-wide sensitivity claim.

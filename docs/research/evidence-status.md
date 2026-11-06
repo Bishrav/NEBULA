@@ -33,11 +33,12 @@ Assessed against commit `906fb1c`.
 - The synthetic regression benchmark is reproducible with
   `python tools/reproduce_benchmark.py` and has a checksum lock.
 - After the protected final-evaluation gate passed, one frozen held-out run was
-  measured with 843 public corpus documents, 8 queries, and four labelled
-  candidates per query: BM25 NDCG@5 `0.739665` versus frozen BGE hybrid NDCG@5
-  `0.864665`. This is a preliminary source-page identification result within a
-  constrained candidate pool, not corpus-wide graded relevance evidence or a
-  generalization/superiority claim.
+  measured by ranking the 843-document public corpus for 8 queries. The
+  protected qrels contain four labelled packet documents per query: BM25 NDCG@5
+  `0.739665` versus frozen BGE hybrid NDCG@5 `0.864665`. This is preliminary
+  known-item/source-page identification evidence against incomplete judgments,
+  not corpus-wide graded relevance evidence or a generalization/superiority
+  claim.
 - The paired analysis over those 8 queries produced mean NDCG@5 difference
   `+0.125000`, median `0.000000`, bootstrap 95% interval `[0.000000,
   0.375000]`, permutation p-value `1.0`, and Holm-adjusted p-value `1.0`.
@@ -55,8 +56,10 @@ Assessed against commit `906fb1c`.
   metrics for the 843-document research corpus.
 - The protected qrels must not be described as exhaustive or corpus-wide
   relevance judgements. Unjudged documents are not established negatives, and
-  the current NDCG/MRR values primarily measure whether the grounding page is
-  ranked within the four-item candidate set.
+  the evaluator ranks the full corpus while the current NDCG/MRR values score
+  only the four-document annotation packet. They therefore primarily measure
+  known-item/source-page retrieval, not ranking within a four-item candidate
+  set.
 
 ## Required external evidence
 
