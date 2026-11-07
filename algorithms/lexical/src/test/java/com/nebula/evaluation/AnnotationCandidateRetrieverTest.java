@@ -29,7 +29,7 @@ public final class AnnotationCandidateRetrieverTest {
                     + "    {\n      \"document_id\": \"d4\",\n      \"text_path\": \"normalized/d4.md\",\n      \"title\": \"Four\",\n      \"source_url\": \"https://example/4\"\n    }\n"
                     + "  ]\n}\n").getBytes(StandardCharsets.UTF_8));
             Path queries = root.resolve("queries.psv");
-            Files.write(queries, "query_id|query_text\nq1|alpha target\n".getBytes(StandardCharsets.UTF_8));
+            Files.write(queries, "query_id|query_text|category\nq1|alpha target|test\n".getBytes(StandardCharsets.UTF_8));
             Path split = root.resolve("split-manifest.json");
             Files.write(split, "{\"assignments\":{\"q1\":\"development\",\"q2\":\"test\"}}\n".getBytes(StandardCharsets.UTF_8));
             Path noTestSplit = root.resolve("no-test-split.json");

@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -248,14 +249,24 @@ public final class AnnotationCandidateRetriever {
         List<Query> result = new ArrayList<>();
         Set<String> ids = new HashSet<>();
         List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
-        if (lines.isEmpty() || !lines.get(0).equals("query_id|query_text")) throw new IllegalArgumentException("approved query source must have query_id|query_text header");
+        if (lines.isEmpty() || !(lines.get(0).equals("query_id|query_text") || lines.get(0).startsWith("query_id|query_text|"))) throw new IllegalArgumentException("approved query source must have query_id|query_text header");
+        boolean extendedHeader = lines.get(0).contains("|");
+        int trailingColumns = extendedHeader ? lines.get(0).split("\\|", -1).length - 2 : 0;
         for (String line : lines.subList(1, lines.size())) {
             if (line.trim().isEmpty()) continue;
-            String[] parts = line.split("\\|", 2);
-            if (parts.length != 2 || parts[0].trim().isEmpty() || parts[1].trim().isEmpty()) throw new IllegalArgumentException("malformed approved query row");
+            String[] parts = line.split("\\|", -1);
+            if (parts.length < 2 || parts[0].trim().isEmpty()) throw new IllegalArgumentException("malformed approved query row");
             String id = parts[0].trim();
+            String queryText;
+            if (trailingColumns == 0) {
+                queryText = line.substring(line.indexOf('|') + 1).trim();
+            } else {
+                if (parts.length < trailingColumns + 2) throw new IllegalArgumentException("malformed approved query row");
+                queryText = String.join("|", Arrays.copyOfRange(parts, 1, parts.length - trailingColumns)).trim();
+            }
+            if (queryText.isEmpty()) throw new IllegalArgumentException("malformed approved query row");
             if (!ids.add(id)) throw new IllegalArgumentException("duplicate approved query id: " + id);
-            result.add(new Query(id, parts[1].trim()));
+            result.add(new Query(id, queryText));
         }
         result.sort(Comparator.comparing(query -> query.id));
         if (result.isEmpty()) throw new IllegalArgumentException("approved query source is empty");
