@@ -78,3 +78,9 @@ systems, but it is still a pooled-judgment design rather than exhaustive
 corpus annotation. Unpooled documents remain unjudged and must not be treated
 as confirmed negatives. Report pool size, per-query coverage, agreement,
 judged-positive counts, and the exact system pool alongside any metrics.
+
+Trust-oriented evaluation must also use a provenance-tracked trust metadata
+file, a resolved internal graph derived from the corpus manifest, and an
+explicit `--now-epoch-millis` value. The graph derivation is described in
+[corpus graph provenance](corpus-graph-provenance.md); unresolved links are
+left out rather than guessed.

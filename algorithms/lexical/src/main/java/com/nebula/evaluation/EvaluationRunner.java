@@ -24,6 +24,7 @@ public final class EvaluationRunner {
     public static void main(String[] args) throws Exception {
         boolean finalHeldout = false;
         Path embeddingCache = null;
+        Path graphLinks = null;
         Long requestedNow = null;
         java.util.List<String> positional = new java.util.ArrayList<>();
         for (int index = 0; index < args.length; index++) {
@@ -32,13 +33,16 @@ public final class EvaluationRunner {
             else if ("--embedding-cache".equals(arg)) {
                 if (index + 1 >= args.length) throw new IllegalArgumentException("--embedding-cache requires a path");
                 embeddingCache = Paths.get(args[++index]);
+            } else if ("--graph-links".equals(arg)) {
+                if (index + 1 >= args.length) throw new IllegalArgumentException("--graph-links requires a path");
+                graphLinks = Paths.get(args[++index]);
             } else if ("--now-epoch-millis".equals(arg)) {
                 if (index + 1 >= args.length) throw new IllegalArgumentException("--now-epoch-millis requires a value");
                 requestedNow = Long.parseLong(args[++index]);
             } else positional.add(arg);
         }
         if (positional.size() < 2 || positional.size() > 5) {
-            System.err.println("Usage: EvaluationRunner <corpus-directory> <queries.psv> [trust-metadata.psv] [report.md] [comparison.json] [--embedding-cache cache.tsv] [--now-epoch-millis epoch] [--final-heldout-evaluation]");
+            System.err.println("Usage: EvaluationRunner <corpus-directory> <queries.psv> [trust-metadata.psv] [report.md] [comparison.json] [--embedding-cache cache.tsv] [--graph-links graph.psv] [--now-epoch-millis epoch] [--final-heldout-evaluation]");
             System.exit(2);
         }
         Path corpus = Paths.get(positional.get(0));
@@ -74,6 +78,18 @@ public final class EvaluationRunner {
             for (com.nebula.search.DocumentTrustMetadata metadata
                     : new TrustMetadataDatasetLoader().load(Paths.get(positional.get(2)), evaluationNow)) {
                 catalog.registerTrustMetadata(metadata);
+            }
+        }
+        if (graphLinks != null) {
+            for (String line : Files.readAllLines(graphLinks, StandardCharsets.UTF_8)) {
+                String trimmed = line.trim();
+                if (trimmed.isEmpty() || trimmed.startsWith("#") || trimmed.startsWith("source_path|")) continue;
+                String[] columns = trimmed.split("\\|", 2);
+                if (columns.length != 2) throw new IllegalArgumentException("invalid graph link row: " + line);
+                List<String> targets = columns[1].trim().isEmpty()
+                        ? java.util.Collections.emptyList()
+                        : java.util.Arrays.asList(columns[1].split(";"));
+                catalog.registerGraphLinks(columns[0], targets);
             }
         }
 

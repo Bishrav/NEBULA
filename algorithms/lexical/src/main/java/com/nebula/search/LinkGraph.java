@@ -26,6 +26,18 @@ public final class LinkGraph {
         }
     }
 
+    /** Adds externally resolved, provenance-preserving links for an indexed source. */
+    public synchronized void addLinks(String source, java.util.Collection<String> targets) {
+        if (source == null || source.trim().isEmpty()) throw new IllegalArgumentException("source is required");
+        Set<String> outgoing = outgoingBySource.computeIfAbsent(source, ignored -> new LinkedHashSet<>());
+        if (targets == null) return;
+        for (String target : targets) {
+            if (target == null || target.trim().isEmpty()) continue;
+            outgoing.add(target);
+            outgoingBySource.computeIfAbsent(target, ignored -> new LinkedHashSet<>());
+        }
+    }
+
     public synchronized Set<String> nodes() {
         return Collections.unmodifiableSet(new LinkedHashSet<>(outgoingBySource.keySet()));
     }

@@ -163,6 +163,12 @@ public final class SearchCatalog {
         trustMetadata.register(metadata);
     }
 
+    /** Adds links resolved from a frozen corpus manifest and refreshes PageRank. */
+    public void registerGraphLinks(String sourcePath, java.util.Collection<String> targets) {
+        linkGraph.addLinks(sourcePath, targets);
+        pageRank = PageRank.compute(linkGraph);
+    }
+
     public List<SearchResult> searchTrustAware(String query, int limit, long nowEpochMillis) {
         return new TrustAwareSearchEngine(searchEngine, trustMetadata, new FreshnessScorer(30.0),
                 0.70, 0.20, 0.10, pageRank).search(query, limit, nowEpochMillis);
