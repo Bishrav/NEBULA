@@ -1,6 +1,6 @@
 # NEBULA evidence status
 
-Assessed against commit `906fb1c`.
+Assessed against the current public `main` branch.
 
 ## Reproducible now
 
@@ -44,6 +44,18 @@ Assessed against commit `906fb1c`.
   `+0.125000`, median `0.000000`, bootstrap 95% interval `[0.000000,
   0.375000]`, permutation p-value `1.0`, and Holm-adjusted p-value `1.0`.
   The result is descriptive and underpowered.
+
+- A new private pooled annotation wave covers 39 development/validation
+  queries and 709 retrieved query-document pairs. Both independent exports
+  validate completely, with zero disagreements; this is a new evaluation
+  input, not a rerun of the spent 8-query test.
+- The pooled evaluation uses the pinned 768-dimensional BGE cache, an
+  explicit fixed timestamp, and a derived internal graph with 1,096 resolved
+  edges. The graph is provenance-tracked and excludes unresolved or external
+  links.
+- The current corpus still has one authority category and uniform authority
+  metadata. A4/A6/A7/A9 authority effects therefore remain diagnostic, not a
+  validated authority-ablation result.
 
 ## Not present or not valid for research claims
 

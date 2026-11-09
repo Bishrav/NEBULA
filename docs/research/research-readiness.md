@@ -1,6 +1,6 @@
 # NEBULA research-readiness dashboard
 
-**Revision assessed:** `906fb1c`
+**Revision assessed:** current public `main` after the graph-provenance and pooled-evaluation updates
 **Interpretation:** COMPLETE means supported by repository evidence; PARTIAL means infrastructure exists but the study evidence is incomplete; BLOCKED means external or missing data is required; NOT STARTED means no credible implementation exists.
 
 | Requirement | Status | Evidence |
@@ -12,11 +12,11 @@
 | Regression benchmark | COMPLETE | `benchmarks/evaluation/corpus-v1`, `queries-v1.psv`, CI runner. |
 | Realistic public corpus | COMPLETE (public corpus) | `datasets/research-corpus-v1` contains 843 public-repository documents from fixed Kubernetes/PostgreSQL commits with raw/normalized checksums and an approved-with-attribution licensing review; query text is public, while labels, qrels, and split assignments remain protected. |
 | Sufficient research query set | PARTIAL | Review batch 01 has 47 public approved query texts; the labels, adjudication records, and frozen 30/9/8 split remain protected. |
-| Multi-annotator candidate labels | PARTIAL (protected batch) | Two protected blinded exports validate with 188 rows each across four candidates per query; labels and qrels are intentionally excluded from the public repository, and the remaining corpus is unjudged. |
+| Multi-annotator candidate labels | PARTIAL (protected pooled wave) | Two protected blinded exports validate with 709 rows each across 39 development/validation queries; pooled labels and qrels remain private, and unpooled corpus documents remain unjudged. The earlier 188-row packet is retained separately. |
 | Weighted agreement | DESCRIPTIVE ONLY (protected) | Recomputed agreement reports zero disagreements and kappa of 1.0 on the constrained four-candidate packet; this does not establish broad relevance-label quality. |
 | Development/validation/test split | COMPLETE (protected) | The protected split manifest is frozen, disjoint, and requires `--final-heldout-evaluation`. |
 | Strong baselines | PARTIAL (configuration frozen) | BGE, hybrid, and baseline results exist on the protected known-item qrels while ranking the public corpus; final BGE ranking and embedding manifests are frozen from validation-only evidence, but corpus-wide relevance remains unmeasured. |
-| Trust-signal ablation | PARTIAL | Legacy variants and explicit A0–A9 hybrid signal combinations are implemented and runnable, but no protected held-out A3–A9 results are reported; the current held-out comparison is BM25 versus BGE-hybrid only. |
+| Trust-signal ablation | PARTIAL | A0–A9 variants are runnable with a pinned BGE cache, explicit evaluation time, and a provenance-tracked 1,096-edge graph. Authority remains uniform across the current corpus, so A4/A6/A7/A9 authority conclusions are diagnostic only; no held-out A3–A9 result is reported. |
 | Weight sensitivity | PARTIAL | Deterministic one-factor 16-row evaluator and regression-fixture artifact are implemented; protected known-item qrels exist, but research-corpus sensitivity has not been reported and broader corpus-wide sensitivity remains future work. |
 | Per-query and category analysis | PARTIAL | Per-query failures and category summaries are generated for the synthetic fixture, with protected held-out analysis recorded separately; broader signal-level analysis remains incomplete. |
 | Statistical uncertainty | PARTIAL | Paired bootstrap intervals, permutation p-values, effect sizes, and Holm correction tooling now exist; no adequately powered research result exists. |
