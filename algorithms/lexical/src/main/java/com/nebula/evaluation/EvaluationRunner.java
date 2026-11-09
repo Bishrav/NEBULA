@@ -24,6 +24,7 @@ public final class EvaluationRunner {
     public static void main(String[] args) throws Exception {
         boolean finalHeldout = false;
         Path embeddingCache = null;
+        Long requestedNow = null;
         java.util.List<String> positional = new java.util.ArrayList<>();
         for (int index = 0; index < args.length; index++) {
             String arg = args[index];
@@ -31,14 +32,18 @@ public final class EvaluationRunner {
             else if ("--embedding-cache".equals(arg)) {
                 if (index + 1 >= args.length) throw new IllegalArgumentException("--embedding-cache requires a path");
                 embeddingCache = Paths.get(args[++index]);
+            } else if ("--now-epoch-millis".equals(arg)) {
+                if (index + 1 >= args.length) throw new IllegalArgumentException("--now-epoch-millis requires a value");
+                requestedNow = Long.parseLong(args[++index]);
             } else positional.add(arg);
         }
         if (positional.size() < 2 || positional.size() > 5) {
-            System.err.println("Usage: EvaluationRunner <corpus-directory> <queries.psv> [trust-metadata.psv] [report.md] [comparison.json] [--embedding-cache cache.tsv] [--final-heldout-evaluation]");
+            System.err.println("Usage: EvaluationRunner <corpus-directory> <queries.psv> [trust-metadata.psv] [report.md] [comparison.json] [--embedding-cache cache.tsv] [--now-epoch-millis epoch] [--final-heldout-evaluation]");
             System.exit(2);
         }
         Path corpus = Paths.get(positional.get(0));
         Path queryFile = Paths.get(positional.get(1));
+        long evaluationNow = requestedNow == null ? EVALUATION_NOW : requestedNow;
         String queryName = queryFile.getFileName().toString().toLowerCase(java.util.Locale.ROOT);
         if ((queryName.contains("heldout") || queryName.contains("test")) && !finalHeldout) {
             throw new IllegalArgumentException("held-out/test evaluation requires explicit --final-heldout-evaluation");
@@ -67,7 +72,7 @@ public final class EvaluationRunner {
 
         if (positional.size() >= 3) {
             for (com.nebula.search.DocumentTrustMetadata metadata
-                    : new TrustMetadataDatasetLoader().load(Paths.get(positional.get(2)), EVALUATION_NOW)) {
+                    : new TrustMetadataDatasetLoader().load(Paths.get(positional.get(2)), evaluationNow)) {
                 catalog.registerTrustMetadata(metadata);
             }
         }
@@ -82,7 +87,7 @@ public final class EvaluationRunner {
         System.out.println("judgements=" + validation.getJudgementCount());
         System.out.println("relevant_judgements=" + validation.getRelevantJudgementCount());
         RankingComparisonReport comparison = new RankingVariantEvaluator()
-                .evaluate(catalog, queries, 5, EVALUATION_NOW);
+                .evaluate(catalog, queries, 5, evaluationNow);
         for (String variant : comparison.getVariants()) {
             EvaluationReport report = comparison.get(variant);
             System.out.println(variant + "|precision_at_5=" + report.getMeanPrecisionAtK()
@@ -106,7 +111,7 @@ public final class EvaluationRunner {
             for (String variant : comparison.getVariants()) {
                 for (EvaluationQuery query : queries) {
                     errors.add(analyzer.analyze(variant, query,
-                            variants.searchVariant(catalog, query, 5, EVALUATION_NOW, variant)));
+                            variants.searchVariant(catalog, query, 5, evaluationNow, variant)));
                 }
             }
             new BenchmarkReportWriter().write(Paths.get(positional.get(3)), catalog.documentCount(), queries.size(), comparison, errors);
@@ -129,7 +134,7 @@ public final class EvaluationRunner {
             if (positional.size() == 5) {
                 Path jsonReport = Paths.get(positional.get(4));
                 new BenchmarkJsonWriter().write(jsonReport, catalog.documentCount(), queries.size(),
-                        EVALUATION_NOW, comparison);
+                        evaluationNow, comparison);
                 System.out.println("comparison_json=" + jsonReport.toAbsolutePath());
             }
         }

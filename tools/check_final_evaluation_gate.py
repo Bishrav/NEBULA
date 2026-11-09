@@ -19,7 +19,8 @@ def git_clean(root):
 
 
 def read_rows(path):
-    lines = [line for line in path.read_text(encoding="utf-8", newline="").splitlines() if line.strip() and not line.startswith("#")]
+    with path.open(encoding="utf-8", newline="") as handle:
+        lines = [line for line in handle.read().splitlines() if line.strip() and not line.startswith("#")]
     if not lines:
         return []
     delimiter = "|" if "|" in lines[0] else ","
