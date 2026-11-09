@@ -19,3 +19,6 @@ The review record must include the category rubric, source evidence, reviewer,
 timestamp, manifest checksum, missingness report, and a manipulation/bias
 check. Until that exists, A4, A6, A7, and the authority component of A9 remain
 diagnostic only.
+
+`tools/build_authority_review_template.py` creates the blank, checksum-linked
+review file for this process; it never assigns authority values automatically.
