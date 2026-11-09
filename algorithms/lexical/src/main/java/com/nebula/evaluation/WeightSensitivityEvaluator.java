@@ -19,15 +19,30 @@ public final class WeightSensitivityEvaluator {
     private WeightSensitivityEvaluator() { }
 
     public static void main(String[] args) throws Exception {
-        if (args.length < 4 || args.length > 6) {
-            System.err.println("Usage: WeightSensitivityEvaluator <corpus> <queries.psv> <trust.psv> <output.json> [cutoff] [nowEpochMillis]");
+        if (args.length < 4) {
+            System.err.println("Usage: WeightSensitivityEvaluator <corpus> <queries.psv> <trust.psv> <output.json> [cutoff] [nowEpochMillis] [--embedding-cache cache.tsv] [--graph-links graph.psv]");
             System.exit(2);
         }
-        Path corpus = Paths.get(args[0]); Path queriesPath = Paths.get(args[1]); Path trust = Paths.get(args[2]); Path output = Paths.get(args[3]);
-        int cutoff = args.length > 4 ? Integer.parseInt(args[4]) : 5;
-        long now = args.length > 5 ? Long.parseLong(args[5]) : NOW;
+        Path embeddingCache = null;
+        Path graphLinks = null;
+        List<String> positional = new ArrayList<>();
+        for (int index = 0; index < args.length; index++) {
+            if ("--embedding-cache".equals(args[index])) {
+                if (++index >= args.length) throw new IllegalArgumentException("--embedding-cache requires a path");
+                embeddingCache = Paths.get(args[index]);
+            } else if ("--graph-links".equals(args[index])) {
+                if (++index >= args.length) throw new IllegalArgumentException("--graph-links requires a path");
+                graphLinks = Paths.get(args[index]);
+            } else positional.add(args[index]);
+        }
+        if (positional.size() < 4 || positional.size() > 6) throw new IllegalArgumentException("invalid positional arguments");
+        Path corpus = Paths.get(positional.get(0)); Path queriesPath = Paths.get(positional.get(1)); Path trust = Paths.get(positional.get(2)); Path output = Paths.get(positional.get(3));
+        int cutoff = positional.size() > 4 ? Integer.parseInt(positional.get(4)) : 5;
+        long now = positional.size() > 5 ? Long.parseLong(positional.get(5)) : NOW;
         if (cutoff <= 0) throw new IllegalArgumentException("cutoff must be positive");
-        SearchCatalog catalog = new SearchCatalog();
+        SearchCatalog catalog = embeddingCache == null
+                ? new SearchCatalog()
+                : new SearchCatalog(new com.nebula.ingestion.DocumentIngestor(), new com.nebula.search.InvertedIndex(), new com.nebula.search.CachedEmbeddingModel(embeddingCache));
         List<DocumentRecord> documents = new ArrayList<>();
         try (java.util.stream.Stream<Path> stream = Files.walk(corpus)) {
             List<Path> files = stream.filter(path -> Files.isRegularFile(path) && path.toString().endsWith(".md"))
@@ -38,6 +53,18 @@ public final class WeightSensitivityEvaluator {
             }
         }
         for (com.nebula.search.DocumentTrustMetadata metadata : new TrustMetadataDatasetLoader().load(trust, now)) catalog.registerTrustMetadata(metadata);
+        if (graphLinks != null) {
+            for (String line : Files.readAllLines(graphLinks, StandardCharsets.UTF_8)) {
+                String trimmed = line.trim();
+                if (trimmed.isEmpty() || trimmed.startsWith("#") || trimmed.startsWith("source_path|")) continue;
+                String[] columns = trimmed.split("\\|", 2);
+                if (columns.length != 2) throw new IllegalArgumentException("invalid graph link row: " + line);
+                List<String> targets = columns[1].trim().isEmpty()
+                        ? java.util.Collections.emptyList()
+                        : java.util.Arrays.asList(columns[1].split(";"));
+                catalog.registerGraphLinks(columns[0], targets);
+            }
+        }
         List<EvaluationQuery> queries = new EvaluationDatasetLoader().load(queriesPath);
         double[] baseline = {0.35, 0.35, 0.10, 0.10, 0.10};
         StringBuilder json = new StringBuilder("{\"schemaVersion\":\"weight-sensitivity-v1\",\"evidenceStatus\":\"REGRESSION_FIXTURE_ONLY\",\"corpusDocuments\":")
