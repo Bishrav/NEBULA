@@ -58,10 +58,10 @@ def load_candidates(path):
 
 
 def load_queries(path):
-    with path.open(encoding="utf-8", newline="") as handle:
+    with path.open(encoding="utf-8-sig", newline="") as handle:
         rows = list(csv.DictReader(handle, delimiter="|"))
-    if not rows or set(rows[0]) != {"query_id", "query_text"}:
-        raise ValueError("annotation query source schema must be query_id|query_text")
+    if not rows or not {"query_id", "query_text"}.issubset(rows[0]):
+        raise ValueError("annotation query source must contain query_id and query_text columns")
     return {row["query_id"]: row["query_text"] for row in rows}
 
 

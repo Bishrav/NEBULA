@@ -63,13 +63,13 @@ def derive(manifest_path, output_path):
             for candidate in candidate_raw_paths(raw_path, raw_target):
                 target = by_raw.get(candidate)
                 if target is not None:
-                    targets.add(target["text_path"].replace("\\", "/").removeprefix("normalized/"))
+                    targets.add(target["text_path"].replace("\\", "/"))
                     break
             else:
                 if clean_target(raw_target) and not urlsplit(clean_target(raw_target)).scheme:
                     unresolved += 1
         matched_edges += len(targets)
-        graph.append((document["text_path"].replace("\\", "/").removeprefix("normalized/"), sorted(targets)))
+        graph.append((document["text_path"].replace("\\", "/"), sorted(targets)))
     lines = [
         "# NEBULA derived internal corpus graph",
         f"# corpusManifestSha256={sha256(manifest_path)}",

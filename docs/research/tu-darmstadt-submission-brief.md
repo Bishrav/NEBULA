@@ -34,11 +34,9 @@ ANN latency/recall and distributed failure behaviour.
   metrics, paired uncertainty analysis, ablations, weight sensitivity, category
   summaries, and failure classifications.
 - Public research corpus with a protected evaluation package: an attributed
-  843-document Kubernetes/PostgreSQL snapshot, 47 approved queries, two
-  separately completed blinded four-candidate annotation exports, and a frozen 30/9/8
-  development/validation/held-out
-  split. The current held-out subset contains 8 queries and is intentionally
-  reported as preliminary and underpowered.
+  843-document Kubernetes/PostgreSQL snapshot, 47 approved development/query
+  texts, a fresh 16-query sealed test set, pooled qrels, and checksum-backed
+  evaluation inputs. The test result remains preliminary and underpowered.
 - Dedicated six-node Docker research topology with measured healthy, primary
   failure, full-pair failure, and recovery scenarios.
 - Research safeguards: frozen inputs, SHA-256 verification, development/held-out
@@ -58,14 +56,15 @@ a frozen split. Each query packet contained the grounding page plus three
 seeded random same-project distractors; the builder did not run system
 retrieval. The annotation packages were distributed separately, and each
 annotator labelled without seeing the other export or ranking-system outputs.
-One held-out run is measured on 8 queries: hybrid NDCG@5 is
-0.8647 versus 0.7397 for BM25, a mean paired improvement of 0.125. These
-metrics measure known-item/source-page identification while ranking the public
-corpus; the four-document packet is the judged subset and the other corpus
-documents are unjudged. Because the judged packet and test
-set are limited, the result is descriptive preliminary evidence rather than a
-publication-grade generalisation claim. Protected qrels and participant-related
-materials are intentionally excluded from the public repository.
+The fresh held-out run covers 16 queries and 308 pooled judgments. BM25
+NDCG@5 is 0.7165, conventional hybrid is 0.8703, and pinned BGE-hybrid is
+0.8544. The BGE-hybrid improvement over BM25 is 0.1379 NDCG@5. These metrics measure pooled
+known-item/source-page retrieval while ranking the full public corpus; unpooled
+documents remain unjudged. The result is descriptive preliminary evidence, not
+a publication-grade generalisation claim. A3-A9 ran with reviewed authority
+metadata and a derived graph, but they are not a clean causal ablation because
+authority is uniform and judged coverage is incomplete. Protected qrels and
+participant-related materials remain outside the public repository.
 
 ## Suggested five-minute review path
 

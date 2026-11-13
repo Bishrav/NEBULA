@@ -24,7 +24,7 @@ def build(manifest_path, output_path):
     for document in manifest["documents"]:
         rows.append({
             "document_id": document["document_id"],
-            "source_path": document["text_path"].replace("\\", "/").removeprefix("normalized/"),
+            "source_path": document["text_path"].replace("\\", "/"),
             "project": document["project"],
             "source_url": document["source_url"],
             "current_authority_category": document.get("authority_category", ""),

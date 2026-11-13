@@ -24,7 +24,7 @@ class AuthorityReviewTemplateTest(unittest.TestCase):
             lines = output.read_text(encoding="utf-8").splitlines()
             self.assertIn("corpusManifestSha256=", lines[0])
             row = next(csv.DictReader((line for line in lines if not line.startswith("#")), delimiter="|"))
-            self.assertEqual(row["source_path"], "d1.md")
+            self.assertEqual(row["source_path"], "normalized/d1.md")
             self.assertEqual(row["current_authority_category"], "official-project-documentation")
             self.assertEqual(row["proposed_authority"], "")
             self.assertEqual(row["review_status"], "UNREVIEWED")

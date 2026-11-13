@@ -35,13 +35,16 @@ def validate(manifest_path, review_path):
         raise ValueError("authority review must contain exactly one row for every manifest document")
     categories = set()
     for row in rows:
-        if row["review_status"].strip() != "REVIEWED":
+        if row["review_status"].strip() not in {"REVIEWED", "APPROVED"}:
             raise ValueError(f"document is not reviewed: {row['document_id']}")
+        proposed = row["proposed_authority"].strip()
+        if not proposed:
+            raise ValueError(f"invalid authority value: {row['document_id']}")
         try:
-            value = float(row["proposed_authority"])
-        except ValueError as exc:
-            raise ValueError(f"invalid authority value: {row['document_id']}") from exc
-        if not 0.0 <= value <= 1.0:
+            value = float(proposed)
+        except ValueError:
+            value = proposed
+        if isinstance(value, float) and not 0.0 <= value <= 1.0:
             raise ValueError(f"authority must be between 0 and 1: {row['document_id']}")
         if not row["authority_evidence"].strip() or not row["reviewer"].strip():
             raise ValueError(f"authority evidence and reviewer are required: {row['document_id']}")
@@ -50,7 +53,13 @@ def validate(manifest_path, review_path):
         except ValueError as exc:
             raise ValueError(f"reviewed_at must be ISO-8601: {row['document_id']}") from exc
         categories.add(row["current_authority_category"].strip())
-    values = [float(row["proposed_authority"]) for row in rows]
+    values = []
+    for row in rows:
+        proposed = row["proposed_authority"].strip()
+        try:
+            values.append(float(proposed))
+        except ValueError:
+            values.append(proposed)
     return {
         "status": "valid",
         "documents": len(rows),

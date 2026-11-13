@@ -26,12 +26,15 @@ semantic-only, and conventional hybrid baselines?
   development/validation/test split.
 - New pooled wave: 39 development/validation queries and 709 judged
   query-document pairs.
+- Fresh sealed test wave: 16 queries and 308 pooled judgments, kept outside
+  the public repository.
 - Annotation: two separate blinded annotation exports, independently completed
-  and validated; authority metadata was reviewed by Bishrav Shiwakoti and
-  Aditya Burlakoti, with 46 score differences explicitly approved during
-  adjudication.
-- Retrieval pool: top-10 results from the pre-registered systems, with 1,096
-  resolved internal corpus-graph edges and a pinned 768-dimensional BGE cache.
+  and validated; the fresh wave had 9 label disagreements, all adjudicated by
+  Laxmi Acharya before qrels release.
+- Retrieval pool: top-10 results from the pre-registered systems and a pinned
+  768-dimensional BGE cache. The fresh corpus has uniform authority metadata;
+  the run used a derived graph with 1,096 resolved internal edges, so the
+  trust-signal contribution is still not isolated.
 - Reproducibility: SHA-256 checksums, fixed timestamps, split guards, private
   artifact manifests, Java/Python tests, and a claim ledger.
 
@@ -66,9 +69,12 @@ judgment set. They are preliminary and should not be described as proof of
 general search quality, statistical superiority, user benefit, or trust
 estimation. Authority values are source-priority inputs, not truth labels.
 
-The earlier 8-query held-out comparison remains separate and underpowered:
-frozen BGE-hybrid NDCG@5 was `0.8647` versus `0.7397` for BM25. It is reported
-as descriptive known-item evidence, not as a publication-grade claim.
+The fresh 16-query held-out run produced BM25 NDCG@5 `0.7165`, conventional
+hybrid `0.8703`, and pinned BGE-hybrid `0.8544`. The BGE-hybrid delta was
+`+0.1379` NDCG@5. These remain descriptive known-item/source-page results
+against incomplete pooled qrels, not publication-grade evidence. A3-A9 ranged
+from `0.8345` to `0.8738`; because authority is uniform and pooled coverage is
+incomplete, they do not constitute a separated causal trust-signal ablation.
 
 ## Questions for academic supervision
 

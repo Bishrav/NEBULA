@@ -12,7 +12,20 @@ from validate_authority_review import validate
 def load(path):
     lines = path.read_text(encoding="utf-8").splitlines()
     rows = csv.DictReader((line for line in lines if line and not line.startswith("#")), delimiter="|")
-    return {row["document_id"]: float(row["proposed_authority"]) for row in rows}
+    values = {}
+    for row in rows:
+        proposed = row["proposed_authority"].strip()
+        try:
+            values[row["document_id"]] = float(proposed)
+        except ValueError:
+            values[row["document_id"]] = proposed
+    return values
+
+
+def distance(left, right):
+    if isinstance(left, float) and isinstance(right, float):
+        return abs(left - right)
+    return 0.0 if left == right else 1.0
 
 
 def compare(manifest, review_a, review_b, threshold=0.05):
@@ -22,11 +35,11 @@ def compare(manifest, review_a, review_b, threshold=0.05):
     scores_b = load(review_b)
     if set(scores_a) != set(scores_b):
         raise ValueError("reviews cover different documents")
-    differences = [abs(scores_a[key] - scores_b[key]) for key in sorted(scores_a)]
+    differences = [distance(scores_a[key], scores_b[key]) for key in sorted(scores_a)]
     disagreements = [
-        {"documentId": key, "reviewA": scores_a[key], "reviewB": scores_b[key], "absoluteDifference": abs(scores_a[key] - scores_b[key])}
+        {"documentId": key, "reviewA": scores_a[key], "reviewB": scores_b[key], "absoluteDifference": distance(scores_a[key], scores_b[key])}
         for key in sorted(scores_a)
-        if abs(scores_a[key] - scores_b[key]) > threshold
+        if distance(scores_a[key], scores_b[key]) > threshold
     ]
     return {
         "schemaVersion": "authority-review-agreement-v1",

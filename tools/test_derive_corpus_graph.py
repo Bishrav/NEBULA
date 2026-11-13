@@ -33,7 +33,7 @@ class DeriveCorpusGraphTest(unittest.TestCase):
             self.assertEqual(result["documents"], 2)
             self.assertEqual(result["matchedEdges"], 1)
             self.assertEqual(result["unresolvedRelativeLinks"], 1)
-            self.assertIn("a.md|b.md", output.read_text(encoding="utf-8"))
+            self.assertIn("normalized/a.md|normalized/b.md", output.read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":

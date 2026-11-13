@@ -13,7 +13,7 @@ The evaluator therefore used NEBULA's dependency-free fallback,
 useful deterministic behavior for correctness tests, but it is not a semantic
 encoder and should not be used to tune the production hybrid weights.
 
-On the private held-out split (843 documents, 8 queries), the fallback values
+On the historical private held-out split (843 documents, 8 queries), the fallback values
 were:
 
 | Variant | MRR | nDCG@5 | Recall@5 |
@@ -32,6 +32,7 @@ container, the same held-out split produced:
 
 ## Reproducibility boundary
 
+The tables above are historical diagnostics, not the current held-out result.
 The pinned model configuration is recorded in
 `experiments/retrieval/modern-embedding-bge-base-en-v1.5.json`. The cache is
 intentionally private and ignored by Git because it contains generated
@@ -43,9 +44,11 @@ the pinned model revision.
 
 ## Next action
 
-The next research action is weight and candidate-depth analysis using the real
-BGE cache. That sweep selected a 0.40 lexical / 0.60 semantic configuration
-with the existing candidate multiplier of 5: validation nDCG@5 was 0.958992,
-and held-out confirmation nDCG@5 was 0.864665. The candidate is recorded in
+The fresh 16-query pooled run is now the current held-out result: pinned
+BGE-hybrid NDCG@5 was 0.8544 versus 0.7165 for BM25. This remains limited
+known-item/source-page evidence. A3-A9 also ran with reviewed authority
+metadata and a derived graph, but the ablation is not isolated because the
+corpus has uniform authority metadata and pooled coverage is incomplete. The
+candidate is recorded in
 `experiments/retrieval/bge-hybrid-selected.json`; runtime defaults remain
 unchanged until a broader evaluation supports promotion.

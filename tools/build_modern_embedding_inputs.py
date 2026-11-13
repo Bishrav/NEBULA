@@ -33,13 +33,19 @@ def build(corpus, queries):
         if text not in seen:
             seen.add(text); rows.append({"kind": "document", "id": path.relative_to(corpus).as_posix(), "text": text})
     lines = queries.read_text(encoding="utf-8").splitlines()
+    header = next((line for line in lines if line.strip() and not line.startswith("#")), "")
+    header_columns = header.split("|")
+    has_header = len(header_columns) >= 2 and header_columns[0:2] == ["query_id", "query_text"]
+    query_text_column = header_columns.index("query_text") if has_header else 1
     for line in lines:
-        if not line.strip() or line.startswith("#") or line.startswith("query_id|"): continue
-        first_separator = line.find("|")
-        last_separator = line.rfind("|")
-        if first_separator <= 0 or last_separator <= first_separator: raise ValueError("malformed query row")
-        query_id = line[:first_separator].strip()
-        text = line[first_separator + 1:last_separator].strip()
+        if not line.strip() or line.startswith("#") or (has_header and line == header): continue
+        parts = line.split("|")
+        if has_header:
+            if len(parts) != len(header_columns): raise ValueError("malformed query row")
+        elif len(parts) < 3:
+            raise ValueError("queries must have a header or query_id|query_text|judgements rows")
+        query_id = parts[0].strip()
+        text = (parts[query_text_column] if has_header else "|".join(parts[1:-1])).strip()
         if not query_id or not text: raise ValueError("malformed query row")
         if text not in seen:
             seen.add(text); rows.append({"kind": "query", "id": query_id, "text": text})

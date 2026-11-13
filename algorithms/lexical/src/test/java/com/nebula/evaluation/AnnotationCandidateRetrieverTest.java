@@ -36,6 +36,15 @@ public final class AnnotationCandidateRetrieverTest {
             Files.write(noTestSplit, "{\"assignments\":{\"q1\":\"development\"}}\n".getBytes(StandardCharsets.UTF_8));
             Path embeddingConfig = root.resolve("embedding-config.json");
             Files.write(embeddingConfig, ("{\"modelId\":\"BAAI/bge-base-en-v1.5\",\"revision\":\"a5beb1e3e68b9ab74eb54cfd186867f64f240e1a\"}\n").getBytes(StandardCharsets.UTF_8));
+            Path trustMetadata = root.resolve("trust-metadata.psv");
+            Files.write(trustMetadata, ("source_path|authority|days_ago|authority_category|verification_status\n"
+                    + "normalized/d1.md|1.00|10|official-project-documentation|verified\n"
+                    + "normalized/d2.md|1.00|10|official-project-documentation|verified\n"
+                    + "normalized/d3.md|1.00|10|official-project-documentation|verified\n"
+                    + "normalized/d4.md|1.00|10|official-project-documentation|verified\n").getBytes(StandardCharsets.UTF_8));
+            Path graphLinks = root.resolve("graph-links.psv");
+            Files.write(graphLinks, ("source_path|target_paths\n"
+                    + "normalized/d1.md|\nnormalized/d2.md|\nnormalized/d3.md|\nnormalized/d4.md|\n").getBytes(StandardCharsets.UTF_8));
             Path outputA = root.resolve("out-a");
             Path outputB = root.resolve("out-b");
             Path emptyExclusions = root.resolve("excluded-empty.txt");
@@ -86,6 +95,15 @@ public final class AnnotationCandidateRetrieverTest {
             } catch (IllegalArgumentException expected) {
                 check(expected.getMessage().contains("excluded from pooling"), "test-assigned queries are rejected");
             }
+
+            Path annotationSplit = root.resolve("annotation-split.json");
+            Files.write(annotationSplit, "{\"assignments\":{\"q2\":\"test\"}}\n".getBytes(StandardCharsets.UTF_8));
+            Path annotationRun = root.resolve("annotation-only-run");
+            AnnotationCandidateRetriever.main(new String[]{testQueries.toString(), manifest.toString(), annotationRun.toString(),
+                    "2", "hybrid", "7", "1700000000000", "--split-manifest", annotationSplit.toString(), "--annotation-only"});
+            check(Files.exists(annotationRun.resolve("retrieval-candidates.psv")), "annotation-only test pool is generated");
+            String annotationManifest = new String(Files.readAllBytes(annotationRun.resolve("retrieval-manifest.json")), StandardCharsets.UTF_8);
+            check(annotationManifest.contains("\"annotationOnly\":true"), "annotation-only mode is recorded");
 
             try {
                 AnnotationCandidateRetriever.main(new String[]{queries.toString(), manifest.toString(), root.resolve("no-test").toString(),
@@ -157,7 +175,7 @@ public final class AnnotationCandidateRetrieverTest {
             }
             Path outputBge = root.resolve("out-bge");
             AnnotationCandidateRetriever.main(new String[]{queries.toString(), manifest.toString(), outputBge.toString(),
-                    "2", "bge-hybrid,a3_hybrid_freshness", "7", "1700000000000", "--embedding-cache", cache.toString(), "--embedding-config", embeddingConfig.toString(), "--split-manifest", split.toString(), "--exclude-query-ids", emptyExclusions.toString()});
+                    "2", "bge-hybrid,a3_hybrid_freshness", "7", "1700000000000", "--embedding-cache", cache.toString(), "--embedding-config", embeddingConfig.toString(), "--split-manifest", split.toString(), "--exclude-query-ids", emptyExclusions.toString(), "--trust-metadata", trustMetadata.toString()});
             String bgeManifest = new String(Files.readAllBytes(outputBge.resolve("retrieval-manifest.json")), StandardCharsets.UTF_8);
             check(bgeManifest.contains("BAAI/bge-base-en-v1.5@a5beb1e3e68b9ab74eb54cfd186867f64f240e1a"), "embedding model ID is recorded");
             check(bgeManifest.contains("bge-hybrid"), "BGE mode is recorded");

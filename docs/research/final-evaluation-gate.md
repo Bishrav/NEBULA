@@ -30,15 +30,15 @@ The public review batch has approved query texts, while independent annotations,
 agreement, consensus adjudication, frozen splits, and released qrels remain
 protected. The final
 ranking and embedding manifests were frozen from validation-only evidence. The
-protected-path gate passed and the held-out run completed once on 8 queries.
-Those artifacts remain outside the public repository. The result is measured
-preliminary evidence, not a claim of statistical significance, generalization,
-or user benefit.
+protected-path gate passed and the fresh held-out run completed once on 16
+queries with 308 pooled judgments. Those artifacts remain outside the public
+repository. The result is measured preliminary evidence, not a claim of
+generalization or user benefit.
 
-The qrels cover only four packet documents per query: one grounding document and
-three seeded random same-project distractors. The candidate builder does not
-run system retrieval, and documents outside those packets are unjudged. The
-gate therefore verifies protocol and artifact integrity; it does not establish
-exhaustive corpus-wide relevance labels or validate the relevance rubric.
+The fresh qrels cover only the pooled documents returned by the registered
+systems; documents outside those pools are unjudged. The gate therefore verifies
+protocol and artifact integrity; it does not establish exhaustive corpus-wide
+relevance labels or validate the relevance rubric. The older four-document
+packet remains a separate, weaker known-item artifact.
 
 Synthetic regression evaluation remains permitted for software regression only. It must not be reported as final research evidence.

@@ -54,7 +54,7 @@ public final class CachedEmbeddingModel implements EmbeddingModel {
     @Override public double[] embed(String text) {
         if (text == null) throw new IllegalArgumentException("text must not be null");
         double[] vector = vectors.get(hash(text));
-        if (vector == null) throw new IllegalArgumentException("text is absent from offline embedding cache");
+        if (vector == null) throw new IllegalArgumentException("text is absent from offline embedding cache: " + hash(text));
         return vector.clone();
     }
 

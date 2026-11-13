@@ -25,6 +25,7 @@ public final class EvaluationRunner {
         boolean finalHeldout = false;
         Path embeddingCache = null;
         Path graphLinks = null;
+        String sourcePrefix = "";
         Long requestedNow = null;
         java.util.List<String> positional = new java.util.ArrayList<>();
         for (int index = 0; index < args.length; index++) {
@@ -36,13 +37,16 @@ public final class EvaluationRunner {
             } else if ("--graph-links".equals(arg)) {
                 if (index + 1 >= args.length) throw new IllegalArgumentException("--graph-links requires a path");
                 graphLinks = Paths.get(args[++index]);
+            } else if ("--source-prefix".equals(arg)) {
+                if (index + 1 >= args.length) throw new IllegalArgumentException("--source-prefix requires a value");
+                sourcePrefix = args[++index].replace('\\', '/').replaceAll("^/+|/+$", "");
             } else if ("--now-epoch-millis".equals(arg)) {
                 if (index + 1 >= args.length) throw new IllegalArgumentException("--now-epoch-millis requires a value");
                 requestedNow = Long.parseLong(args[++index]);
             } else positional.add(arg);
         }
         if (positional.size() < 2 || positional.size() > 5) {
-            System.err.println("Usage: EvaluationRunner <corpus-directory> <queries.psv> [trust-metadata.psv] [report.md] [comparison.json] [--embedding-cache cache.tsv] [--graph-links graph.psv] [--now-epoch-millis epoch] [--final-heldout-evaluation]");
+            System.err.println("Usage: EvaluationRunner <corpus-directory> <queries.psv> [trust-metadata.psv] [report.md] [comparison.json] [--embedding-cache cache.tsv] [--graph-links graph.psv] [--source-prefix prefix] [--now-epoch-millis epoch] [--final-heldout-evaluation]");
             System.exit(2);
         }
         Path corpus = Paths.get(positional.get(0));
@@ -69,7 +73,8 @@ public final class EvaluationRunner {
                     .collect(Collectors.toList());
         }
         for (Path document : documents) {
-            String sourcePath = corpus.relativize(document).toString().replace('\\', '/');
+            String relativePath = corpus.relativize(document).toString().replace('\\', '/');
+            String sourcePath = sourcePrefix.isEmpty() ? relativePath : sourcePrefix + "/" + relativePath;
             corpusRecords.add(catalog.indexMarkdown(sourcePath,
                     new String(Files.readAllBytes(document), StandardCharsets.UTF_8)));
         }

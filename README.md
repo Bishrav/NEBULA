@@ -18,7 +18,7 @@ NEBULA is a research prototype for retrieving engineering documentation with sig
 
 </div>
 
-> **Honest status.** NEBULA has a working Java 17 retrieval and reliability prototype, a public attributed 843-document research corpus, and protected labels from separate blinded four-document annotation packets. One held-out run ranks the public corpus and measures known-item/source-page identification against that incomplete judged subset; it is preliminary and underpowered, not a validated claim about corpus-wide relevance, trust, user benefit, statistical superiority, or production-scale search.
+> **Honest status.** NEBULA has a working Java 17 retrieval and reliability prototype, a public attributed 843-document research corpus, and protected labels from a fresh blinded pooled evaluation. The current held-out run ranks the public corpus and measures pooled known-item/source-page identification using 308 judged pairs across 16 queries; it is preliminary and limited, not a validated claim about corpus-wide relevance, trust, user benefit, statistical superiority, or production-scale search.
 
 ## The problem
 
@@ -43,7 +43,7 @@ The project is designed to answer three practical questions:
 | Retrieval methods | BM25, phrase search, semantic baselines, exact cosine, custom HNSW, score fusion, RRF |
 | Trust-oriented signals | Freshness, source authority, PageRank-style graph authority, evidence metadata |
 | Reliability model | Sharding, fan-out, deterministic top-k merge, retries, replicas, circuit breaking, partial-result reporting |
-| Current evidence | Reproducible synthetic fixture plus a protected four-candidate-per-query evaluation over the public 843-document corpus; query text is public, while labels and the 8-query split remain protected |
+| Current evidence | Reproducible synthetic fixture plus a protected 16-query pooled evaluation over the public 843-document corpus; query text is public, while labels, qrels, and split artifacts remain protected |
 | Metrics | Precision@k, Recall@k, MRR, NDCG, ANN recall/latency, graph diagnostics, and failure behaviour |
 | Reproducibility | Versioned inputs, frozen split, SHA-256 lock file, generated reports, CI validation |
 | Academic status | Research prototype with measured protected evidence; broader validation, institutional review, and publication-quality inference remain pending |

@@ -33,6 +33,14 @@ java -cp build/classes com.nebula.evaluation.AnnotationCandidateRetriever `
   --split-manifest <frozen-split-manifest.json>
 ```
 
+For a fresh sealed test set that must be pooled before qrels exist, add
+`--annotation-only` and pass a private annotation-pool manifest whose query
+assignments are explicitly `test`. This mode is permitted only to build a
+blinded candidate pool; it records `annotationOnly=true` and must never be
+used as an evaluation split or treated as evidence. The normal mode continues
+to reject test-assigned queries and accepts only development/validation
+queries.
+
 The `--embedding-cache` and `--embedding-config` arguments are mandatory for
 the BGE research pool. Without
 it, the retriever uses the 128-dimensional hashing fallback and cannot produce

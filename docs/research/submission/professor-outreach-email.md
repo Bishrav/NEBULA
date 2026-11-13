@@ -23,18 +23,17 @@ inspectable: its research question, ranking configuration, evaluation tooling,
 claim ledger, and limitations are documented in the repository.
 
 The current evidence includes a public 843-document Kubernetes/PostgreSQL
-corpus, public query text with protected four-candidate labels, two separately completed
+corpus, public query text with protected pooled qrels, two separately completed
 blinded annotation exports, a frozen development/validation/held-out split,
-and one preliminary 8-query held-out run. Each packet contained one grounding
-page and three seeded random same-project distractors; it was not produced by
-system retrieval. The annotation packages were distributed separately, and
-annotators did not see each other's labels or ranking-system outputs. The
-held-out result therefore measures known-item/source-page identification over
-the public corpus against a narrow judged packet, not corpus-wide graded
-relevance. It is intentionally reported
-as underpowered and descriptive; I am not presenting it as publication-grade
-evidence or as proof of user benefit, statistical superiority, or a general
-trust claim.
+and one preliminary 16-query held-out run with 308 judged query-document
+pairs. The evaluator ranks the full corpus, while documents outside the pooled
+judgments remain unjudged. The result therefore measures pooled
+known-item/source-page identification, not corpus-wide graded relevance. It is
+intentionally reported as limited descriptive evidence; I am not presenting it
+as publication-grade evidence or as proof of user benefit, statistical
+superiority, or a general trust claim. A3-A9 ran with reviewed authority
+metadata and a derived graph, but the trust contribution is not isolated because
+authority is uniform and pooled coverage is incomplete.
 
 I would especially value guidance on narrowing the primary research question,
 choosing defensible baselines and estimands, and determining whether the work

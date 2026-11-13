@@ -33,29 +33,29 @@ Assessed against the current public `main` branch.
   they contain protected research data.
 - The synthetic regression benchmark is reproducible with
   `python tools/reproduce_benchmark.py` and has a checksum lock.
-- After the protected final-evaluation gate passed, one frozen held-out run was
-  measured by ranking the 843-document public corpus for 8 queries. The
-  protected qrels contain four labelled packet documents per query: BM25 NDCG@5
-  `0.739665` versus frozen BGE hybrid NDCG@5 `0.864665`. This is preliminary
-  known-item/source-page identification evidence against incomplete judgments,
-  not corpus-wide graded relevance evidence or a generalization/superiority
-  claim.
-- The paired analysis over those 8 queries produced mean NDCG@5 difference
-  `+0.125000`, median `0.000000`, bootstrap 95% interval `[0.000000,
-  0.375000]`, permutation p-value `1.0`, and Holm-adjusted p-value `1.0`.
-  The result is descriptive and underpowered.
+- A fresh protected pooled wave now contains 16 sealed test queries and 308
+  graded judgments over 843 public-corpus documents. The evaluator ranks the
+  full corpus, while only the pooled documents are judged; this is a narrow
+  pooled known-item/source-page benchmark, not exhaustive corpus-wide qrels.
+- The current frozen run produced BM25 NDCG@5 `0.7165`, conventional hybrid
+  `0.8703`, and pinned BGE-hybrid `0.8544`. The best A3-A9 variants reached
+  `0.8738`; A5, A7, and A8 reached `0.8567`, while A9 reached `0.8345`.
+  These are descriptive results from 16 queries, not a general superiority or
+  production claim.
+- The paired annotation agreement was 97.08% with Cohen's kappa `0.9163`;
+  all 9 disagreements were adjudicated before qrels release. The trust
+  variants now use the reviewed authority metadata and a derived graph with
+  1,096 resolved internal edges. Authority remains uniform across the corpus,
+  so the results do not isolate causal authority effects; pooled coverage also
+  remains incomplete.
 
-- A new private pooled annotation wave covers 39 development/validation
-  queries and 709 retrieved query-document pairs. Both independent exports
-  validate completely, with zero disagreements; this is a new evaluation
-  input, not a rerun of the spent 8-query test.
 - The pooled evaluation uses the pinned 768-dimensional BGE cache, an
-  explicit fixed timestamp, and a derived internal graph with 1,096 resolved
-  edges. The graph is provenance-tracked and excludes unresolved or external
-  links.
+  explicit fixed timestamp, and checksum-recorded trust and graph inputs.
 - The current corpus still has one authority category and uniform authority
-  metadata. A4/A6/A7/A9 authority effects therefore remain diagnostic, not a
-  validated authority-ablation result.
+  metadata. The manifest's original graph-link field is empty, while the
+  separately derived graph used for the fresh run contains 1,096 resolved
+  internal edges. A3-A9 therefore remain comparative variant results, not
+  isolated causal signal ablations.
 
 ## Not present or not valid for research claims
 

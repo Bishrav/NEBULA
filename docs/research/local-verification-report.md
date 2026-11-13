@@ -69,7 +69,7 @@ first result was the Kubernetes feature-gates reference document.
 This verifies configuration and integration. It does not establish that BGE is
 better than the other ranking modes on a broad or independently judged corpus.
 
-## Protected research-corpus held-out run
+## Historical protected research-corpus held-out run (8-query packet)
 
 After the protected final-evaluation gate reported `READY`, the frozen test
 split was evaluated once with the pinned BGE cache. The public corpus contains
@@ -99,8 +99,9 @@ rate was `12.5%`. The bootstrap 95% interval was `[0.000000, 0.375000]`; the
 permutation p-value and Holm-adjusted p-value were both `1.0`. These are
 descriptive uncertainty outputs, not evidence of statistical significance.
 
-The detailed report and JSON comparison remain in protected local evaluation
-storage rather than the public repository.
+This is a historical 8-query artifact retained for reproducibility. It is
+superseded for current held-out reporting by the fresh 16-query pooled run in
+protected local evaluation storage.
 
 ## Evidence boundary
 

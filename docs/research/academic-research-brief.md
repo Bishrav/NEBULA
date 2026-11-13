@@ -108,7 +108,7 @@ The repository currently contains two distinct data tracks:
 - a small synthetic regression fixture used for CI and behavioural regression;
 - an attributed 843-document Kubernetes/PostgreSQL corpus snapshot with provenance metadata and a protected approved query set.
 
-The corpus review is approved with attribution for the public corpus. Query text for the 47 approved items is public, while the four packet labels per query, adjudication records, and development/validation/held-out split remain protected. Each packet contains one grounding page plus three seeded random same-project distractors. Two separately completed blinded exports were compared and adjudicated. One 8-query held-out run ranks the public corpus and provides preliminary known-item/source-page identification evidence against this incomplete judged subset; it is not exhaustive corpus-wide relevance evidence, and the synthetic fixture remains regression-only.
+The corpus review is approved with attribution for the public corpus. Query text for the 47 approved items is public, while the pooled labels, adjudication records, and development/validation/held-out split remain protected. A fresh 16-query held-out run ranks the public corpus using 308 pooled judgments and provides preliminary known-item/source-page evidence against incomplete judged coverage; it is not exhaustive corpus-wide relevance evidence, and the synthetic fixture remains regression-only. The current corpus has uniform authority metadata; a derived graph with 1,096 resolved internal edges was used, but the trust-signal ablation is not isolated.
 
 ### Evaluation
 

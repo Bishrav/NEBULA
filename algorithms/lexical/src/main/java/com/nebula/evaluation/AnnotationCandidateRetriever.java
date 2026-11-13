@@ -34,7 +34,7 @@ public final class AnnotationCandidateRetriever {
 
     public static void main(String[] args) throws Exception {
         if (args.length < 3) {
-            System.err.println("Usage: AnnotationCandidateRetriever <approved-queries.psv> <corpus-manifest.json> <output-dir> [topKPerSystem] [modes] [seed] [nowEpochMillis] [--embedding-cache cache.tsv]");
+            System.err.println("Usage: AnnotationCandidateRetriever <approved-queries.psv> <corpus-manifest.json> <output-dir> [topKPerSystem] [modes] [seed] [nowEpochMillis] [--embedding-cache cache.tsv] [--annotation-only]");
             System.exit(2);
         }
         Path queriesPath = Paths.get(args[0]);
@@ -45,6 +45,9 @@ public final class AnnotationCandidateRetriever {
         Path embeddingConfig = null;
         Path splitManifest = null;
         Path excludedQueryIds = null;
+        Path trustMetadata = null;
+        Path graphLinks = null;
+        boolean annotationOnly = false;
         for (int index = 3; index < args.length; index++) {
             if ("--embedding-cache".equals(args[index])) {
                 if (index + 1 >= args.length) throw new IllegalArgumentException("--embedding-cache requires a path");
@@ -58,6 +61,14 @@ public final class AnnotationCandidateRetriever {
             } else if ("--exclude-query-ids".equals(args[index])) {
                 if (index + 1 >= args.length) throw new IllegalArgumentException("--exclude-query-ids requires a path");
                 excludedQueryIds = Paths.get(args[++index]);
+            } else if ("--trust-metadata".equals(args[index])) {
+                if (index + 1 >= args.length) throw new IllegalArgumentException("--trust-metadata requires a path");
+                trustMetadata = Paths.get(args[++index]);
+            } else if ("--graph-links".equals(args[index])) {
+                if (index + 1 >= args.length) throw new IllegalArgumentException("--graph-links requires a path");
+                graphLinks = Paths.get(args[++index]);
+            } else if ("--annotation-only".equals(args[index])) {
+                annotationOnly = true;
             } else optional.add(args[index]);
         }
         if (optional.size() > 4) throw new IllegalArgumentException("too many positional options");
@@ -79,6 +90,12 @@ public final class AnnotationCandidateRetriever {
         if (requiresPinnedEmbedding(modes) && !modes.contains("bge-hybrid")) {
             throw new IllegalArgumentException("research pooling must include bge-hybrid");
         }
+        if (requiresTrustMetadata(modes) && trustMetadata == null) {
+            throw new IllegalArgumentException("--trust-metadata is required for trust-signal pooling");
+        }
+        if (requiresGraphLinks(modes) && graphLinks == null) {
+            throw new IllegalArgumentException("--graph-links is required for graph-signal pooling");
+        }
 
         List<Query> queries = readQueries(queriesPath);
         Set<String> excluded = excludedQueryIds == null ? new HashSet<>() : readIds(excludedQueryIds);
@@ -86,19 +103,27 @@ public final class AnnotationCandidateRetriever {
         if (!assignments.containsValue("test")) throw new IllegalArgumentException("split manifest contains no test assignments");
         Set<String> expectedQueries = new HashSet<>();
         for (Map.Entry<String, String> entry : assignments.entrySet()) {
-            if ("development".equals(entry.getValue()) || "validation".equals(entry.getValue())) expectedQueries.add(entry.getKey());
+            if (annotationOnly || "development".equals(entry.getValue()) || "validation".equals(entry.getValue())) expectedQueries.add(entry.getKey());
         }
         Set<String> actualQueries = new HashSet<>();
         for (Query query : queries) {
             actualQueries.add(query.id);
             String assignment = assignments.get(query.id);
             if (assignment == null) throw new IllegalArgumentException("query is absent from split manifest: " + query.id);
-            if (!"development".equals(assignment) && !"validation".equals(assignment)) {
+            if (annotationOnly) {
+                if (!"test".equals(assignment)) {
+                    throw new IllegalArgumentException("annotation-only pool requires test-assigned queries: " + query.id);
+                }
+            } else if (!"development".equals(assignment) && !"validation".equals(assignment)) {
                 throw new IllegalArgumentException("query is excluded from pooling: " + query.id);
             }
             if (excluded.contains(query.id)) throw new IllegalArgumentException("query is excluded from pooling: " + query.id);
         }
-        if (!expectedQueries.equals(actualQueries)) throw new IllegalArgumentException("query file must contain every development/validation query in the split manifest");
+        if (!expectedQueries.equals(actualQueries)) {
+            throw new IllegalArgumentException(annotationOnly
+                    ? "query file must contain every test query in the annotation-only split manifest"
+                    : "query file must contain every development/validation query in the split manifest");
+        }
         List<ManifestDocument> manifest = readManifest(manifestPath);
         Map<String, ManifestDocument> byTextPath = new HashMap<>();
         CachedEmbeddingModel cachedModel = embeddingCache == null ? null : new CachedEmbeddingModel(embeddingCache);
@@ -120,6 +145,22 @@ public final class AnnotationCandidateRetriever {
             Path textPath = root.resolve(document.textPath);
             catalog.indexMarkdown(document.textPath, new String(Files.readAllBytes(textPath), StandardCharsets.UTF_8));
             byTextPath.put(document.textPath.replace('\\', '/'), document);
+        }
+        if (trustMetadata != null) {
+            for (com.nebula.search.DocumentTrustMetadata metadata
+                    : new TrustMetadataDatasetLoader().load(trustMetadata, now)) catalog.registerTrustMetadata(metadata);
+        }
+        if (graphLinks != null) {
+            for (String line : Files.readAllLines(graphLinks, StandardCharsets.UTF_8)) {
+                String trimmed = line.trim();
+                if (trimmed.isEmpty() || trimmed.startsWith("#") || trimmed.startsWith("source_path|")) continue;
+                String[] columns = trimmed.split("\\|", 2);
+                if (columns.length != 2) throw new IllegalArgumentException("invalid graph link row: " + line);
+                List<String> targets = columns[1].trim().isEmpty()
+                        ? java.util.Collections.emptyList()
+                        : Arrays.asList(columns[1].split(";"));
+                catalog.registerGraphLinks(columns[0], targets);
+            }
         }
         outputDir.toFile().mkdirs();
         StringBuilder candidates = new StringBuilder("query_id|annotation_query_id|document_id|retrieval_rank|title|excerpt|score|source_path|source_url|retrieval_systems|retrieval_ranks\n");
@@ -169,7 +210,9 @@ public final class AnnotationCandidateRetriever {
                 + ",\"trustLexicalWeight\":0.70,\"trustAuthorityWeight\":0.14,\"trustFreshnessWeight\":0.10,\"trustGraphWeight\":0.06"
                 + ",\"freshnessHalfLifeDays\":30.0,\"seed\":" + seed + ",\"retrievalNowEpochMillis\":" + now
                 + ",\"querySourceSha256\":\"" + sha256(queriesPath) + "\",\"corpusManifestSha256\":\"" + sha256(manifestPath) + "\""
-                + ",\"groundingDocumentsInjected\":false,\"status\":\"PRIVATE_POOLED_CANDIDATE_ARTIFACT\"}\n";
+                + ",\"trustMetadataSha256\":" + (trustMetadata == null ? "null" : "\"" + sha256(trustMetadata) + "\"")
+                + ",\"graphLinksSha256\":" + (graphLinks == null ? "null" : "\"" + sha256(graphLinks) + "\"")
+                + ",\"groundingDocumentsInjected\":false,\"annotationOnly\":" + annotationOnly + ",\"status\":\"PRIVATE_POOLED_CANDIDATE_ARTIFACT\"}\n";
         Files.write(outputDir.resolve("retrieval-manifest.json"), manifestJson.getBytes(StandardCharsets.UTF_8));
         System.out.println("GENERATED: " + outputDir.toAbsolutePath());
     }
@@ -217,6 +260,16 @@ public final class AnnotationCandidateRetriever {
             if ("trust-oriented".equals(mode) || mode.startsWith("a3_") || mode.startsWith("a6_")
                     || mode.startsWith("a8_") || mode.startsWith("a9_")) return true;
         }
+        return false;
+    }
+
+    private static boolean requiresTrustMetadata(List<String> modes) {
+        for (String mode : modes) if (mode.startsWith("a") || "trust-oriented".equals(mode)) return true;
+        return false;
+    }
+
+    private static boolean requiresGraphLinks(List<String> modes) {
+        for (String mode : modes) if (mode.contains("graph") || "a9_full_nebula".equals(mode)) return true;
         return false;
     }
 
