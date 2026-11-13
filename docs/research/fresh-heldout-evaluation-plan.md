@@ -1,15 +1,15 @@
 # Fresh sealed held-out evaluation plan
 
-**Status:** BLOCKED ON FRESH QUERY AUTHORING AND HUMAN ANNOTATION
+**Status:** COMPLETE FOR THE CURRENT 16-QUERY RUN; BROADER VALIDATION PENDING
 
-## Why a new test is required
+## Why a future broader test is required
 
 The original 8-query held-out run is already spent and is too small for a
-publication-grade conclusion. The current 39-query pooled wave is valid
-development/validation evidence, but it must not be reused as a new held-out
-test after configuration review. The public checkout contains query text, but
-it does not contain a fresh sealed test set, protected labels, or the pinned
-BGE cache for new query text.
+publication-grade conclusion. The current 16-query fresh run is a valid,
+protected preliminary held-out result, but its 308 pooled judgments do not
+support corpus-wide relevance claims or adequately powered generalization.
+The older 39-query pooled wave remains development/validation evidence and
+must not be relabeled as a new held-out test.
 
 ## Completion protocol
 
@@ -37,10 +37,15 @@ BGE cache for new query text.
 8. Update the claim ledger, readiness dashboard, research summary, and outreach
    brief only after the run and checksums are independently reviewed.
 
-## Current stopping point
+## Current status and stopping point
 
-Repository-side guards and tooling are ready. Work must stop before claiming
-completion until the fresh query file, protected split, new cache, and human
-annotations exist. The existing 39-query pooled results remain preliminary
-development/validation evidence; the old 8-query comparison remains separate
-descriptive known-item evidence.
+The current 16-query run completed the protocol above with protected query
+labels, a pinned embedding cache, blinded annotation, agreement analysis,
+adjudication, release sidecars, and a single registered evaluation run. It is
+reported as preliminary known-item/source-page evidence.
+
+Work must stop before claiming a broader publication-grade result until a new
+query set, protected split, cache, and independent annotations are created.
+The existing 39-query pooled results remain preliminary development/validation
+evidence; the old 8-query comparison remains separate descriptive known-item
+evidence.
