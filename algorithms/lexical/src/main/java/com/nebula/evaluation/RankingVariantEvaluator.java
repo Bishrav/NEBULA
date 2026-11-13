@@ -17,7 +17,9 @@ public final class RankingVariantEvaluator {
         reports.put("bm25", evaluateVariant(catalog, queries, cutoff, nowEpochMillis, "bm25"));
         reports.put("semantic", evaluateVariant(catalog, queries, cutoff, nowEpochMillis, "semantic"));
         reports.put("hybrid", evaluateVariant(catalog, queries, cutoff, nowEpochMillis, "hybrid"));
-        reports.put("bge_hybrid", evaluateVariant(catalog, queries, cutoff, nowEpochMillis, "bge_hybrid"));
+        if (catalog.hasPinnedBgeEmbedding()) {
+            reports.put("bge_hybrid", evaluateVariant(catalog, queries, cutoff, nowEpochMillis, "bge_hybrid"));
+        }
         reports.put("rrf", evaluateVariant(catalog, queries, cutoff, nowEpochMillis, "rrf"));
         reports.put("authority_only", evaluateVariant(catalog, queries, cutoff, nowEpochMillis, "authority_only"));
         reports.put("freshness_only", evaluateVariant(catalog, queries, cutoff, nowEpochMillis, "freshness_only"));
